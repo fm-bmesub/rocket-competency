@@ -1317,75 +1317,75 @@
 
             createModal.classList.add("hidden");
             switchActiveTree(newTreeId);
+          };
+        }
 
-            // --- MEGLÉVŐ FA SZERKESZTÉSE (CSAK ADMIN) ---
-            const editModal = document.getElementById("editTreeModal");
-            const editCloseBtn = document.getElementById("editTreeCloseBtn");
-            const submitEditBtn = document.getElementById("submitEditTreeBtn");
-            const editIconInput = document.getElementById("editTreeIconInput");
-            const editIconPreview = document.getElementById("editTreeIconPreview");
-    
-            if (editIconInput && editIconPreview) {
-              editIconInput.oninput = () => {
-                editIconPreview.className = editIconInput.value.trim() || "ph-bold ph-tree-structure";
-              };
+        // --- MEGLÉVŐ FA SZERKESZTÉSE (CSAK ADMIN) ---
+        const editModal = document.getElementById("editTreeModal");
+        const editCloseBtn = document.getElementById("editTreeCloseBtn");
+        const submitEditBtn = document.getElementById("submitEditTreeBtn");
+        const editIconInput = document.getElementById("editTreeIconInput");
+        const editIconPreview = document.getElementById("editTreeIconPreview");
+
+        if (editIconInput && editIconPreview) {
+          editIconInput.oninput = () => {
+            editIconPreview.className = editIconInput.value.trim() || "ph-bold ph-tree-structure";
+          };
+        }
+
+        if (editCloseBtn) editCloseBtn.onclick = () => editModal.classList.add("hidden");
+        if (editModal) {
+          editModal.onclick = (e) => {
+            if (e.target.id === "editTreeModal") editModal.classList.add("hidden");
+          };
+        }
+
+        if (submitEditBtn) {
+          submitEditBtn.onclick = async () => {
+            const targetId = editModal.dataset.editingTreeId;
+            const newName = document.getElementById("editTreeNameInput").value.trim();
+            const newIcon = document.getElementById("editTreeIconInput").value.trim() || "ph-bold ph-tree-structure";
+
+            if (!targetId || !newName) {
+              alert("Kérlek add meg a munkacsoport nevét!");
+              return;
             }
-    
-            if (editCloseBtn) editCloseBtn.onclick = () => editModal.classList.add("hidden");
-            if (editModal) {
-              editModal.onclick = (e) => {
-                if (e.target.id === "editTreeModal") editModal.classList.add("hidden");
-              };
+
+            if (ALL_TREES.some(t => t.id !== targetId && t.name.trim().toLowerCase() === newName.toLowerCase())) {
+              alert(`Már létezik "${newName}" nevű munkacsoport fa! Kérlek válassz egyedi nevet.`);
+              return;
             }
-    
-            if (submitEditBtn) {
-              submitEditBtn.onclick = async () => {
-                const targetId = editModal.dataset.editingTreeId;
-                const newName = document.getElementById("editTreeNameInput").value.trim();
-                const newIcon = document.getElementById("editTreeIconInput").value.trim() || "ph-bold ph-tree-structure";
-    
-                if (!targetId || !newName) {
-                  alert("Kérlek add meg a munkacsoport nevét!");
-                  return;
-                }
-    
-                if (ALL_TREES.some(t => t.id !== targetId && t.name.trim().toLowerCase() === newName.toLowerCase())) {
-                  alert(`Már létezik "${newName}" nevű munkacsoport fa! Kérlek válassz egyedi nevet.`);
-                  return;
-                }
-    
-                submitEditBtn.disabled = true;
-                submitEditBtn.innerHTML = `<i class="ph ph-spinner animate-spin"></i> Mentés...`;
-    
-                const { error } = await supabaseClient.rpc('admin_update_tree', {
-                  p_username: currentUserProfile.username,
-                  p_password: currentUserProfile.password,
-                  p_tree_id: targetId,
-                  p_name: newName,
-                  p_icon: newIcon
-                });
-    
-                submitEditBtn.disabled = false;
-                submitEditBtn.innerHTML = `<i class="ph-bold ph-floppy-disk"></i> Módosítások mentése`;
-    
-                if (error) {
-                  alert("Hiba a fa frissítésekor: " + error.message);
-                  return;
-                }
-    
-                const treeObj = ALL_TREES.find(t => t.id === targetId);
-                if (treeObj) {
-                  treeObj.name = newName;
-                  treeObj.icon = newIcon;
-                }
-    
-                if (activeTreeId === targetId) {
-                  applyActiveTreeData();
-                }
-    
-                editModal.classList.add("hidden");
-              };
+
+            submitEditBtn.disabled = true;
+            submitEditBtn.innerHTML = `<i class="ph ph-spinner animate-spin"></i> Mentés...`;
+
+            const { error } = await supabaseClient.rpc('admin_update_tree', {
+              p_username: currentUserProfile.username,
+              p_password: currentUserProfile.password,
+              p_tree_id: targetId,
+              p_name: newName,
+              p_icon: newIcon
+            });
+
+            submitEditBtn.disabled = false;
+            submitEditBtn.innerHTML = `<i class="ph-bold ph-floppy-disk"></i> Módosítások mentése`;
+
+            if (error) {
+              alert("Hiba a fa frissítésekor: " + error.message);
+              return;
             }
+
+            const treeObj = ALL_TREES.find(t => t.id === targetId);
+            if (treeObj) {
+              treeObj.name = newName;
+              treeObj.icon = newIcon;
+            }
+
+            if (activeTreeId === targetId) {
+              applyActiveTreeData();
+            }
+
+            editModal.classList.add("hidden");
           };
         }
       }
