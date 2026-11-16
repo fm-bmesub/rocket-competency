@@ -418,6 +418,49 @@
     </div>
   </div>
 
+  <!-- ==================== FA (MUNKACSOPORT) SZERKESZTÉSE MODAL (CSAK ADMIN) ==================== -->
+  <div id="editTreeModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-blueprint-850 border border-amber-500/60 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl p-6">
+      <div class="flex items-center justify-between pb-3 mb-4 border-b border-blueprint-line">
+        <div class="flex items-center gap-2 text-amber-400 font-bold text-base">
+          <i class="ph-bold ph-pencil-simple-line text-xl"></i>
+          <span>Munkacsoport fa szerkesztése</span>
+        </div>
+        <button id="editTreeCloseBtn" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-blueprint-700">
+          <i class="ph ph-x text-lg"></i>
+        </button>
+      </div>
+
+      <form id="editTreeForm" class="space-y-3.5 text-xs" onsubmit="return false;">
+        <div>
+          <label class="block font-semibold text-slate-200 mb-1">Munkacsoport (Fa) neve *</label>
+          <input type="text" id="editTreeNameInput" required class="w-full bg-blueprint-900 border border-blueprint-line rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-400">
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="font-semibold text-slate-200">Fa ikonja (Phosphor Icons)</label>
+            <a href="https://phosphoricons.com/" target="_blank" rel="noopener noreferrer" class="text-[11px] text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1 underline">
+              <i class="ph-bold ph-arrow-square-out"></i> Ikonok böngészése
+            </a>
+          </div>
+          <div class="flex gap-2">
+            <input type="text" id="editTreeIconInput" class="flex-1 bg-blueprint-900 border border-blueprint-line rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-amber-400">
+            <div class="w-9 h-9 rounded-lg bg-blueprint-900 border border-blueprint-line flex items-center justify-center text-lg text-amber-400 shrink-0">
+              <i id="editTreeIconPreview" class="ph-bold ph-tree-structure"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" id="submitEditTreeBtn" class="w-full py-2.5 px-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold rounded-lg transition shadow-md flex items-center justify-center gap-1.5">
+            <i class="ph-bold ph-floppy-disk"></i> Módosítások mentése
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- ==================== SKILL NODE SZERKESZTŐ / LÉTREHOZÓ MODAL ==================== -->
   <div id="nodeEditorModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-blueprint-850 border border-amber-500/60 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl p-6">
@@ -1274,6 +1317,75 @@
 
             createModal.classList.add("hidden");
             switchActiveTree(newTreeId);
+
+            // --- MEGLÉVŐ FA SZERKESZTÉSE (CSAK ADMIN) ---
+            const editModal = document.getElementById("editTreeModal");
+            const editCloseBtn = document.getElementById("editTreeCloseBtn");
+            const submitEditBtn = document.getElementById("submitEditTreeBtn");
+            const editIconInput = document.getElementById("editTreeIconInput");
+            const editIconPreview = document.getElementById("editTreeIconPreview");
+    
+            if (editIconInput && editIconPreview) {
+              editIconInput.oninput = () => {
+                editIconPreview.className = editIconInput.value.trim() || "ph-bold ph-tree-structure";
+              };
+            }
+    
+            if (editCloseBtn) editCloseBtn.onclick = () => editModal.classList.add("hidden");
+            if (editModal) {
+              editModal.onclick = (e) => {
+                if (e.target.id === "editTreeModal") editModal.classList.add("hidden");
+              };
+            }
+    
+            if (submitEditBtn) {
+              submitEditBtn.onclick = async () => {
+                const targetId = editModal.dataset.editingTreeId;
+                const newName = document.getElementById("editTreeNameInput").value.trim();
+                const newIcon = document.getElementById("editTreeIconInput").value.trim() || "ph-bold ph-tree-structure";
+    
+                if (!targetId || !newName) {
+                  alert("Kérlek add meg a munkacsoport nevét!");
+                  return;
+                }
+    
+                if (ALL_TREES.some(t => t.id !== targetId && t.name.trim().toLowerCase() === newName.toLowerCase())) {
+                  alert(`Már létezik "${newName}" nevű munkacsoport fa! Kérlek válassz egyedi nevet.`);
+                  return;
+                }
+    
+                submitEditBtn.disabled = true;
+                submitEditBtn.innerHTML = `<i class="ph ph-spinner animate-spin"></i> Mentés...`;
+    
+                const { error } = await supabaseClient.rpc('admin_update_tree', {
+                  p_username: currentUserProfile.username,
+                  p_password: currentUserProfile.password,
+                  p_tree_id: targetId,
+                  p_name: newName,
+                  p_icon: newIcon
+                });
+    
+                submitEditBtn.disabled = false;
+                submitEditBtn.innerHTML = `<i class="ph-bold ph-floppy-disk"></i> Módosítások mentése`;
+    
+                if (error) {
+                  alert("Hiba a fa frissítésekor: " + error.message);
+                  return;
+                }
+    
+                const treeObj = ALL_TREES.find(t => t.id === targetId);
+                if (treeObj) {
+                  treeObj.name = newName;
+                  treeObj.icon = newIcon;
+                }
+    
+                if (activeTreeId === targetId) {
+                  applyActiveTreeData();
+                }
+    
+                editModal.classList.add("hidden");
+              };
+            }
           };
         }
       }
@@ -1304,7 +1416,8 @@
         sortedTrees.forEach(tree => {
           const isSelected = tree.id === activeTreeId;
           const isOwnLeadTree = currentUserProfile && currentUserProfile.role === "team_lead" && (currentUserProfile.tree_id || "structural") === tree.id;
-          const canDeleteTree = currentUserProfile && currentUserProfile.role === "admin" && tree.id !== "structural";
+          const isAdmin = currentUserProfile && currentUserProfile.role === "admin";
+          const canDeleteTree = isAdmin && tree.id !== "structural";
 
           const row = document.createElement("div");
           row.className = `px-4 py-2.5 flex items-center justify-between gap-2 cursor-pointer transition ${isSelected ? 'bg-cyan-500/20 text-cyan-300' : 'hover:bg-blueprint-800 text-slate-200'}`;
@@ -1321,17 +1434,33 @@
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
               ${isSelected ? '<i class="ph-bold ph-check text-cyan-400 text-sm"></i>' : ''}
+              ${isAdmin ? `<button type="button" data-edit-tree="${tree.id}" class="p-1 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs" title="Fa szerkesztése"><i class="ph-bold ph-pencil-simple"></i></button>` : ''}
               ${canDeleteTree ? `<button type="button" data-del-tree="${tree.id}" class="p-1 rounded bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 text-xs" title="Fa törlése"><i class="ph-bold ph-trash"></i></button>` : ''}
             </div>
           `;
 
           row.onclick = (e) => {
-            if (e.target.closest("[data-del-tree]")) return;
+            if (e.target.closest("[data-del-tree]") || e.target.closest("[data-edit-tree]")) return;
             document.getElementById("treeSwitcherDropdown").classList.add("hidden");
             if (tree.id !== activeTreeId) {
               switchActiveTree(tree.id);
             }
           };
+
+          const editBtn = row.querySelector("[data-edit-tree]");
+          if (editBtn) {
+            editBtn.onclick = (e) => {
+              e.stopPropagation();
+              document.getElementById("treeSwitcherDropdown").classList.add("hidden");
+              const editModal = document.getElementById("editTreeModal");
+              editModal.dataset.editingTreeId = tree.id;
+              document.getElementById("editTreeNameInput").value = tree.name;
+              const currentIcon = tree.icon || "ph-bold ph-tree-structure";
+              document.getElementById("editTreeIconInput").value = currentIcon;
+              document.getElementById("editTreeIconPreview").className = currentIcon;
+              editModal.classList.remove("hidden");
+            };
+          }
 
           const delBtn = row.querySelector("[data-del-tree]");
           if (delBtn) {
