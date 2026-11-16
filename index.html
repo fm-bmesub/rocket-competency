@@ -41,6 +41,15 @@
       background-size: 20px 20px, 80px 80px, 80px 80px;
     }
 
+    .edit-mode-grid {
+      background-color: #09121e;
+      background-image: 
+        radial-gradient(circle, rgba(245, 158, 11, 0.22) 1.5px, transparent 1.5px),
+        linear-gradient(to right, rgba(245, 158, 11, 0.12) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(245, 158, 11, 0.12) 1px, transparent 1px);
+      background-size: 20px 20px, 100px 100px, 100px 100px;
+    }
+
     .no-select {
       user-select: none;
       -webkit-user-select: none;
@@ -69,14 +78,12 @@
     }
     .newly-revoked-pulse { animation: redGlowPulse 1.8s infinite ease-in-out; }
 
-    /* Aranysárga pulzálás új eredményekhez */
     @keyframes goldGlowPulse {
       0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.9); border-color: #f59e0b; }
       50% { box-shadow: 0 0 28px 10px rgba(245, 158, 11, 0.45); border-color: #fbbf24; }
     }
     .newly-unlocked-gold-pulse { animation: goldGlowPulse 1.7s infinite ease-in-out; }
 
-    /* Lila pulzálás visszavont eredményekhez */
     @keyframes purpleGlowPulse {
       0%, 100% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.9); border-color: #a855f7; }
       50% { box-shadow: 0 0 28px 10px rgba(168, 85, 247, 0.45); border-color: #c084fc; }
@@ -103,23 +110,29 @@
       </div>
     </div>
 
-    <!-- Admin Munkatárs Selector Bar -->
+    <!-- Admin & Munkacsoportvezető Munkatárs Selector Bar -->
     <div id="adminUserSelectorContainer" class="hidden flex-wrap items-center justify-center gap-2 bg-blueprint-800 px-3 py-1.5 rounded-lg border border-amber-500/50 w-full lg:w-auto">
       <div class="flex items-center gap-1.5 text-xs font-semibold text-amber-400 mr-1">
         <i class="ph-bold ph-shield-check text-base"></i>
-        <span>ADMIN:</span>
+        <span id="managementBarLabel">ADMIN:</span>
       </div>
       <label for="engineerSelect" class="text-xs text-slate-300">Profil:</label>
-      <select id="engineerSelect" class="bg-blueprint-900 border border-blueprint-line text-cyan-300 text-xs font-semibold rounded px-2.5 py-1 focus:outline-none focus:border-amber-400 cursor-pointer max-w-[180px] truncate">
+      <select id="engineerSelect" class="bg-blueprint-900 border border-blueprint-line text-cyan-300 text-xs font-semibold rounded px-2.5 py-1 focus:outline-none focus:border-amber-400 cursor-pointer max-w-[230px] truncate">
       </select>
 
-      <div class="flex items-center gap-1.5 bg-blueprint-900/90 border border-blueprint-line px-2.5 py-1 rounded text-xs font-mono">
+      <!-- Jelszó megjelenítő (CSAK ADMIN LÁTJA) -->
+      <div id="adminCredentialsBox" class="flex items-center gap-1.5 bg-blueprint-900/90 border border-blueprint-line px-2.5 py-1 rounded text-xs font-mono">
         <i class="ph ph-key text-amber-400"></i>
         <span id="adminCredentialsDisplay" class="text-amber-300 font-bold tracking-wider">••••••••</span>
         <button id="adminTogglePasswordBtn" type="button" title="Adatok felfedése/elrejtése" class="text-slate-400 hover:text-white ml-1">
           <i id="adminPasswordEyeIcon" class="ph ph-eye"></i>
         </button>
       </div>
+
+      <!-- Munkacsoportvezető rang adása / elvétele (CSAK ADMIN LÁTJA) -->
+      <button id="adminToggleLeadBtn" title="Munkacsoportvezető rang adása / elvétele" class="px-2 py-1 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/40 rounded text-xs font-semibold flex items-center gap-1 transition">
+        <i class="ph-bold ph-user-gear"></i> <span id="adminToggleLeadBtnText">Vezetői rang</span>
+      </button>
 
       <button id="adminCreateUserBtn" title="Új munkatárs hozzáadása" class="px-2 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded text-xs font-semibold flex items-center gap-1 transition">
         <i class="ph-bold ph-user-plus"></i> Új profil
@@ -144,7 +157,7 @@
 
       <div class="flex items-center pl-0 lg:pl-3 border-l-0 lg:border-l border-blueprint-line space-x-3 w-full lg:w-auto justify-between lg:justify-end">
         <div class="text-left lg:text-right">
-          <div class="text-xs font-bold text-slate-200 truncate max-w-[130px]" id="currentUserName">Betöltés...</div>
+          <div class="text-xs font-bold text-slate-200 truncate max-w-[180px]" id="currentUserName">Betöltés...</div>
           <div class="text-[11px] text-slate-400 font-mono" id="currentUserAccount"></div>
         </div>
         <div class="flex items-center gap-2">
@@ -206,6 +219,38 @@
 
   <!-- ==================== SKILL TREE VIEWPORT ==================== -->
   <main id="viewport" class="flex-1 relative overflow-hidden blueprint-grid cursor-grab active:cursor-grabbing">
+    
+    <!-- JOBB FELSŐ SAROK: SZERKESZTŐI MÓD GOMB & ESZKÖZTÁR (ADMIN + MUNKACSOPORTVEZETŐ) -->
+    <div id="editorControlsTopRight" class="hidden fixed top-[118px] right-5 z-30 flex flex-col items-end gap-2">
+      <button id="toggleEditModeBtn" class="px-3.5 py-2 bg-blueprint-850/95 hover:bg-blueprint-800 text-amber-300 border border-amber-500/50 rounded-xl shadow-lg text-xs font-bold flex items-center gap-2 transition backdrop-blur-md">
+        <i class="ph-bold ph-pencil-simple-line text-base"></i>
+        <span id="toggleEditModeText">Szerkesztői mód</span>
+      </button>
+
+      <!-- Aktív szerkesztői eszköztár -->
+      <div id="editorActiveToolbar" class="hidden bg-slate-900/95 border border-amber-500/60 p-3 rounded-xl shadow-2xl backdrop-blur-md flex flex-col gap-2 w-64 text-xs">
+        <div class="flex items-center justify-between text-amber-400 font-bold border-b border-slate-800 pb-1.5">
+          <span class="flex items-center gap-1.5"><i class="ph-bold ph-wrench"></i> Fa szerkesztése</span>
+          <span class="text-[10px] bg-amber-500/20 px-1.5 py-0.5 rounded">AKTÍV</span>
+        </div>
+        <p class="text-[11px] text-slate-300 leading-snug">
+          • <strong>Húzd (Drag & Drop)</strong> a blokkokat a mozgatáshoz.<br>
+          • <strong>Kattints</strong> egy blokkra a szerkesztéshez, újrakötéshez vagy törléshez.
+        </p>
+        <button id="editorAddNodeBtn" class="w-full py-2 px-3 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-400/50 rounded-lg font-bold flex items-center justify-center gap-1.5 transition">
+          <i class="ph-bold ph-plus-circle text-base"></i> Új skill blokk hozzáadása
+        </button>
+        <div class="flex gap-2 pt-1">
+          <button id="editorSaveBtn" class="flex-1 py-2 px-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold rounded-lg flex items-center justify-center gap-1 transition shadow-md">
+            <i class="ph-bold ph-floppy-disk"></i> Mentés
+          </button>
+          <button id="editorCancelBtn" class="py-2 px-3 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 font-bold rounded-lg flex items-center justify-center gap-1 transition">
+            Mégse
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div id="treeContainer" class="absolute transform-gpu origin-top-left transition-transform duration-75" style="width: 5300px; height: 2000px; left: 0px; top: 0px;">
       <svg id="connectionsLayer" class="absolute inset-0 w-full h-full pointer-events-none z-0" style="min-width: 5300px; min-height: 2000px; overflow: visible;">
         <defs>
@@ -221,6 +266,12 @@
       <div id="nodesLayer" class="absolute inset-0 w-full h-full pointer-events-auto z-10"></div>
     </div>
   </main>
+
+  <!-- ==================== BAL ALSÓ LEBEGŐ "KOMPETENCIA KERESŐ" GOMB (ADMIN + MUNKACSOPORTVEZETŐ) ==================== -->
+  <button id="openSkillSearchBtn" class="hidden fixed bottom-6 left-6 z-40 px-4 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-extrabold rounded-2xl shadow-[0_0_25px_rgba(56,189,248,0.45)] flex items-center gap-2.5 transition-all duration-200 hover:scale-105 active:scale-95 border border-cyan-300/60">
+    <i class="ph-bold ph-magnifying-glass text-xl"></i>
+    <span class="text-sm tracking-wide">Kompetencia kereső</span>
+  </button>
 
   <!-- ==================== JOBB ALSÓ LEBEGŐ "EREDMÉNYEK" GOMB ==================== -->
   <button id="openAchievementsBtn" class="fixed bottom-6 right-6 z-40 px-4 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold rounded-2xl shadow-[0_0_25px_rgba(245,158,11,0.5)] flex items-center gap-2.5 transition-all duration-200 hover:scale-105 active:scale-95 border border-amber-300/60">
@@ -243,7 +294,7 @@
     </div>
   </div>
 
-  <!-- ==================== SKILL MODAL ==================== -->
+  <!-- ==================== SKILL MODAL (NORMÁL NÉZET) ==================== -->
   <div id="skillModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div id="modalContentWrapper" class="bg-blueprint-850 border border-blueprint-line w-full max-w-lg rounded-xl overflow-hidden shadow-2xl transition-transform duration-150" style="font-size: 1rem;">
       <div class="px-6 py-4 bg-blueprint-800 border-b border-blueprint-line flex items-center justify-between">
@@ -288,6 +339,118 @@
         </div>
 
         <div id="modalActionArea" class="pt-2"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SKILL NODE SZERKESZTŐ / LÉTREHOZÓ MODAL (SZERKESZTŐI MÓD) ==================== -->
+  <div id="nodeEditorModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-blueprint-850 border border-amber-500/60 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl p-6">
+      <div class="flex items-center justify-between pb-3 mb-4 border-b border-blueprint-line">
+        <div class="flex items-center gap-2 text-amber-400 font-bold text-base">
+          <i class="ph-bold ph-cube-focus text-xl"></i>
+          <span id="nodeEditorModalTitle">Készség blokk szerkesztése</span>
+        </div>
+        <button id="nodeEditorCloseBtn" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-blueprint-700">
+          <i class="ph ph-x text-lg"></i>
+        </button>
+      </div>
+
+      <form id="nodeEditorForm" class="space-y-3 text-xs" onsubmit="return false;">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Készség megnevezése *</label>
+          <input type="text" id="editNodeTitle" required class="w-full bg-blueprint-900 border border-blueprint-line rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-400" placeholder="pl. Hegesztés alapok">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Főág (Szűrő kategória) *</label>
+            <select id="editNodeCategory" class="w-full bg-blueprint-900 border border-blueprint-line rounded-lg px-2.5 py-2 text-xs text-slate-100 focus:outline-none focus:border-amber-400">
+              <option value="composite">🌿 Kompozit (composite)</option>
+              <option value="metallic">⚙️ Fémes (metallic)</option>
+              <option value="polymer">🧬 Polimer (polymer)</option>
+              <option value="miscellaneous">📦 Egyéb (miscellaneous)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Alkategória felirat *</label>
+            <input type="text" id="editNodeCategoryName" required class="w-full bg-blueprint-900 border border-blueprint-line rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-amber-400" placeholder="pl. Fémes Gyártás">
+          </div>
+        </div>
+
+        <div id="editNodeParentContainer">
+          <label class="block font-semibold text-slate-300 mb-1">Szülő elem (Előfeltétel / Újrakötés) *</label>
+          <select id="editNodeParentId" class="w-full bg-blueprint-900 border border-blueprint-line rounded-lg px-2.5 py-2 text-xs text-cyan-300 font-semibold focus:outline-none focus:border-amber-400">
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Ikon (Phosphor Icons osztály)</label>
+          <div class="flex gap-2">
+            <input type="text" id="editNodeIcon" class="flex-1 bg-blueprint-900 border border-blueprint-line rounded-lg px-3 py-2 text-xs font-mono text-slate-200 focus:outline-none focus:border-amber-400" placeholder="ph ph-wrench">
+            <div class="w-9 h-9 rounded-lg bg-blueprint-900 border border-blueprint-line flex items-center justify-center text-lg text-amber-400">
+              <i id="editNodeIconPreview" class="ph ph-wrench"></i>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Követelmény leírása *</label>
+          <textarea id="editNodeDesc" rows="3" required class="w-full bg-blueprint-900 border border-blueprint-line rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-400" placeholder="Részletes leírás a készség megszerzéséhez..."></textarea>
+        </div>
+
+        <div class="flex items-center justify-between gap-2 pt-3 border-t border-blueprint-line">
+          <button type="button" id="deleteNodeBtn" class="px-3 py-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 rounded-lg font-bold flex items-center gap-1.5 transition">
+            <i class="ph-bold ph-trash"></i> Blokk törlése
+          </button>
+          <button type="button" id="saveNodeEditBtn" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold rounded-lg flex items-center gap-1.5 transition shadow-md ml-auto">
+            <i class="ph-bold ph-check"></i> Alkalmaz
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== KOMPETENCIA KERESŐ MODAL ==================== -->
+  <div id="skillSearchModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-blueprint-850 border border-cyan-500/50 w-full max-w-xl max-h-[85vh] rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(56,189,248,0.2)] flex flex-col">
+      <div class="px-6 py-4 bg-blueprint-800 border-b border-blueprint-line flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-cyan-300 text-xl">
+            <i class="ph-bold ph-magnifying-glass"></i>
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-white">Kompetencia kereső</h2>
+            <p class="text-xs text-slate-400">Keress rá egy készségre vagy eredményre, és listázd a birtokosokat</p>
+          </div>
+        </div>
+        <button id="closeSkillSearchBtn" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-blueprint-700 text-xl">
+          <i class="ph ph-x"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4 overflow-y-auto flex-1">
+        <div class="relative">
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Készség vagy eredmény kiválasztása</label>
+          <div class="flex gap-2">
+            <div class="relative flex-1">
+              <input type="text" id="skillAutocompleteInput" autocomplete="off" class="w-full bg-blueprint-900 border border-blueprint-line rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400 placeholder:text-slate-500" placeholder="Kezdd el gépelni a skill nevét (pl. CNC, Kompozit, CAD)...">
+              <!-- Autocomplete legördülő lista -->
+              <div id="skillAutocompleteDropdown" class="hidden absolute left-0 right-0 mt-1 max-h-56 overflow-y-auto bg-slate-900 border border-cyan-500/50 rounded-xl shadow-2xl z-50 divide-y divide-slate-800">
+              </div>
+            </div>
+            <button id="executeSkillSearchBtn" class="px-5 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold rounded-xl transition shadow-md flex items-center gap-1.5 text-xs shrink-0">
+              <i class="ph-bold ph-users"></i> Listázás
+            </button>
+          </div>
+        </div>
+
+        <!-- Eredmények listája -->
+        <div id="skillSearchResultsArea" class="pt-2">
+          <div class="text-center py-8 text-slate-500 text-xs border border-dashed border-blueprint-line rounded-xl">
+            Válassz ki egy készséget a fenti mezőből, majd kattints a <strong>Listázás</strong> gombra.
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -397,7 +560,7 @@
     </div>
   </div>
 
-  <!-- ==================== ADMIN ÚJ PROFIL MODAL ==================== -->
+  <!-- ==================== ADMIN / VEZETŐ ÚJ PROFIL MODAL ==================== -->
   <div id="adminUserModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-blueprint-850 border border-blueprint-line w-full max-w-sm rounded-xl overflow-hidden shadow-2xl p-6">
       <div class="flex items-center justify-between pb-3 mb-4 border-b border-blueprint-line">
@@ -433,782 +596,1411 @@
     </div>
   </div>
 
-  <!-- ==================== LOGIKA ==================== -->
+  <!-- ==================== BIZTONSÁGOS, ZÁRT (IIFE) LOGIKA ==================== -->
   <script>
-    const SUPABASE_URL = "https://ngqqaaxerrcxuiqmykol.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ncXFhYXhlcnJjeHVpcW15a29sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1MDA5MDQsImV4cCI6MjEwNjA3NjkwNH0.bUimk8oN2ezMMFuMWK8R0nvPbxxe6GcLR_fFTL0VLH0";
+    (() => {
+      "use strict";
 
-    let supabaseClient = null;
-    try {
-      if (window.supabase && typeof window.supabase.createClient === 'function') {
-        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      }
-    } catch (e) {
-      console.error("Supabase init error:", e);
-    }
+      const SUPABASE_URL = "https://ngqqaaxerrcxuiqmykol.supabase.co";
+      const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ncXFhYXhlcnJjeHVpcW15a29sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1MDA5MDQsImV4cCI6MjEwNjA3NjkwNH0.bUimk8oN2ezMMFuMWK8R0nvPbxxe6GcLR_fFTL0VLH0";
 
-    const SKILLS_DATA = [
-      { id: "root", title: "Structural", category: "root", categoryName: "Központi Gyökér", parentId: null, icon: "ph-bold ph-shield-chevron", desc: "Szerkezeti, mechanikai és gyártási kompetenciafa központi kiindulópontja.", x: 2450, y: 80 },
-      { id: "comp_theory", title: "Kompozit elméleti alapok", category: "composite", categoryName: "Kompozit Elmélet", parentId: "root", icon: "ph ph-stack-simple", desc: "Szál- és gyantarandzserek, anizotrópia, rétegrend alapismeretek.", x: 650, y: 260 },
-      { id: "metal_theory", title: "Fémes elméleti alapok", category: "metallic", categoryName: "Fémes Elmélet", parentId: "root", icon: "ph ph-atom", desc: "Kristályszerkezetek, fázisdiagramok, ötvözők, hőkezelések és szilárdságtan alapok.", x: 1800, y: 260 },
-      { id: "poly_theory", title: "Polimer elméleti alapok", category: "polymer", categoryName: "Polimer Elmélet", parentId: "root", icon: "ph ph-dna", desc: "Hőre lágyuló és hőre keményedő polimerek, reológia és degradáció alapok.", x: 3050, y: 260 },
-      { id: "miscellaneous", title: "Egyéb készségek", category: "miscellaneous", categoryName: "Nem anyagfüggő készségek", parentId: "root", icon: "ph ph-briefcase", desc: "Minden mérnöki készség, ami nem anyagfüggő.", x: 4240, y: 260 },
-
-      { id: "comp_des_basic", title: "Kompozit tervezési alapok", category: "composite", categoryName: "Kompozit Tervezés", parentId: "comp_theory", icon: "ph ph-ruler", desc: "Klasszikus rétegelmélet (CLT), terhelési irányok és szálirányok.", x: 420, y: 470 },
-      { id: "comp_des_adv", title: "Kompozit tervezés haladó", category: "composite", categoryName: "Kompozit Tervezés", parentId: "comp_des_basic", icon: "ph ph-rows", desc: "Szendvicsszerkezetek tervezése, maganyagok, tönkremeneteli kritériumok.", x: 420, y: 680 },
-      { id: "comp_des_master", title: "Kompozit tervezés mester", category: "composite", categoryName: "Kompozit Tervezés", parentId: "comp_des_adv", icon: "ph ph-chart-polar", desc: "Nemlineáris FEA szimulációk, rétegelválási analízis és fáradás.", x: 420, y: 890 },
-
-      { id: "comp_mfg_basic", title: "Kompozit gyártás alapok", category: "composite", categoryName: "Kompozit Gyártás", parentId: "comp_theory", icon: "ph ph-hand", desc: "Kézi laminálás, prepreg technológia.", x: 880, y: 470 },
-      { id: "comp_mfg_adv", title: "Kompozit gyártás haladó", category: "composite", categoryName: "Kompozit Gyártás", parentId: "comp_mfg_basic", icon: "ph ph-cylinder", desc: "Szerszámtervezés alapok kompozit laminálásra, formaleválasztózás, vákuumzsákolás, utómunkálatok.", x: 880, y: 680 },
-      { id: "comp_mfg_master1", title: "Kompozit gyártás mester I", category: "composite", categoryName: "Kompozit Gyártás", parentId: "comp_mfg_adv", icon: "ph ph-scales", desc: "Körfűrészezés, anyagbemérés, szakítóvizsgálat, hajlítás vizsgálat, minőségvizsgálat.", x: 730, y: 890 },
-      { id: "comp_mfg_master2", title: "Kompozit gyártás mester II", category: "composite", categoryName: "Kompozit Gyártás", parentId: "comp_mfg_adv", icon: "ph ph-wind", desc: "Vákuuminfúziós technikák és egyéb gyártástechnológiák.", x: 1030, y: 890 },
-
-      { id: "metal_des_basic", title: "Fémes tervezési alapok", category: "metallic", categoryName: "Fémes Tervezés", parentId: "metal_theory", icon: "ph ph-compass-tool", desc: "Szilárdságtani alapszámítások, statikus igénybevételek és tűrések.", x: 1300, y: 470 },
-      { id: "metal_des_adv1", title: "Fémes tervezés haladó I", category: "metallic", categoryName: "Fémes Tervezés", parentId: "metal_des_basic", icon: "ph ph-polygon", desc: "Alkatrészek FEM szerkezeti szimulációja, peremfeltételek beállítása, eredmények kiértékelése.", x: 1300, y: 680 },
-      { id: "metal_des_adv2", title: "Fémes tervezés haladó II", category: "metallic", categoryName: "Fémes Tervezés", parentId: "metal_des_basic", icon: "ph ph-wave-sine", desc: "Fáradás, dinamikus méretezés (Wöhler) és hegesztési varratok vizsgálata.", x: 1500, y: 580 },
-      { id: "metal_des_master", title: "Fémes tervezés mester", category: "metallic", categoryName: "Fémes Tervezés", parentId: "metal_des_adv1", icon: "ph ph-crane", desc: "Komplex szerkezeti FEM szimulációk, nemlineáris hatások és törésmechanika.", x: 1300, y: 890 },
-
-      { id: "metal_mfg_basic", title: "Fémes gyártás alapok", category: "metallic", categoryName: "Fémes Gyártás", parentId: "metal_theory", icon: "ph ph-wrench", desc: "Alapvető gyártástechnológiák, forgácsolási paraméterek (v, f, a), vágóerők, szerszámgeometria és méréstechnika.", x: 2050, y: 470 },
-      { id: "lathe_trad_basic", title: "Hagyományos esztergálás alapok", category: "metallic", categoryName: "Hagyományos Esztergálás", parentId: "metal_mfg_basic", icon: "ph ph-circle-notch", desc: "Egyetemes esztergapad beállítása, tokmányozás, palást- és homlokesztergálás.", x: 1600, y: 680 },
-      { id: "lathe_trad_adv", title: "Hagyományos esztergálás haladó", category: "metallic", categoryName: "Hagyományos Esztergálás", parentId: "lathe_trad_basic", icon: "ph ph-arrows-clockwise", desc: "Késes menetvágás, kúpesztergálás és belső üregek kiesztergálása.", x: 1600, y: 890 },
-      { id: "lathe_trad_master", title: "Hagyományos esztergálás mester", category: "metallic", categoryName: "Hagyományos Esztergálás", parentId: "lathe_trad_adv", icon: "ph ph-crosshair", desc: "Egyedi készülékezés, excenteres és pontos illesztések készítése.", x: 1600, y: 1100 },
-
-      { id: "mill_trad_basic", title: "Hagyományos marás alapok", category: "metallic", categoryName: "Hagyományos Marás", parentId: "metal_mfg_basic", icon: "ph ph-gear-six", desc: "Konzolos marógép kezelése, sík- és derékszögmarás, satu beállítás.", x: 1900, y: 680 },
-      { id: "mill_trad_adv", title: "Hagyományos marás haladó", category: "metallic", categoryName: "Hagyományos Marás", parentId: "mill_trad_basic", icon: "ph ph-compass", desc: "Osztófej, körasztal használata, horonymarás és ferde felületek munkálása.", x: 1900, y: 890 },
-      { id: "mill_trad_master", title: "Hagyományos marás mester", category: "metallic", categoryName: "Hagyományos Marás", parentId: "mill_trad_adv", icon: "ph ph-diamonds-four", desc: "Egyedi készülék tervezése, összetett alakos felületek megmunkálása", x: 1900, y: 1100 },
-
-      { id: "lathe_cnc_basic", title: "CNC esztergálás alapok", category: "metallic", categoryName: "CNC Esztergálás", parentId: "metal_mfg_basic", icon: "ph ph-code", desc: "ISO G-kód alapok, szerszámbemérés (geometria/kopás), koordináta-rendszerek.", x: 2200, y: 680 },
-      { id: "lathe_cnc_adv", title: "CNC esztergálás haladó", category: "metallic", categoryName: "CNC Esztergálás", parentId: "lathe_cnc_basic", icon: "ph ph-cpu", desc: "Ciklusos programozás, CAM szoftveres programozás, magabiztos gépkezelés és forgácsolási paraméterek.", x: 2200, y: 890 },
-      { id: "lathe_cnc_master", title: "CNC esztergálás mester", category: "metallic", categoryName: "CNC Esztergálás", parentId: "lathe_cnc_adv", icon: "ph ph-faders", desc: "Hajtott szerszámok kezelése, egyedi készülék/befogások tervezése.", x: 2200, y: 1100 },
-
-      { id: "mill_cnc_basic", title: "CNC marás alapok", category: "metallic", categoryName: "CNC Marás", parentId: "metal_mfg_basic", icon: "ph ph-terminal-window", desc: "Alapszintű 2-tengelyes programozás alapszintű CAM ismeretek segítségével, munkadarab nullpontfelvétel.", x: 2500, y: 680 },
-      { id: "mill_cnc_adv", title: "CNC marás haladó", category: "metallic", categoryName: "CNC Marás", parentId: "mill_cnc_basic", icon: "ph ph-arrows-out-cardinal", desc: "3-tengelyes programozás, munkadarab nullpontfelvétel, alap interpolációk.", x: 2500, y: 890 },
-      { id: "mill_cnc_master", title: "CNC marás mester", category: "metallic", categoryName: "CNC Marás", parentId: "mill_cnc_adv", icon: "ph ph-diamonds-four", desc: "3+2 tengelyes pozicionált marás, adaptív zsebmarási stratégiák és CAM posztolás, szimultán 5-tengelyes simítás, nagy sebességű forgácsolás (HSM).", x: 2500, y: 1100 },
-
-      { id: "fdm_basic", title: "FDM 3D nyomtatás alapok", category: "polymer", categoryName: "FDM Nyomtatás", parentId: "poly_theory", icon: "ph ph-printer", desc: "FDM rétegépítés elve, PLA/PETG paraméterek, alap szeletelés és szintezés.", x: 2850, y: 470 },
-      { id: "fdm_adv", title: "FDM 3D nyomtatás haladó", category: "polymer", categoryName: "FDM Nyomtatás", parentId: "fdm_basic", icon: "ph ph-bounding-box", desc: "DFMA elvek, gyártási határok ismerete.", x: 2850, y: 680 },
-      { id: "fdm_master", title: "FDM 3D nyomtatás mester", category: "polymer", categoryName: "FDM Nyomtatás", parentId: "fdm_adv", icon: "ph ph-thermometer-hot", desc: "Műszaki polimerek (ABS, Nylon, PC), fűtött kamra és támaszanyag optimalizáció.", x: 2850, y: 890 },
-
-      { id: "sls_basic", title: "SLS alapok", category: "polymer", categoryName: "SLS Nyomtatás", parentId: "poly_theory", icon: "ph ph-dots-nine", desc: "Szelektív lézerszinterezés elve, PA12 por tulajdonságai és kamrafűtés.", x: 3110, y: 470 },
-      { id: "sls_adv", title: "SLS haladó", category: "polymer", categoryName: "SLS Nyomtatás", parentId: "sls_basic", icon: "ph ph-shapes", desc: "3D alkatrész fészkelés (nesting), por-újrahasznosítási arányok és termikus stabilizálás.", x: 3110, y: 680 },
-      { id: "sla_basic", title: "SLA alapok", category: "polymer", categoryName: "SLA Nyomtatás", parentId: "poly_theory", icon: "ph ph-drop", desc: "Fotopolimerizációs elv UV fénnyel, folyékony gyanták kezelése, mosás és utókezelés.", x: 3370, y: 470 },
-      { id: "sla_adv", title: "SLA haladó", category: "polymer", categoryName: "SLA Nyomtatás", parentId: "sla_basic", icon: "ph ph-sun", desc: "Mikrotámaszok tervezése, orientálás, réteglehúzási erők kompenzálása és UV keményítési profilok.", x: 3370, y: 680 },
-      { id: "sla_master", title: "SLA mester", category: "polymer", categoryName: "SLA Nyomtatás", parentId: "sla_adv", icon: "ph ph-sketch-logo", desc: "Kerámiatöltésű és biokompatibilis mérnöki rezinek feldolgozása, optikai felületminőség.", x: 3370, y: 890 },
-
-      { id: "misc_eng_basic", title: "Angol nyelvtudás közép szinten", category: "miscellaneous", categoryName: "Angol nyelv", parentId: "miscellaneous", icon: "ph ph-translate", desc: "Az angol nyelv elfogadható, legalább B2 szintű használata.", x: 3700, y: 470 },
-      { id: "misc_eng_adv", title: "Angol nyelvtudás emelt szinten", category: "miscellaneous", categoryName: "Angol nyelv", parentId: "misc_eng_basic", icon: "ph ph-chat-centered-text", desc: "Az angol nyelv magabiztos, legalább C1 szintű használata.", x: 3700, y: 680 },
-      { id: "misc_cad_basic", title: "CAD tervezési alapok", category: "miscellaneous", categoryName: "CAD használat", parentId: "miscellaneous", icon: "ph ph-pencil-line", desc: "Egyszerűbb alkatrészek és összeállítások tervezése.", x: 4060, y: 470 },
-      { id: "misc_cad_adv", title: "CAD tervezés haladó", category: "miscellaneous", categoryName: "CAD használat", parentId: "misc_cad_basic", icon: "ph ph-cube-transparent", desc: "Bonyolultabb alkatrészek tervezése, a TOP-DOWN és a BOTTOM-UP tervezés ismerete, paraméteres tervezés.", x: 4060, y: 680 },
-      { id: "misc_rendering_basic", title: "Renderelés alapok", category: "miscellaneous", categoryName: "Renderelés", parentId: "miscellaneous", icon: "ph ph-paint-brush-broad", desc: "Alkatrészek és összeállítások renderelési alapjai, alapszintű, CAD szoftverbeli renderelési készségek.", x: 4420, y: 470 },
-      { id: "misc_rendering_adv", title: "Renderelés haladó", category: "miscellaneous", categoryName: "Renderelés", parentId: "misc_rendering_basic", icon: "ph ph-projector-screen", desc: "Blender-beli valósághű textúrázás, fénybeállítások és professzionális termékvizualizáció.", x: 4420, y: 680 },
-      { id: "misc_drawing_basic", title: "Műszaki rajzolás alapok", category: "miscellaneous", categoryName: "Műszaki rajzok", parentId: "miscellaneous", icon: "ph ph-pencil-ruler", desc: "Alkatrész és összeállítási rajzok műszaki szabályainak, szabványainak alapszintű ismerete, egyszerűbb rajzok, robbantott ábrák készítése.", x: 4780, y: 470 },
-      { id: "misc_drawing_adv", title: "Műszaki rajzolás haladó", category: "miscellaneous", categoryName: "Műszaki rajzok", parentId: "misc_drawing_basic", icon: "ph ph-bezier-curve", desc: "Alkatrész és összeállítási rajzok műszaki szabályainak, szabványainak mély ismerete, komplex rajzok készítése.", x: 4780, y: 680 },
-      
-      /* Elemek manuális kontrollpontokkal (route) az átfedések elkerülésére */
-      { id: "misc_topopt_basic", title: "Topológiai optimalizáció alapok", category: "miscellaneous", categoryName: "TopOpt", parentId: "miscellaneous", icon: "ph ph-git-merge", desc: "Tetszőleges TopOpt szoftver alapszintű ismerete, a topológiai optimalizáció elvi alapjai.", x: 3880, y: 870, route: [{ x: 3880, y: 450 }] },
-      { id: "misc_topopt_adv", title: "Topológiai optimalizáció haladó", category: "miscellaneous", categoryName: "TopOpt", parentId: "misc_topopt_basic", icon: "ph ph-git-branch", desc: "Tetszőleges TopOpt szoftver beható ismerete, magabiztos használata.", x: 3880, y: 1080 },
-      { id: "doc_basic", title: "Műszaki dokumentáció alapok", category: "miscellaneous", categoryName: "Dokumentáció", parentId: "miscellaneous", icon: "ph ph-file-doc", desc: "Műszaki dokumentációk készítése alap szinten, érthető megfogalmazással, műszaki szaknyelv használatával.", x: 4240, y: 870 },
-      { id: "doc_adv", title: "Műszaki dokumentáció haladó", category: "miscellaneous", categoryName: "Dokumentáció", parentId: "doc_basic", icon: "ph ph-files", desc: "Műszaki dokumentációk készítése kiváló minőségben, LaTeX-ben, kifejező, magas minőségű ábrákkal.", x: 4240, y: 1080 },
-      { id: "launch_rail_basic", title: "Állványállítás alapok", category: "miscellaneous", categoryName: "Állvány", parentId: "miscellaneous", icon: "ph ph-gear", desc: "Az állvány részleges ismerete, állványállításban való aktív részvétel.", x: 4600, y: 870, route: [{ x: 4600, y: 450 }] },
-      { id: "launch_rail_adv", title: "Állványállítás haladó", category: "miscellaneous", categoryName: "Állvány", parentId: "launch_rail_basic", icon: "ph ph-user-gear", desc: "Teljes állvány és minden munkafolyamat ismerete.", x: 4600, y: 1080 },
-      { id: "launch_rail_master", title: "Állványállítás mester", category: "miscellaneous", categoryName: "Állvány", parentId: "launch_rail_adv", icon: "ph ph-user-circle-gear", desc: "Teljes állványállítás önálló és magabiztos levezénylése.", x: 4600, y: 1290 }
-    ];
-
-    /* ==========================================================================
-       EREDMÉNYEK (ACHIEVEMENTS) ADATBÁZIS
-       ========================================================================== */
-    const ACHIEVEMENTS_DATA = [
-      { id: "achv_20h", title: "A jó mérnök", icon: "ph-bold ph-clock", desc: "Legalább heti 20 óra aktív műhelymunkát, tervezést és egyebeket végzett a csapatban." },
-      { id: "achv_40h", title: "A veterán", icon: "ph-bold ph-barbell", desc: "Kiemelkedő, teljes heti elköteleződés és legalább 40 munkaóra a projekt sikeréért." },
-      { id: "achv_60h", title: "A legenda", icon: "ph-bold ph-alarm", desc: "Hihetetlen munkabírás, időt és energiát nem kímélve heti 60 óra munkát rakott bele a csapatba!" },
-      { id: "achv_80h", title: "Az élettelen", icon: "ph-bold ph-skull", desc: "Legendás teljesítmény, nem sok ember képes heti 80 munkaórát félrerakni egy hobbira!" },
-      { id: "achv_100h", title: "Az final boss", icon: "ph-bold ph-alien", desc: "Abszolút elvetemült, ember feletti teljesítmény! Könnyen lehet, hogy egyedül vagy a 100 órások klubjában (EuRoC nem számít)." },
-      { id: "achv_workshop_safety", title: "Műhelybiztonsági Mester", icon: "ph-bold ph-shield-check", desc: "Példamutató munkavédelem, védőfelszerelés-használat és a biztonsági szabályok betartása." },
-      { id: "achv_project_lead", title: "Önálló Részprojekt Vezető", icon: "ph-bold ph-flag", desc: "Sikeresen levezényelt egy teljes alkatrész- vagy részegység-fejlesztési folyamatot, megfelelően koordinálva a beosztottjait." },
-      { id: "achv_cad_milestone", title: "Tervezési Mérföldkő", icon: "ph-bold ph-compass-tool", desc: "Első, gyártásra teljesen kész szerkezeti elem sikeres leadása és jóváhagyása." },
-      { id: "achv_team_mentor", title: "Csapat Mentor", icon: "ph-bold ph-users-three", desc: "Aktív segítségnyújtás és szakmai tudásátadás az új csapattagok beilleszkedésében." },
-      { id: "achv_rocket_launching_rookie", title: "Rakétaindító kezdő", icon: "ph-bold ph-rocket", desc: "Aktívan részt vett egy indítási napon." },
-      { id: "achv_rocket_launching_veteran", title: "Rakétás veterán", icon: "ph-bold ph-rocket-launch", desc: "Rutinos rakétaindító (részvétel legalább 3 indításon)." },
-      { id: "achv_rocket_launching_chief", title: "Indítási főnök", icon: "ph-bold ph-crown-simple", desc: "Sikeresen levezényelt egy összeszerelést a paddockban valamilyen vezetői/felelős pozícióban." }
-    ];
-
-    /* ==========================================================================
-       ÁLLAPOT & VÁLTOZÓK
-       ========================================================================== */
-    const STORAGE_KEY_SESSION_USER = "structural_app_logged_username";
-    const STORAGE_KEY_SESSION_PASS = "structural_app_logged_password";
-    let currentUserProfile = null;
-    let allProfiles = [];
-    let activeViewingUserId = null;
-    let activeFilter = "all";
-    let selectedSkill = null;
-    let isCredentialsRevealed = false;
-    let realtimeChannel = null;
-
-    let newlyUnlockedSkills = new Set();
-    let newlyRevokedSkills = new Set();
-
-    let scale = 0.30;
-    let panX = 0, panY = 0;
-    let isDragging = false;
-    let startX = 0, startY = 0;
-
-    let modalScale = 1.0;
-
-    document.addEventListener("DOMContentLoaded", async () => {
-      setupPanAndZoom();
-      setupFilters();
-      setupModalEvents();
-      setupAuth();
-      setupChangePasswordModal();
-      setupAdminUserManagement();
-      setupAchievementsModal();
-      await checkAuthSession();
-    });
-
-    /* ==========================================================================
-       SESSION & BIZTONSÁGOS RPC ADATBÁZIS LEKÉRDEZÉS
-       ========================================================================== */
-    async function checkAuthSession() {
-      const savedUsername = localStorage.getItem(STORAGE_KEY_SESSION_USER) || sessionStorage.getItem(STORAGE_KEY_SESSION_USER);
-      const savedPassword = localStorage.getItem(STORAGE_KEY_SESSION_PASS) || sessionStorage.getItem(STORAGE_KEY_SESSION_PASS);
-
-      if (savedUsername && savedPassword && supabaseClient) {
-        try {
-          const { data, error } = await supabaseClient.rpc('login_user', {
-            p_username: savedUsername,
-            p_password: savedPassword
-          });
-
-          if (!error && data && data.length > 0) {
-            currentUserProfile = data[0];
-            await loadAllProfilesAndInit(savedUsername, savedPassword);
-            hideAuthModal();
-            return;
-          }
-        } catch (e) {
-          console.error("Session check error:", e);
+      let supabaseClient = null;
+      try {
+        if (window.supabase && typeof window.supabase.createClient === 'function') {
+          supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         }
+      } catch (e) {
+        console.error("Supabase init error:", e);
       }
-      showAuthModal();
-    }
 
-    async function loadAllProfilesAndInit(username, password) {
-      if (!supabaseClient) return;
+      /* Alapértelmezett kompetenciafa (ha az adatbázis még üres) */
+      const DEFAULT_SKILLS_DATA = [
+        { id: "root", title: "Structural", category: "root", categoryName: "Központi Gyökér", parentId: null, icon: "ph-bold ph-shield-chevron", desc: "Szerkezeti, mechanikai és gyártási kompetenciafa központi kiindulópontja.", x: 2450, y: 80 },
+        { id: "comp_theory", title: "Kompozit elméleti alapok", category: "composite", categoryName: "Kompozit Elmélet", parentId: "root", icon: "ph ph-stack-simple", desc: "Szál- és gyantarandzserek, anizotrópia, rétegrend alapismeretek.", x: 650, y: 260 },
+        { id: "metal_theory", title: "Fémes elméleti alapok", category: "metallic", categoryName: "Fémes Elmélet", parentId: "root", icon: "ph ph-atom", desc: "Kristályszerkezetek, fázisdiagramok, ötvözők, hőkezelések és szilárdságtan alapok.", x: 1800, y: 260 },
+        { id: "poly_theory", title: "Polimer elméleti alapok", category: "polymer", categoryName: "Polimer Elmélet", parentId: "root", icon: "ph ph-dna", desc: "Hőre lágyuló és hőre keményedő polimerek, reológia és degradáció alapok.", x: 3050, y: 260 },
+        { id: "miscellaneous", title: "Egyéb készségek", category: "miscellaneous", categoryName: "Nem anyagfüggő készségek", parentId: "root", icon: "ph ph-briefcase", desc: "Minden mérnöki készség, ami nem anyagfüggő.", x: 4240, y: 260 },
 
-      const u = username || currentUserProfile.username;
-      const p = password || currentUserProfile.password;
+        { id: "comp_des_basic", title: "Kompozit tervezési alapok", category: "composite", categoryName: "Kompozit Tervezés", parentId: "comp_theory", icon: "ph ph-ruler", desc: "Klasszikus rétegelmélet (CLT), terhelési irányok és szálirányok.", x: 420, y: 470 },
+        { id: "comp_des_adv", title: "Kompozit tervezés haladó", category: "composite", categoryName: "Kompozit Tervezés", parentId: "comp_des_basic", icon: "ph ph-rows", desc: "Szendvicsszerkezetek tervezése, maganyagok, tönkremeneteli kritériumok.", x: 420, y: 680 },
+        { id: "comp_des_master", title: "Kompozit tervezés mester", category: "composite", categoryName: "Kompozit Tervezés", parentId: "comp_des_adv", icon: "ph ph-chart-polar", desc: "Nemlineáris FEA szimulációk, rétegelválási analízis és fáradás.", x: 420, y: 890 },
 
-      const { data: profiles, error } = await supabaseClient.rpc('get_profiles', {
-        p_username: u,
-        p_password: p
+        { id: "comp_mfg_basic", title: "Kompozit gyártás alapok", category: "composite", categoryName: "Kompozit Gyártás", parentId: "comp_theory", icon: "ph ph-hand", desc: "Kézi laminálás, prepreg technológia.", x: 880, y: 470 },
+        { id: "comp_mfg_adv", title: "Kompozit gyártás haladó", category: "composite", categoryName: "Kompozit Gyártás", parentId: "comp_mfg_basic", icon: "ph ph-cylinder", desc: "Szerszámtervezés alapok kompozit laminálásra, formaleválasztózás, vákuumzsákolás, utómunkálatok.", x: 880, y: 680 },
+        { id: "comp_mfg_master1", title: "Kompozit gyártás mester I", category: "composite", categoryName: "Kompozit Gyártás", parentId: "comp_mfg_adv", icon: "ph ph-scales", desc: "Körfűrészezés, anyagbemérés, szakítóvizsgálat, hajlítás vizsgálat, minőségvizsgálat.", x: 730, y: 890 },
+        { id: "comp_mfg_master2", title: "Kompozit gyártás mester II", category: "composite", categoryName: "Kompozit Gyártás", parentId: "comp_mfg_adv", icon: "ph ph-wind", desc: "Vákuuminfúziós technikák és egyéb gyártástechnológiák.", x: 1030, y: 890 },
+
+        { id: "metal_des_basic", title: "Fémes tervezési alapok", category: "metallic", categoryName: "Fémes Tervezés", parentId: "metal_theory", icon: "ph ph-compass-tool", desc: "Szilárdságtani alapszámítások, statikus igénybevételek és tűrések.", x: 1300, y: 470 },
+        { id: "metal_des_adv1", title: "Fémes tervezés haladó I", category: "metallic", categoryName: "Fémes Tervezés", parentId: "metal_des_basic", icon: "ph ph-polygon", desc: "Alkatrészek FEM szerkezeti szimulációja, peremfeltételek beállítása, eredmények kiértékelése.", x: 1300, y: 680 },
+        { id: "metal_des_adv2", title: "Fémes tervezés haladó II", category: "metallic", categoryName: "Fémes Tervezés", parentId: "metal_des_basic", icon: "ph ph-wave-sine", desc: "Fáradás, dinamikus méretezés (Wöhler) és hegesztési varratok vizsgálata.", x: 1500, y: 580 },
+        { id: "metal_des_master", title: "Fémes tervezés mester", category: "metallic", categoryName: "Fémes Tervezés", parentId: "metal_des_adv1", icon: "ph ph-crane", desc: "Komplex szerkezeti FEM szimulációk, nemlineáris hatások és törésmechanika.", x: 1300, y: 890 },
+
+        { id: "metal_mfg_basic", title: "Fémes gyártás alapok", category: "metallic", categoryName: "Fémes Gyártás", parentId: "metal_theory", icon: "ph ph-wrench", desc: "Alapvető gyártástechnológiák, forgácsolási paraméterek (v, f, a), vágóerők, szerszámgeometria és méréstechnika.", x: 2050, y: 470 },
+        { id: "lathe_trad_basic", title: "Hagyományos esztergálás alapok", category: "metallic", categoryName: "Hagyományos Esztergálás", parentId: "metal_mfg_basic", icon: "ph ph-circle-notch", desc: "Egyetemes esztergapad beállítása, tokmányozás, palást- és homlokesztergálás.", x: 1600, y: 680 },
+        { id: "lathe_trad_adv", title: "Hagyományos esztergálás haladó", category: "metallic", categoryName: "Hagyományos Esztergálás", parentId: "lathe_trad_basic", icon: "ph ph-arrows-clockwise", desc: "Késes menetvágás, kúpesztergálás és belső üregek kiesztergálása.", x: 1600, y: 890 },
+        { id: "lathe_trad_master", title: "Hagyományos esztergálás mester", category: "metallic", categoryName: "Hagyományos Esztergálás", parentId: "lathe_trad_adv", icon: "ph ph-crosshair", desc: "Egyedi készülékezés, excenteres és pontos illesztések készítése.", x: 1600, y: 1100 },
+
+        { id: "mill_trad_basic", title: "Hagyományos marás alapok", category: "metallic", categoryName: "Hagyományos Marás", parentId: "metal_mfg_basic", icon: "ph ph-gear-six", desc: "Konzolos marógép kezelése, sík- és derékszögmarás, satu beállítás.", x: 1900, y: 680 },
+        { id: "mill_trad_adv", title: "Hagyományos marás haladó", category: "metallic", categoryName: "Hagyományos Marás", parentId: "mill_trad_basic", icon: "ph ph-compass", desc: "Osztófej, körasztal használata, horonymarás és ferde felületek munkálása.", x: 1900, y: 890 },
+        { id: "mill_trad_master", title: "Hagyományos marás mester", category: "metallic", categoryName: "Hagyományos Marás", parentId: "mill_trad_adv", icon: "ph ph-diamonds-four", desc: "Egyedi készülék tervezése, összetett alakos felületek megmunkálása", x: 1900, y: 1100 },
+
+        { id: "lathe_cnc_basic", title: "CNC esztergálás alapok", category: "metallic", categoryName: "CNC Esztergálás", parentId: "metal_mfg_basic", icon: "ph ph-code", desc: "ISO G-kód alapok, szerszámbemérés (geometria/kopás), koordináta-rendszerek.", x: 2200, y: 680 },
+        { id: "lathe_cnc_adv", title: "CNC esztergálás haladó", category: "metallic", categoryName: "CNC Esztergálás", parentId: "lathe_cnc_basic", icon: "ph ph-cpu", desc: "Ciklusos programozás, CAM szoftveres programozás, magabiztos gépkezelés és forgácsolási paraméterek.", x: 2200, y: 890 },
+        { id: "lathe_cnc_master", title: "CNC esztergálás mester", category: "metallic", categoryName: "CNC Esztergálás", parentId: "lathe_cnc_adv", icon: "ph ph-faders", desc: "Hajtott szerszámok kezelése, egyedi készülék/befogások tervezése.", x: 2200, y: 1100 },
+
+        { id: "mill_cnc_basic", title: "CNC marás alapok", category: "metallic", categoryName: "CNC Marás", parentId: "metal_mfg_basic", icon: "ph ph-terminal-window", desc: "Alapszintű 2-tengelyes programozás alapszintű CAM ismeretek segítségével, munkadarab nullpontfelvétel.", x: 2500, y: 680 },
+        { id: "mill_cnc_adv", title: "CNC marás haladó", category: "metallic", categoryName: "CNC Marás", parentId: "mill_cnc_basic", icon: "ph ph-arrows-out-cardinal", desc: "3-tengelyes programozás, munkadarab nullpontfelvétel, alap interpolációk.", x: 2500, y: 890 },
+        { id: "mill_cnc_master", title: "CNC marás mester", category: "metallic", categoryName: "CNC Marás", parentId: "mill_cnc_adv", icon: "ph ph-diamonds-four", desc: "3+2 tengelyes pozicionált marás, adaptív zsebmarási stratégiák és CAM posztolás, szimultán 5-tengelyes simítás, nagy sebességű forgácsolás (HSM).", x: 2500, y: 1100 },
+
+        { id: "fdm_basic", title: "FDM 3D nyomtatás alapok", category: "polymer", categoryName: "FDM Nyomtatás", parentId: "poly_theory", icon: "ph ph-printer", desc: "FDM rétegépítés elve, PLA/PETG paraméterek, alap szeletelés és szintezés.", x: 2850, y: 470 },
+        { id: "fdm_adv", title: "FDM 3D nyomtatás haladó", category: "polymer", categoryName: "FDM Nyomtatás", parentId: "fdm_basic", icon: "ph ph-bounding-box", desc: "DFMA elvek, gyártási határok ismerete.", x: 2850, y: 680 },
+        { id: "fdm_master", title: "FDM 3D nyomtatás mester", category: "polymer", categoryName: "FDM Nyomtatás", parentId: "fdm_adv", icon: "ph ph-thermometer-hot", desc: "Műszaki polimerek (ABS, Nylon, PC), fűtött kamra és támaszanyag optimalizáció.", x: 2850, y: 890 },
+
+        { id: "sls_basic", title: "SLS alapok", category: "polymer", categoryName: "SLS Nyomtatás", parentId: "poly_theory", icon: "ph ph-dots-nine", desc: "Szelektív lézerszinterezés elve, PA12 por tulajdonságai és kamrafűtés.", x: 3110, y: 470 },
+        { id: "sls_adv", title: "SLS haladó", category: "polymer", categoryName: "SLS Nyomtatás", parentId: "sls_basic", icon: "ph ph-shapes", desc: "3D alkatrész fészkelés (nesting), por-újrahasznosítási arányok és termikus stabilizálás.", x: 3110, y: 680 },
+        { id: "sla_basic", title: "SLA alapok", category: "polymer", categoryName: "SLA Nyomtatás", parentId: "poly_theory", icon: "ph ph-drop", desc: "Fotopolimerizációs elv UV fénnyel, folyékony gyanták kezelése, mosás és utókezelés.", x: 3370, y: 470 },
+        { id: "sla_adv", title: "SLA haladó", category: "polymer", categoryName: "SLA Nyomtatás", parentId: "sla_basic", icon: "ph ph-sun", desc: "Mikrotámaszok tervezése, orientálás, réteglehúzási erők kompenzálása és UV keményítési profilok.", x: 3370, y: 680 },
+        { id: "sla_master", title: "SLA mester", category: "polymer", categoryName: "SLA Nyomtatás", parentId: "sla_adv", icon: "ph ph-sketch-logo", desc: "Kerámiatöltésű és biokompatibilis mérnöki rezinek feldolgozása, optikai felületminőség.", x: 3370, y: 890 },
+
+        { id: "misc_eng_basic", title: "Angol nyelvtudás közép szinten", category: "miscellaneous", categoryName: "Angol nyelv", parentId: "miscellaneous", icon: "ph ph-translate", desc: "Az angol nyelv elfogadható, legalább B2 szintű használata.", x: 3700, y: 470 },
+        { id: "misc_eng_adv", title: "Angol nyelvtudás emelt szinten", category: "miscellaneous", categoryName: "Angol nyelv", parentId: "misc_eng_basic", icon: "ph ph-chat-centered-text", desc: "Az angol nyelv magabiztos, legalább C1 szintű használata.", x: 3700, y: 680 },
+        { id: "misc_cad_basic", title: "CAD tervezési alapok", category: "miscellaneous", categoryName: "CAD használat", parentId: "miscellaneous", icon: "ph ph-pencil-line", desc: "Egyszerűbb alkatrészek és összeállítások tervezése.", x: 4060, y: 470 },
+        { id: "misc_cad_adv", title: "CAD tervezés haladó", category: "miscellaneous", categoryName: "CAD használat", parentId: "misc_cad_basic", icon: "ph ph-cube-transparent", desc: "Bonyolultabb alkatrészek tervezése, a TOP-DOWN és a BOTTOM-UP tervezés ismerete, paraméteres tervezés.", x: 4060, y: 680 },
+        { id: "misc_rendering_basic", title: "Renderelés alapok", category: "miscellaneous", categoryName: "Renderelés", parentId: "miscellaneous", icon: "ph ph-paint-brush-broad", desc: "Alkatrészek és összeállítások renderelési alapjai, alapszintű, CAD szoftverbeli renderelési készségek.", x: 4420, y: 470 },
+        { id: "misc_rendering_adv", title: "Renderelés haladó", category: "miscellaneous", categoryName: "Renderelés", parentId: "misc_rendering_basic", icon: "ph ph-projector-screen", desc: "Blender-beli valósághű textúrázás, fénybeállítások és professzionális termékvizualizáció.", x: 4420, y: 680 },
+        { id: "misc_drawing_basic", title: "Műszaki rajzolás alapok", category: "miscellaneous", categoryName: "Műszaki rajzok", parentId: "miscellaneous", icon: "ph ph-pencil-ruler", desc: "Alkatrész és összeállítási rajzok műszaki szabályainak, szabványainak alapszintű ismerete, egyszerűbb rajzok, robbantott ábrák készítése.", x: 4780, y: 470 },
+        { id: "misc_drawing_adv", title: "Műszaki rajzolás haladó", category: "miscellaneous", categoryName: "Műszaki rajzok", parentId: "misc_drawing_basic", icon: "ph ph-bezier-curve", desc: "Alkatrész és összeállítási rajzok műszaki szabályainak, szabványainak mély ismerete, komplex rajzok készítése.", x: 4780, y: 680 },
+        
+        { id: "misc_topopt_basic", title: "Topológiai optimalizáció alapok", category: "miscellaneous", categoryName: "TopOpt", parentId: "miscellaneous", icon: "ph ph-git-merge", desc: "Tetszőleges TopOpt szoftver alapszintű ismerete, a topológiai optimalizáció elvi alapjai.", x: 3880, y: 870, route: [{ x: 3880, y: 450 }] },
+        { id: "misc_topopt_adv", title: "Topológiai optimalizáció haladó", category: "miscellaneous", categoryName: "TopOpt", parentId: "misc_topopt_basic", icon: "ph ph-git-branch", desc: "Tetszőleges TopOpt szoftver beható ismerete, magabiztos használata.", x: 3880, y: 1080 },
+        { id: "doc_basic", title: "Műszaki dokumentáció alapok", category: "miscellaneous", categoryName: "Dokumentáció", parentId: "miscellaneous", icon: "ph ph-file-doc", desc: "Műszaki dokumentációk készítése alap szinten, érthető megfogalmazással, műszaki szaknyelv használatával.", x: 4240, y: 870 },
+        { id: "doc_adv", title: "Műszaki dokumentáció haladó", category: "miscellaneous", categoryName: "Dokumentáció", parentId: "doc_basic", icon: "ph ph-files", desc: "Műszaki dokumentációk készítése kiváló minőségben, LaTeX-ben, kifejező, magas minőségű ábrákkal.", x: 4240, y: 1080 },
+        { id: "launch_rail_basic", title: "Állványállítás alapok", category: "miscellaneous", categoryName: "Állvány", parentId: "miscellaneous", icon: "ph ph-gear", desc: "Az állvány részleges ismerete, állványállításban való aktív részvétel.", x: 4600, y: 870, route: [{ x: 4600, y: 450 }] },
+        { id: "launch_rail_adv", title: "Állványállítás haladó", category: "miscellaneous", categoryName: "Állvány", parentId: "launch_rail_basic", icon: "ph ph-user-gear", desc: "Teljes állvány és minden munkafolyamat ismerete.", x: 4600, y: 1080 },
+        { id: "launch_rail_master", title: "Állványállítás mester", category: "miscellaneous", categoryName: "Állvány", parentId: "launch_rail_adv", icon: "ph ph-user-circle-gear", desc: "Teljes állványállítás önálló és magabiztos levezénylése.", x: 4600, y: 1290 }
+      ];
+
+      let SKILLS_DATA = JSON.parse(JSON.stringify(DEFAULT_SKILLS_DATA));
+
+      const ACHIEVEMENTS_DATA = [
+        { id: "achv_20h", title: "A jó mérnök", icon: "ph-bold ph-clock", desc: "Legalább heti 20 óra aktív műhelymunkát, tervezést és egyebeket végzett a csapatban." },
+        { id: "achv_40h", title: "A veterán", icon: "ph-bold ph-barbell", desc: "Kiemelkedő, teljes heti elköteleződés és legalább 40 munkaóra a projekt sikeréért." },
+        { id: "achv_60h", title: "A legenda", icon: "ph-bold ph-alarm", desc: "Hihetetlen munkabírás, időt és energiát nem kímélve heti 60 óra munkát rakott bele a csapatba!" },
+        { id: "achv_80h", title: "Az élettelen", icon: "ph-bold ph-skull", desc: "Legendás teljesítmény, nem sok ember képes heti 80 munkaórát félrerakni egy hobbira!" },
+        { id: "achv_100h", title: "Az final boss", icon: "ph-bold ph-alien", desc: "Abszolút elvetemült, ember feletti teljesítmény! Könnyen lehet, hogy egyedül vagy a 100 órások klubjában (EuRoC nem számít)." },
+        { id: "achv_workshop_safety", title: "Műhelybiztonsági Mester", icon: "ph-bold ph-shield-check", desc: "Példamutató munkavédelem, védőfelszerelés-használat és a biztonsági szabályok betartása." },
+        { id: "achv_project_lead", title: "Önálló Részprojekt Vezető", icon: "ph-bold ph-flag", desc: "Sikeresen levezényelt egy teljes alkatrész- vagy részegység-fejlesztési folyamatot, megfelelően koordinálva a beosztottjait." },
+        { id: "achv_cad_milestone", title: "Tervezési Mérföldkő", icon: "ph-bold ph-compass-tool", desc: "Első, gyártásra teljesen kész szerkezeti elem sikeres leadása és jóváhagyása." },
+        { id: "achv_team_mentor", title: "Csapat Mentor", icon: "ph-bold ph-users-three", desc: "Aktív segítségnyújtás és szakmai tudásátadás az új csapattagok beilleszkedésében." },
+        { id: "achv_rocket_launching_rookie", title: "Rakétaindító kezdő", icon: "ph-bold ph-rocket", desc: "Aktívan részt vett egy indítási napon." },
+        { id: "achv_rocket_launching_veteran", title: "Rakétás veterán", icon: "ph-bold ph-rocket-launch", desc: "Rutinos rakétaindító (részvétel legalább 3 indításon)." },
+        { id: "achv_rocket_launching_chief", title: "Indítási főnök", icon: "ph-bold ph-crown-simple", desc: "Sikeresen levezényelt egy összeszerelést a paddockban valamilyen vezetői/felelős pozícióban." }
+      ];
+
+      /* ==========================================================================
+         ÁLLAPOT & VÁLTOZÓK (ZÁRT NÉVTÉRBEN - KONZOLBÓL NEM ÉRHETŐ EL!)
+         ========================================================================== */
+      const STORAGE_KEY_SESSION_USER = "structural_app_logged_username";
+      const STORAGE_KEY_SESSION_PASS = "structural_app_logged_password";
+      let currentUserProfile = null;
+      let allProfiles = [];
+      let activeViewingUserId = null;
+      let activeFilter = "all";
+      let isCredentialsRevealed = false;
+      let realtimeChannel = null;
+
+      let newlyUnlockedSkills = new Set();
+      let newlyRevokedSkills = new Set();
+
+      let scale = 0.30;
+      let panX = 0, panY = 0;
+      let isDragging = false;
+      let startX = 0, startY = 0;
+      let modalScale = 1.0;
+
+      // Szerkesztői mód állapotok
+      let isEditMode = false;
+      let draftSkills = [];
+      let deletedSkillIds = new Set();
+      let draggingNode = null;
+      let dragOffsetX = 0, dragOffsetY = 0;
+      let hasNodeMoved = false;
+      let editingNodeId = null;
+
+      // Kereső állapot
+      let selectedSearchItemId = null;
+
+      function isManagerRole(role) {
+        return role === "admin" || role === "team_lead";
+      }
+
+      function formatDisplayName(profile) {
+        if (!profile) return "";
+        if (profile.role === "team_lead") {
+          return `${profile.full_name} (Munkacsoportvezető)`;
+        }
+        return profile.full_name;
+      }
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        setupPanAndZoom();
+        setupFilters();
+        setupModalEvents();
+        setupAuth();
+        setupChangePasswordModal();
+        setupAdminUserManagement();
+        setupAchievementsModal();
+        setupSkillSearchModal();
+        setupTreeEditor();
+        await checkAuthSession();
       });
 
-      if (error) {
-        alert("Nem sikerült kapcsolódni az adatbázishoz: " + error.message);
-        return;
-      }
-
-      allProfiles = profiles || [currentUserProfile];
-
-      if (currentUserProfile.role === 'admin') {
-        const firstNormal = allProfiles.find(p => p.role !== 'admin') || currentUserProfile;
-        activeViewingUserId = firstNormal.id;
-      } else {
-        activeViewingUserId = currentUserProfile.id;
-      }
-
-      currentUserProfile = allProfiles.find(item => item.id === currentUserProfile.id) || currentUserProfile;
-
-      resetFilterToAll();
-
-      updateUIForUser();
-      detectProfileChanges();
-      renderTree();
-      centerRootNode();
-
-      if (!realtimeChannel && supabaseClient) {
+      /* ==========================================================================
+         SESSION & ADATBÁZIS LEKÉRDEZÉS
+         ========================================================================== */
+      async function loadSkillTreeFromCloud() {
+        if (!supabaseClient) return;
         try {
-          realtimeChannel = supabaseClient
-            .channel('profiles-db-changes')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, async () => {
-              const activeU = currentUserProfile ? currentUserProfile.username : null;
-              const activeP = currentUserProfile ? currentUserProfile.password : null;
-              if (activeU && activeP) {
-                const { data: refreshed } = await supabaseClient.rpc('get_profiles', { p_username: activeU, p_password: activeP });
+          const { data, error } = await supabaseClient.rpc('get_skill_tree');
+          if (!error && Array.isArray(data) && data.length > 0) {
+            SKILLS_DATA = data;
+          } else if (!error && Array.isArray(data) && data.length === 0 && currentUserProfile && isManagerRole(currentUserProfile.role)) {
+            // Első inicializálás: feltöltjük az alapértelmezett fát a felhőbe
+            await supabaseClient.rpc('save_skill_tree', {
+              p_username: currentUserProfile.username,
+              p_password: currentUserProfile.password,
+              p_skills: DEFAULT_SKILLS_DATA,
+              p_deleted_ids: []
+            });
+            SKILLS_DATA = JSON.parse(JSON.stringify(DEFAULT_SKILLS_DATA));
+          }
+        } catch (e) {
+          console.error("Tree load error:", e);
+        }
+      }
+
+      async function checkAuthSession() {
+        const savedUsername = localStorage.getItem(STORAGE_KEY_SESSION_USER) || sessionStorage.getItem(STORAGE_KEY_SESSION_USER);
+        const savedPassword = localStorage.getItem(STORAGE_KEY_SESSION_PASS) || sessionStorage.getItem(STORAGE_KEY_SESSION_PASS);
+
+        if (savedUsername && savedPassword && supabaseClient) {
+          try {
+            const { data, error } = await supabaseClient.rpc('login_user', {
+              p_username: savedUsername,
+              p_password: savedPassword
+            });
+
+            if (!error && data && data.length > 0) {
+              currentUserProfile = data[0];
+              await loadAllProfilesAndInit(savedUsername, savedPassword);
+              hideAuthModal();
+              return;
+            }
+          } catch (e) {
+            console.error("Session check error:", e);
+          }
+        }
+        showAuthModal();
+      }
+
+      async function loadAllProfilesAndInit(username, password) {
+        if (!supabaseClient) return;
+
+        const u = username || currentUserProfile.username;
+        const p = password || currentUserProfile.password;
+
+        await loadSkillTreeFromCloud();
+
+        const { data: profiles, error } = await supabaseClient.rpc('get_profiles', {
+          p_username: u,
+          p_password: p
+        });
+
+        if (error) {
+          alert("Nem sikerült kapcsolódni az adatbázishoz: " + error.message);
+          return;
+        }
+
+        allProfiles = profiles || [currentUserProfile];
+
+        if (isManagerRole(currentUserProfile.role)) {
+          const firstNormal = allProfiles.find(pr => pr.role !== 'admin') || currentUserProfile;
+          activeViewingUserId = firstNormal.id;
+        } else {
+          activeViewingUserId = currentUserProfile.id;
+        }
+
+        const refreshedSelf = allProfiles.find(item => item.id === currentUserProfile.id);
+        if (refreshedSelf) {
+          // Megőrizzük a saját jelszót a kliens memóriájában az RPC hívásokhoz
+          refreshedSelf.password = p;
+          currentUserProfile = refreshedSelf;
+        }
+
+        resetFilterToAll();
+        updateUIForUser();
+        detectProfileChanges();
+        renderTree();
+        centerRootNode();
+
+        if (!realtimeChannel && supabaseClient) {
+          try {
+            realtimeChannel = supabaseClient
+              .channel('structural-realtime')
+              .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, async () => {
+                if (!currentUserProfile) return;
+                const { data: refreshed } = await supabaseClient.rpc('get_profiles', {
+                  p_username: currentUserProfile.username,
+                  p_password: currentUserProfile.password
+                });
                 allProfiles = refreshed || [];
-                
-                currentUserProfile = allProfiles.find(item => item.id === currentUserProfile.id) || currentUserProfile;
-                
+                const self = allProfiles.find(item => item.id === currentUserProfile.id);
+                if (self) {
+                  self.password = currentUserProfile.password;
+                  currentUserProfile = self;
+                }
                 updateUIForUser();
                 detectProfileChanges();
-                renderTree();
+                if (!isEditMode) renderTree();
                 updateProgressStats();
                 updateAchievementsBadge();
-              }
-            })
-            .subscribe();
-        } catch (e) {
-          console.warn("Realtime sub warning:", e);
+              })
+              .on('postgres_changes', { event: '*', schema: 'public', table: 'skill_tree_config' }, async () => {
+                await loadSkillTreeFromCloud();
+                if (!isEditMode) {
+                  renderTree();
+                  updateProgressStats();
+                }
+              })
+              .subscribe();
+          } catch (e) {
+            console.warn("Realtime sub warning:", e);
+          }
         }
       }
-    }
 
-    function resetFilterToAll() {
-      activeFilter = "all";
-      const filterBtns = document.querySelectorAll(".filter-btn");
-      filterBtns.forEach(btn => {
-        if (btn.dataset.filter === "all") {
-          btn.className = "filter-btn px-3 py-1 rounded bg-cyan-500/20 border border-cyan-400 text-cyan-300 font-medium transition shrink-0";
+      function resetFilterToAll() {
+        activeFilter = "all";
+        const filterBtns = document.querySelectorAll(".filter-btn");
+        filterBtns.forEach(btn => {
+          if (btn.dataset.filter === "all") {
+            btn.className = "filter-btn px-3 py-1 rounded bg-cyan-500/20 border border-cyan-400 text-cyan-300 font-medium transition shrink-0";
+          } else {
+            btn.className = "filter-btn px-3 py-1 rounded bg-blueprint-800 hover:bg-blueprint-700 border border-blueprint-line text-slate-300 font-medium transition shrink-0";
+          }
+        });
+      }
+
+      function showAuthModal() {
+        const modal = document.getElementById("authModal");
+        const alert = document.getElementById("authAlert");
+        const form = document.getElementById("loginForm");
+
+        if (alert) {
+          alert.textContent = "";
+          alert.className = "hidden mb-4 p-3 rounded-lg text-xs font-semibold";
+        }
+        if (form) form.reset();
+        if (modal) modal.classList.remove("hidden");
+      }
+
+      function hideAuthModal() {
+        const modal = document.getElementById("authModal");
+        if (modal) modal.classList.add("hidden");
+      }
+
+      function getActiveProfile() {
+        return allProfiles.find(p => p.id === activeViewingUserId) || currentUserProfile;
+      }
+
+      function updateAdminCredentialsDisplay() {
+        const currentTarget = getActiveProfile();
+        const displayEl = document.getElementById("adminCredentialsDisplay");
+        const eyeIcon = document.getElementById("adminPasswordEyeIcon");
+
+        if (!currentTarget || !displayEl) return;
+
+        if (isCredentialsRevealed) {
+          displayEl.innerHTML = `<span class="text-cyan-300">@${currentTarget.username}</span> : <span class="text-amber-300">${currentTarget.password}</span>`;
+          if (eyeIcon) eyeIcon.className = "ph ph-eye-slash text-amber-400";
         } else {
-          btn.className = "filter-btn px-3 py-1 rounded bg-blueprint-800 hover:bg-blueprint-700 border border-blueprint-line text-slate-300 font-medium transition shrink-0";
+          displayEl.textContent = "••••••••";
+          if (eyeIcon) eyeIcon.className = "ph ph-eye text-slate-400";
         }
-      });
-    }
-
-    function showAuthModal() {
-      const modal = document.getElementById("authModal");
-      const alert = document.getElementById("authAlert");
-      const form = document.getElementById("loginForm");
-
-      if (alert) {
-        alert.textContent = "";
-        alert.className = "hidden mb-4 p-3 rounded-lg text-xs font-semibold";
-      }
-      if (form) form.reset();
-      if (modal) modal.classList.remove("hidden");
-    }
-
-    function hideAuthModal() {
-      const modal = document.getElementById("authModal");
-      if (modal) modal.classList.add("hidden");
-    }
-
-    function getActiveProfile() {
-      return allProfiles.find(p => p.id === activeViewingUserId) || currentUserProfile;
-    }
-
-    function updateAdminCredentialsDisplay() {
-      const currentTarget = getActiveProfile();
-      const displayEl = document.getElementById("adminCredentialsDisplay");
-      const eyeIcon = document.getElementById("adminPasswordEyeIcon");
-
-      if (!currentTarget || !displayEl) return;
-
-      if (isCredentialsRevealed) {
-        displayEl.innerHTML = `<span class="text-cyan-300">@${currentTarget.username}</span> : <span class="text-amber-300">${currentTarget.password}</span>`;
-        if (eyeIcon) eyeIcon.className = "ph ph-eye-slash text-amber-400";
-      } else {
-        displayEl.textContent = "••••••••";
-        if (eyeIcon) eyeIcon.className = "ph ph-eye text-slate-400";
-      }
-    }
-
-    function updateUIForUser() {
-      document.getElementById("currentUserName").textContent = currentUserProfile.full_name;
-      document.getElementById("currentUserAccount").textContent = `@${currentUserProfile.username}`;
-
-      const roleBadge = document.getElementById("roleBadge");
-      const adminSelector = document.getElementById("adminUserSelectorContainer");
-      const readOnlyIndicator = document.getElementById("readOnlyIndicator");
-
-      if (currentUserProfile.role === "admin") {
-        roleBadge.textContent = "ADMIN";
-        roleBadge.className = "text-[11px] px-2 py-0.5 rounded font-mono border border-amber-400 bg-amber-500/20 text-amber-300 font-bold";
-        adminSelector.classList.remove("hidden");
-        adminSelector.classList.add("flex");
-        readOnlyIndicator.classList.add("hidden");
-        readOnlyIndicator.classList.remove("flex");
-
-        populateEngineerDropdown();
-      } else {
-        roleBadge.textContent = "MUNKATÁRS";
-        roleBadge.className = "text-[11px] px-2 py-0.5 rounded font-mono border border-cyan-400/50 bg-cyan-500/10 text-cyan-300 font-bold";
-        adminSelector.classList.remove("flex");
-        adminSelector.classList.add("hidden");
-        readOnlyIndicator.classList.remove("hidden");
-        readOnlyIndicator.classList.add("flex");
       }
 
-      updateProgressStats();
-      updateAchievementsBadge();
-    }
+      function updateRoleToggleButton() {
+        const btn = document.getElementById("adminToggleLeadBtn");
+        const text = document.getElementById("adminToggleLeadBtnText");
+        const target = getActiveProfile();
+        if (!btn || !text || !target || currentUserProfile.role !== "admin") return;
 
-    function populateEngineerDropdown() {
-      const select = document.getElementById("engineerSelect");
-      if (!select) return;
-      select.innerHTML = "";
-
-      allProfiles.forEach(p => {
-        const option = document.createElement("option");
-        option.value = p.id;
-        option.textContent = `${p.full_name}${p.role === 'admin' ? ' [ADMIN]' : ''}`;
-        if (p.id === activeViewingUserId) {
-          option.selected = true;
+        if (target.role === "admin") {
+          btn.classList.add("hidden");
+        } else {
+          btn.classList.remove("hidden");
+          if (target.role === "team_lead") {
+            text.textContent = "Vezetői rang elvétele";
+            btn.className = "px-2 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded text-xs font-semibold flex items-center gap-1 transition";
+          } else {
+            text.textContent = "Vezetővé tétel";
+            btn.className = "px-2 py-1 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/40 rounded text-xs font-semibold flex items-center gap-1 transition";
+          }
         }
-        select.appendChild(option);
-      });
+      }
 
-      updateAdminCredentialsDisplay();
+      function updateUIForUser() {
+        document.getElementById("currentUserName").textContent = formatDisplayName(currentUserProfile);
+        document.getElementById("currentUserAccount").textContent = `@${currentUserProfile.username}`;
 
-      select.onchange = (e) => {
-        activeViewingUserId = e.target.value;
-        updateAdminCredentialsDisplay();
-        renderTree();
+        const roleBadge = document.getElementById("roleBadge");
+        const adminSelector = document.getElementById("adminUserSelectorContainer");
+        const readOnlyIndicator = document.getElementById("readOnlyIndicator");
+        const credentialsBox = document.getElementById("adminCredentialsBox");
+        const toggleLeadBtn = document.getElementById("adminToggleLeadBtn");
+        const mgmtLabel = document.getElementById("managementBarLabel");
+        const skillSearchBtn = document.getElementById("openSkillSearchBtn");
+        const editorControls = document.getElementById("editorControlsTopRight");
+
+        if (currentUserProfile.role === "admin") {
+          roleBadge.textContent = "ADMIN";
+          roleBadge.className = "text-[11px] px-2 py-0.5 rounded font-mono border border-amber-400 bg-amber-500/20 text-amber-300 font-bold";
+          mgmtLabel.textContent = "ADMIN:";
+          adminSelector.classList.remove("hidden");
+          adminSelector.classList.add("flex");
+          credentialsBox.classList.remove("hidden");
+          toggleLeadBtn.classList.remove("hidden");
+          readOnlyIndicator.classList.add("hidden");
+          readOnlyIndicator.classList.remove("flex");
+          skillSearchBtn.classList.remove("hidden");
+          editorControls.classList.remove("hidden");
+
+          populateEngineerDropdown();
+        } else if (currentUserProfile.role === "team_lead") {
+          roleBadge.textContent = "MUNKACSOPORTVEZETŐ";
+          roleBadge.className = "text-[11px] px-2 py-0.5 rounded font-mono border border-indigo-400 bg-indigo-500/20 text-indigo-300 font-bold";
+          mgmtLabel.textContent = "VEZETŐ:";
+          adminSelector.classList.remove("hidden");
+          adminSelector.classList.add("flex");
+          // Munkacsoportvezető NEM látja a jelszavakat és NEM oszt rangot
+          credentialsBox.classList.add("hidden");
+          toggleLeadBtn.classList.add("hidden");
+          readOnlyIndicator.classList.add("hidden");
+          readOnlyIndicator.classList.remove("flex");
+          skillSearchBtn.classList.remove("hidden");
+          editorControls.classList.remove("hidden");
+
+          populateEngineerDropdown();
+        } else {
+          roleBadge.textContent = "MUNKATÁRS";
+          roleBadge.className = "text-[11px] px-2 py-0.5 rounded font-mono border border-cyan-400/50 bg-cyan-500/10 text-cyan-300 font-bold";
+          adminSelector.classList.remove("flex");
+          adminSelector.classList.add("hidden");
+          readOnlyIndicator.classList.remove("hidden");
+          readOnlyIndicator.classList.add("flex");
+          skillSearchBtn.classList.add("hidden");
+          editorControls.classList.add("hidden");
+        }
+
         updateProgressStats();
         updateAchievementsBadge();
-      };
+      }
 
-      const toggleBtn = document.getElementById("adminTogglePasswordBtn");
-      if (toggleBtn) {
-        toggleBtn.onclick = () => {
-          isCredentialsRevealed = !isCredentialsRevealed;
+      function populateEngineerDropdown() {
+        const select = document.getElementById("engineerSelect");
+        if (!select) return;
+        select.innerHTML = "";
+
+        allProfiles.forEach(p => {
+          // Munkacsoportvezető ne lássa az admin profilját a legördülőben
+          if (currentUserProfile.role === "team_lead" && p.role === "admin") return;
+
+          const option = document.createElement("option");
+          option.value = p.id;
+          let label = formatDisplayName(p);
+          if (p.role === 'admin') label += ' [ADMIN]';
+          option.textContent = label;
+          if (p.id === activeViewingUserId) {
+            option.selected = true;
+          }
+          select.appendChild(option);
+        });
+
+        updateAdminCredentialsDisplay();
+        updateRoleToggleButton();
+
+        select.onchange = (e) => {
+          activeViewingUserId = e.target.value;
           updateAdminCredentialsDisplay();
+          updateRoleToggleButton();
+          renderTree();
+          updateProgressStats();
+          updateAchievementsBadge();
         };
-      }
-    }
 
-    function updateProgressStats() {
-      const profile = getActiveProfile();
-      if (!profile) return;
-      const total = SKILLS_DATA.length;
-      
-      const unlockedSkillList = (profile.unlocked_skills || []).filter(id => !id.startsWith("achv_"));
-      const unlockedCount = unlockedSkillList.length;
-      const percent = Math.round((unlockedCount / total) * 100);
-
-      document.getElementById("statsProgress").textContent = `${unlockedCount} / ${total} (${percent}%)`;
-      document.getElementById("statsProgressBar").style.width = `${percent}%`;
-    }
-
-    /* ==========================================================================
-       VÁLTOZÁSOK DETEKTÁLÁSA ÉS RPC NYUGTÁZÁS
-       ========================================================================== */
-    function detectProfileChanges() {
-      newlyUnlockedSkills.clear();
-      newlyRevokedSkills.clear();
-
-      if (!currentUserProfile || currentUserProfile.role === "admin") {
-        const bar = document.getElementById("changeNotificationBar");
-        if (bar) bar.classList.add("hidden");
-        updateAchievementsBadge();
-        return;
-      }
-
-      const currentSkills = new Set(currentUserProfile.unlocked_skills || ["root"]);
-      const lastSeenList = currentUserProfile.last_seen_skills || ["root"];
-      const lastSeen = new Set(lastSeenList);
-
-      currentSkills.forEach(id => {
-        if (!lastSeen.has(id)) newlyUnlockedSkills.add(id);
-      });
-
-      lastSeen.forEach(id => {
-        if (!currentSkills.has(id)) newlyRevokedSkills.add(id);
-      });
-
-      const notifBar = document.getElementById("changeNotificationBar");
-      const notifText = document.getElementById("changeNotificationText");
-
-      if (newlyUnlockedSkills.size > 0 || newlyRevokedSkills.size > 0) {
-        let messages = [];
-        if (newlyUnlockedSkills.size > 0) messages.push(`<strong class="text-emerald-400">${newlyUnlockedSkills.size} új készség/eredmény feloldva</strong>`);
-        if (newlyRevokedSkills.size > 0) messages.push(`<strong class="text-rose-400">${newlyRevokedSkills.size} készség/eredmény visszavonva</strong>`);
-        notifText.innerHTML = messages.join(", ") + " (lásd a jelöléseket a fán és az eredményeknél).";
-        notifBar.classList.remove("hidden");
-      } else {
-        notifBar.classList.add("hidden");
-      }
-
-      updateAchievementsBadge();
-
-      document.getElementById("dismissChangesBtn").onclick = async () => {
-        const updatedList = Array.from(currentSkills);
-        
-        try {
-          await supabaseClient.rpc('update_last_seen_skills', {
-            p_username: currentUserProfile.username,
-            p_password: currentUserProfile.password,
-            p_last_seen: updatedList
-          });
-        } catch (e) {
-          console.error("Last seen update error:", e);
+        const toggleBtn = document.getElementById("adminTogglePasswordBtn");
+        if (toggleBtn) {
+          toggleBtn.onclick = () => {
+            isCredentialsRevealed = !isCredentialsRevealed;
+            updateAdminCredentialsDisplay();
+          };
         }
+      }
 
-        currentUserProfile.last_seen_skills = updatedList;
+      function updateProgressStats() {
+        const profile = getActiveProfile();
+        if (!profile) return;
+        const validSkillIds = new Set(SKILLS_DATA.map(s => s.id));
+        const total = SKILLS_DATA.length;
+        
+        const unlockedSkillList = (profile.unlocked_skills || []).filter(id => validSkillIds.has(id));
+        const unlockedCount = unlockedSkillList.length;
+        const percent = total > 0 ? Math.round((unlockedCount / total) * 100) : 0;
+
+        document.getElementById("statsProgress").textContent = `${unlockedCount} / ${total} (${percent}%)`;
+        document.getElementById("statsProgressBar").style.width = `${percent}%`;
+      }
+
+      /* ==========================================================================
+         VÁLTOZÁSOK DETEKTÁLÁSA ÉS RPC NYUGTÁZÁS
+         ========================================================================== */
+      function detectProfileChanges() {
         newlyUnlockedSkills.clear();
         newlyRevokedSkills.clear();
-        notifBar.classList.add("hidden");
-        renderTree();
-        updateAchievementsBadge();
-        if (!document.getElementById("achievementsModal").classList.contains("hidden")) {
-          renderAchievementsList();
+
+        if (!currentUserProfile || currentUserProfile.role === "admin") {
+          const bar = document.getElementById("changeNotificationBar");
+          if (bar) bar.classList.add("hidden");
+          updateAchievementsBadge();
+          return;
         }
-      };
-    }
 
-    /* ==========================================================================
-       KOMPONENSEK & KAPCSOLÓVONALAK RENDERE (KONTROLLPONTOK TÁMOGATÁSÁVAL)
-       ========================================================================== */
-    function renderTree() {
-      const nodesLayer = document.getElementById("nodesLayer");
-      const connectionsLayer = document.getElementById("connectionsLayer");
-      if (!nodesLayer || !connectionsLayer) return;
+        const currentSkills = new Set(currentUserProfile.unlocked_skills || ["root"]);
+        const lastSeenList = currentUserProfile.last_seen_skills || ["root"];
+        const lastSeen = new Set(lastSeenList);
 
-      nodesLayer.innerHTML = "";
-      const defs = connectionsLayer.querySelector("defs").outerHTML;
-      connectionsLayer.innerHTML = defs;
+        currentSkills.forEach(id => {
+          if (!lastSeen.has(id)) newlyUnlockedSkills.add(id);
+        });
 
-      const profile = getActiveProfile();
-      if (!profile) return;
+        lastSeen.forEach(id => {
+          if (!currentSkills.has(id)) newlyRevokedSkills.add(id);
+        });
 
-      const unlockedSet = new Set(profile.unlocked_skills || ["root"]);
-      const isAdmin = (currentUserProfile && currentUserProfile.role === "admin");
+        const notifBar = document.getElementById("changeNotificationBar");
+        const notifText = document.getElementById("changeNotificationText");
 
-      SKILLS_DATA.forEach(skill => {
-        const isVisible = (activeFilter === "all" || skill.category === "root" || skill.category === activeFilter);
-        const isUnlocked = unlockedSet.has(skill.id);
-        const parentUnlocked = !skill.parentId || unlockedSet.has(skill.parentId);
-        const canBeUnlocked = !isUnlocked && parentUnlocked;
-
-        const nodeEl = document.createElement("div");
-        nodeEl.className = `absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-200 cursor-pointer ${isVisible ? 'opacity-100' : 'opacity-20 pointer-events-none'}`;
-        nodeEl.style.left = `${skill.x}px`;
-        nodeEl.style.top = `${skill.y}px`;
-
-        if (skill.id === "root") {
-          nodeEl.innerHTML = `
-            <div class="flex flex-col items-center group">
-              <div class="w-16 h-16 rounded-2xl bg-cyan-500/20 border-2 border-cyan-400 flex items-center justify-center text-cyan-300 text-3xl shadow-[0_0_25px_rgba(56,189,248,0.5)] group-hover:scale-105 transition-transform">
-                <i class="${skill.icon}"></i>
-              </div>
-              <div class="mt-2 text-center bg-blueprint-850 border border-cyan-500/50 px-3 py-1 rounded-lg">
-                <div class="text-xs font-bold text-white uppercase tracking-wider">${skill.title}</div>
-                <div class="text-[10px] text-cyan-400 font-mono">FŐ GYÖKÉR ELEM</div>
-              </div>
-            </div>
-          `;
+        if (newlyUnlockedSkills.size > 0 || newlyRevokedSkills.size > 0) {
+          let messages = [];
+          if (newlyUnlockedSkills.size > 0) messages.push(`<strong class="text-emerald-400">${newlyUnlockedSkills.size} új készség/eredmény feloldva</strong>`);
+          if (newlyRevokedSkills.size > 0) messages.push(`<strong class="text-rose-400">${newlyRevokedSkills.size} készség/eredmény visszavonva</strong>`);
+          notifText.innerHTML = messages.join(", ") + " (lásd a jelöléseket a fán és az eredményeknél).";
+          notifBar.classList.remove("hidden");
         } else {
-          let cardStyle = "";
-          let iconColor = "";
-          let badge = "";
+          notifBar.classList.add("hidden");
+        }
 
-          const isNewlyUnlocked = newlyUnlockedSkills.has(skill.id);
-          const isNewlyRevoked = newlyRevokedSkills.has(skill.id);
+        updateAchievementsBadge();
 
-          if (isUnlocked) {
-            if (isNewlyUnlocked) {
-              cardStyle = "bg-emerald-950/80 border-emerald-400 newly-unlocked-pulse shadow-[0_0_25px_rgba(16,185,129,0.5)]";
-              iconColor = "text-emerald-300";
-              badge = `<span class="bg-emerald-400 text-slate-950 text-[10px] px-1.5 py-0.5 rounded font-black tracking-wider animate-pulse flex items-center gap-1">★ ÚJ FELOLDÁS</span>`;
-            } else {
-              cardStyle = "bg-slate-900/95 border-emerald-500/80 shadow-[0_0_18px_rgba(16,185,129,0.35)]";
-              iconColor = "text-emerald-400";
-              badge = `<span class="bg-emerald-500/20 text-emerald-400 text-[10px] px-1.5 py-0.5 rounded border border-emerald-500/30 flex items-center gap-1 font-semibold"><i class="ph-bold ph-check"></i> Kész</span>`;
-            }
-          } else if (isNewlyRevoked) {
-            cardStyle = "bg-rose-950/80 border-rose-500 newly-revoked-pulse shadow-[0_0_25px_rgba(244,63,94,0.5)]";
-            iconColor = "text-rose-400";
-            badge = `<span class="bg-rose-500 text-white text-[10px] px-1.5 py-0.5 rounded font-bold flex items-center gap-1 animate-pulse"><i class="ph-bold ph-warning"></i> VISSZAVONVA</span>`;
-          } else if (canBeUnlocked) {
-            cardStyle = isAdmin 
-              ? "bg-slate-900/95 border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.4)] ready-to-unlock" 
-              : "bg-slate-900/90 border-slate-600";
-            iconColor = isAdmin ? "text-amber-400" : "text-slate-400";
-            badge = isAdmin
-              ? `<span class="bg-amber-500/20 text-amber-300 text-[10px] px-1.5 py-0.5 rounded border border-amber-500/40 font-semibold">Feloldható</span>`
-              : `<span class="bg-slate-800 text-slate-400 text-[10px] px-1.5 py-0.5 rounded border border-slate-700">Következő</span>`;
-          } else {
-            cardStyle = "bg-slate-950/80 border-slate-800 opacity-60";
-            iconColor = "text-slate-600";
-            badge = `<span class="bg-slate-800/70 text-slate-500 text-[10px] px-1.5 py-0.5 rounded flex items-center gap-1"><i class="ph ph-lock"></i> Zárolt</span>`;
+        document.getElementById("dismissChangesBtn").onclick = async () => {
+          const updatedList = Array.from(currentSkills);
+          
+          try {
+            await supabaseClient.rpc('update_last_seen_skills', {
+              p_username: currentUserProfile.username,
+              p_password: currentUserProfile.password,
+              p_last_seen: updatedList
+            });
+          } catch (e) {
+            console.error("Last seen update error:", e);
           }
 
-          nodeEl.innerHTML = `
-            <div class="w-64 p-3 rounded-xl border ${cardStyle} backdrop-blur-md hover:scale-102 hover:border-cyan-400 transition-all duration-150">
-              <div class="flex items-start gap-2.5">
-                <div class="w-9 h-9 rounded-lg bg-slate-800 flex items-center justify-center text-lg ${iconColor} border border-slate-700 shrink-0">
+          currentUserProfile.last_seen_skills = updatedList;
+          newlyUnlockedSkills.clear();
+          newlyRevokedSkills.clear();
+          notifBar.classList.add("hidden");
+          renderTree();
+          updateAchievementsBadge();
+          if (!document.getElementById("achievementsModal").classList.contains("hidden")) {
+            renderAchievementsList();
+          }
+        };
+      }
+
+      /* ==========================================================================
+         KOMPONENSEK & KAPCSOLÓVONALAK RENDERE
+         ========================================================================== */
+      function renderTree() {
+        const nodesLayer = document.getElementById("nodesLayer");
+        const connectionsLayer = document.getElementById("connectionsLayer");
+        if (!nodesLayer || !connectionsLayer) return;
+
+        nodesLayer.innerHTML = "";
+        const defs = connectionsLayer.querySelector("defs").outerHTML;
+        connectionsLayer.innerHTML = defs;
+
+        const profile = getActiveProfile();
+        if (!profile) return;
+
+        const activeTreeData = isEditMode ? draftSkills : SKILLS_DATA;
+        const unlockedSet = new Set(profile.unlocked_skills || ["root"]);
+        const canManage = isManagerRole(currentUserProfile && currentUserProfile.role);
+
+        activeTreeData.forEach(skill => {
+          const isVisible = isEditMode || (activeFilter === "all" || skill.category === "root" || skill.category === activeFilter);
+          const isUnlocked = unlockedSet.has(skill.id);
+          const parentUnlocked = !skill.parentId || unlockedSet.has(skill.parentId);
+          const canBeUnlocked = !isUnlocked && parentUnlocked;
+
+          const nodeEl = document.createElement("div");
+          nodeEl.dataset.skillId = skill.id;
+          nodeEl.className = `absolute transform -translate-x-1/2 -translate-y-1/2 transition-opacity duration-200 ${isEditMode ? 'cursor-move' : 'cursor-pointer'} ${isVisible ? 'opacity-100' : 'opacity-20 pointer-events-none'}`;
+          nodeEl.style.left = `${skill.x}px`;
+          nodeEl.style.top = `${skill.y}px`;
+
+          if (skill.id === "root") {
+            nodeEl.innerHTML = `
+              <div class="flex flex-col items-center group">
+                <div class="w-16 h-16 rounded-2xl ${isEditMode ? 'bg-amber-500/20 border-2 border-amber-400 text-amber-300' : 'bg-cyan-500/20 border-2 border-cyan-400 text-cyan-300'} flex items-center justify-center text-3xl shadow-[0_0_25px_rgba(56,189,248,0.5)] group-hover:scale-105 transition-transform">
                   <i class="${skill.icon}"></i>
                 </div>
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center justify-between gap-1 mb-1">
-                    <span class="text-[9px] font-mono uppercase text-slate-400 truncate">${skill.categoryName}</span>
-                    ${badge}
-                  </div>
-                  <h4 class="text-xs font-bold text-slate-100 truncate">${skill.title}</h4>
+                <div class="mt-2 text-center bg-blueprint-850 border ${isEditMode ? 'border-amber-500/60' : 'border-cyan-500/50'} px-3 py-1 rounded-lg">
+                  <div class="text-xs font-bold text-white uppercase tracking-wider">${skill.title}</div>
+                  <div class="text-[10px] ${isEditMode ? 'text-amber-400' : 'text-cyan-400'} font-mono">${isEditMode ? 'MOZGATHATÓ GYÖKÉR' : 'FŐ GYÖKÉR ELEM'}</div>
                 </div>
               </div>
-            </div>
-          `;
-        }
+            `;
+          } else {
+            let cardStyle = "";
+            let iconColor = "";
+            let badge = "";
 
-        nodeEl.addEventListener("mouseenter", (e) => showTooltip(e, skill, isUnlocked, canBeUnlocked));
-        nodeEl.addEventListener("mousemove", (e) => moveTooltip(e));
-        nodeEl.addEventListener("mouseleave", hideTooltip);
-        nodeEl.addEventListener("click", () => openSkillModal(skill));
+            if (isEditMode) {
+              cardStyle = "bg-slate-900/95 border-amber-400/80 shadow-[0_0_15px_rgba(245,158,11,0.25)] hover:border-amber-300";
+              iconColor = "text-amber-300";
+              badge = `<span class="bg-amber-500/20 text-amber-300 text-[10px] px-1.5 py-0.5 rounded border border-amber-500/40 flex items-center gap-1 font-semibold"><i class="ph-bold ph-arrows-out-cardinal"></i> Szerkeszt</span>`;
+            } else {
+              const isNewlyUnlocked = newlyUnlockedSkills.has(skill.id);
+              const isNewlyRevoked = newlyRevokedSkills.has(skill.id);
 
-        nodesLayer.appendChild(nodeEl);
-      });
+              if (isUnlocked) {
+                if (isNewlyUnlocked) {
+                  cardStyle = "bg-emerald-950/80 border-emerald-400 newly-unlocked-pulse shadow-[0_0_25px_rgba(16,185,129,0.5)]";
+                  iconColor = "text-emerald-300";
+                  badge = `<span class="bg-emerald-400 text-slate-950 text-[10px] px-1.5 py-0.5 rounded font-black tracking-wider animate-pulse flex items-center gap-1">★ ÚJ FELOLDÁS</span>`;
+                } else {
+                  cardStyle = "bg-slate-900/95 border-emerald-500/80 shadow-[0_0_18px_rgba(16,185,129,0.35)]";
+                  iconColor = "text-emerald-400";
+                  badge = `<span class="bg-emerald-500/20 text-emerald-400 text-[10px] px-1.5 py-0.5 rounded border border-emerald-500/30 flex items-center gap-1 font-semibold"><i class="ph-bold ph-check"></i> Kész</span>`;
+                }
+              } else if (isNewlyRevoked) {
+                cardStyle = "bg-rose-950/80 border-rose-500 newly-revoked-pulse shadow-[0_0_25px_rgba(244,63,94,0.5)]";
+                iconColor = "text-rose-400";
+                badge = `<span class="bg-rose-500 text-white text-[10px] px-1.5 py-0.5 rounded font-bold flex items-center gap-1 animate-pulse"><i class="ph-bold ph-warning"></i> VISSZAVONVA</span>`;
+              } else if (canBeUnlocked) {
+                cardStyle = canManage 
+                  ? "bg-slate-900/95 border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.4)] ready-to-unlock" 
+                  : "bg-slate-900/90 border-slate-600";
+                iconColor = canManage ? "text-amber-400" : "text-slate-400";
+                badge = canManage
+                  ? `<span class="bg-amber-500/20 text-amber-300 text-[10px] px-1.5 py-0.5 rounded border border-amber-500/40 font-semibold">Feloldható</span>`
+                  : `<span class="bg-slate-800 text-slate-400 text-[10px] px-1.5 py-0.5 rounded border border-slate-700">Következő</span>`;
+              } else {
+                cardStyle = "bg-slate-950/80 border-slate-800 opacity-60";
+                iconColor = "text-slate-600";
+                badge = `<span class="bg-slate-800/70 text-slate-500 text-[10px] px-1.5 py-0.5 rounded flex items-center gap-1"><i class="ph ph-lock"></i> Zárolt</span>`;
+              }
+            }
 
-      drawConnections(unlockedSet);
-    }
+            nodeEl.innerHTML = `
+              <div class="w-64 p-3 rounded-xl border ${cardStyle} backdrop-blur-md hover:scale-102 hover:border-cyan-400 transition-all duration-150">
+                <div class="flex items-start gap-2.5">
+                  <div class="w-9 h-9 rounded-lg bg-slate-800 flex items-center justify-center text-lg ${iconColor} border border-slate-700 shrink-0">
+                    <i class="${skill.icon}"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between gap-1 mb-1">
+                      <span class="text-[9px] font-mono uppercase text-slate-400 truncate">${skill.categoryName}</span>
+                      ${badge}
+                    </div>
+                    <h4 class="text-xs font-bold text-slate-100 truncate">${skill.title}</h4>
+                  </div>
+                </div>
+              </div>
+            `;
+          }
 
-    function drawConnections(unlockedSet) {
-      const connectionsLayer = document.getElementById("connectionsLayer");
-      if (!connectionsLayer) return;
-
-      SKILLS_DATA.forEach(skill => {
-        if (!skill.parentId) return;
-        const parent = SKILLS_DATA.find(s => s.id === skill.parentId);
-        if (!parent) return;
-
-        const isChildUnlocked = unlockedSet.has(skill.id);
-        const isParentUnlocked = unlockedSet.has(parent.id);
-        const isBranchFocused = (activeFilter === "all" || skill.category === activeFilter);
-
-        const x1 = parent.x;
-        const y1 = parent.id === "root" ? (parent.y + 40) : (parent.y + 30);
-        const x2 = skill.x;
-        const y2 = skill.y - 30;
-
-        let pathData = "";
-
-        // Ha manuálisan definiált útvonal / kontrollpontok vannak megadva
-        if (skill.route && Array.isArray(skill.route) && skill.route.length > 0) {
-          pathData = `M ${x1} ${y1}`;
-          let prevX = x1;
-          let prevY = y1;
-
-          skill.route.forEach(pt => {
-            const dy = pt.y - prevY;
-            pathData += ` C ${prevX} ${prevY + dy * 0.5}, ${pt.x} ${pt.y - dy * 0.5}, ${pt.x} ${pt.y}`;
-            prevX = pt.x;
-            prevY = pt.y;
+          // Drag & Drop események szerkesztői módban
+          nodeEl.addEventListener("mousedown", (e) => {
+            if (!isEditMode) return;
+            e.stopPropagation();
+            draggingNode = skill;
+            hasNodeMoved = false;
+            const treeRect = document.getElementById("treeContainer").getBoundingClientRect();
+            dragOffsetX = (e.clientX - treeRect.left) / scale - skill.x;
+            dragOffsetY = (e.clientY - treeRect.top) / scale - skill.y;
           });
 
-          const finalDy = y2 - prevY;
-          pathData += ` C ${prevX} ${prevY + finalDy * 0.5}, ${x2} ${y2 - finalDy * 0.5}, ${x2} ${y2}`;
-        } else {
-          const isVertical = Math.abs(x1 - x2) < 5;
-          if (isVertical) {
-            pathData = `M ${x1} ${y1} L ${x2} ${y2}`;
-          } else {
-            const deltaY = (y2 - y1);
-            pathData = `M ${x1} ${y1} C ${x1} ${y1 + deltaY * 0.45}, ${x2} ${y2 - deltaY * 0.45}, ${x2} ${y2}`;
-          }
-        }
+          nodeEl.addEventListener("mouseenter", (e) => {
+            if (!isEditMode) showTooltip(e, skill, isUnlocked, canBeUnlocked);
+          });
+          nodeEl.addEventListener("mousemove", (e) => {
+            if (!isEditMode) moveTooltip(e);
+          });
+          nodeEl.addEventListener("mouseleave", hideTooltip);
 
-        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        path.setAttribute("d", pathData);
-        path.setAttribute("fill", "none");
+          nodeEl.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (isEditMode) {
+              if (!hasNodeMoved) {
+                openNodeEditorModal(skill);
+              }
+            } else {
+              openSkillModal(skill);
+            }
+          });
 
-        if (isChildUnlocked && isParentUnlocked) {
-          if (isBranchFocused) {
-            path.setAttribute("stroke", "#10b981");
-            path.setAttribute("stroke-width", "3.5");
-            path.setAttribute("stroke-linecap", "round");
-            path.setAttribute("opacity", "1");
-          } else {
-            path.setAttribute("stroke", "#065f46");
-            path.setAttribute("stroke-width", "1.5");
-            path.setAttribute("opacity", "0.35");
-          }
-        } else if (isParentUnlocked) {
-          path.setAttribute("stroke", isBranchFocused ? "#38bdf8" : "#1e3a5f");
-          path.setAttribute("stroke-width", isBranchFocused ? "2.5" : "1.2");
-          path.setAttribute("stroke-dasharray", "6,5");
-          path.setAttribute("opacity", isBranchFocused ? "1" : "0.25");
-        } else {
-          path.setAttribute("stroke", isBranchFocused ? "#476999" : "#1e293b");
-          path.setAttribute("stroke-width", isBranchFocused ? "2" : "1");
-          path.setAttribute("stroke-dasharray", "4,4");
-          path.setAttribute("opacity", isBranchFocused ? "0.8" : "0.2");
-        }
+          nodesLayer.appendChild(nodeEl);
+        });
 
-        connectionsLayer.appendChild(path);
-      });
-    }
-
-    /* ==========================================================================
-       TOOLTIP
-       ========================================================================== */
-    const tooltip = document.getElementById("skillTooltip");
-
-    function showTooltip(e, skill, isUnlocked, canBeUnlocked) {
-      document.getElementById("tooltipCategory").textContent = skill.categoryName;
-      document.getElementById("tooltipTitle").textContent = skill.title;
-      document.getElementById("tooltipDesc").textContent = skill.desc;
-
-      const statusEl = document.getElementById("tooltipStatus");
-      if (isUnlocked) {
-        statusEl.textContent = "FELOLDVA";
-        statusEl.className = "text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
-      } else if (canBeUnlocked) {
-        statusEl.textContent = "KÖVETKEZŐ LÉPÉS";
-        statusEl.className = "text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30";
-      } else {
-        statusEl.textContent = "ZÁROLT";
-        statusEl.className = "text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700";
+        drawConnections(unlockedSet, activeTreeData);
       }
 
-      const parent = SKILLS_DATA.find(s => s.id === skill.parentId);
-      document.getElementById("tooltipReq").textContent = parent ? parent.title : "Nincs (Gyökér)";
+      function drawConnections(unlockedSet, treeData) {
+        const connectionsLayer = document.getElementById("connectionsLayer");
+        if (!connectionsLayer) return;
 
-      tooltip.classList.remove("hidden");
-      moveTooltip(e);
-    }
+        treeData.forEach(skill => {
+          if (!skill.parentId) return;
+          const parent = treeData.find(s => s.id === skill.parentId);
+          if (!parent) return;
 
-    function moveTooltip(e) {
-      const offset = 18;
-      let left = e.clientX + offset;
-      let top = e.clientY + offset;
+          const isChildUnlocked = unlockedSet.has(skill.id);
+          const isParentUnlocked = unlockedSet.has(parent.id);
+          const isBranchFocused = isEditMode || (activeFilter === "all" || skill.category === activeFilter);
 
-      if (left + 300 > window.innerWidth) left = e.clientX - 300;
-      if (top + 160 > window.innerHeight) top = e.clientY - 160;
+          const x1 = parent.x;
+          const y1 = parent.id === "root" ? (parent.y + 40) : (parent.y + 30);
+          const x2 = skill.x;
+          const y2 = skill.y - 30;
 
-      tooltip.style.left = `${left}px`;
-      tooltip.style.top = `${top}px`;
-    }
+          let pathData = "";
 
-    function hideTooltip() {
-      tooltip.classList.add("hidden");
-    }
+          if (!isEditMode && skill.route && Array.isArray(skill.route) && skill.route.length > 0) {
+            pathData = `M ${x1} ${y1}`;
+            let prevX = x1;
+            let prevY = y1;
 
-    /* ==========================================================================
-       MODAL & MŰVELETEK
-       ========================================================================== */
-    function openSkillModal(skill) {
-      selectedSkill = skill;
-      const profile = getActiveProfile();
-      const unlockedSet = new Set(profile.unlocked_skills || ["root"]);
-      const isUnlocked = unlockedSet.has(skill.id);
-      const parent = SKILLS_DATA.find(s => s.id === skill.parentId);
-      const parentUnlocked = !parent || unlockedSet.has(parent.id);
+            skill.route.forEach(pt => {
+              const dy = pt.y - prevY;
+              pathData += ` C ${prevX} ${prevY + dy * 0.5}, ${pt.x} ${pt.y - dy * 0.5}, ${pt.x} ${pt.y}`;
+              prevX = pt.x;
+              prevY = pt.y;
+            });
 
-      modalScale = 1.0;
-      updateModalScale();
+            const finalDy = y2 - prevY;
+            pathData += ` C ${prevX} ${prevY + finalDy * 0.5}, ${x2} ${y2 - finalDy * 0.5}, ${x2} ${y2}`;
+          } else {
+            const isVertical = Math.abs(x1 - x2) < 5;
+            if (isVertical) {
+              pathData = `M ${x1} ${y1} L ${x2} ${y2}`;
+            } else {
+              const deltaY = (y2 - y1);
+              pathData = `M ${x1} ${y1} C ${x1} ${y1 + deltaY * 0.45}, ${x2} ${y2 - deltaY * 0.45}, ${x2} ${y2}`;
+            }
+          }
 
-      document.getElementById("modalCategory").textContent = skill.categoryName;
-      document.getElementById("modalTitle").textContent = skill.title;
-      document.getElementById("modalDescription").textContent = skill.desc;
-      document.getElementById("modalPrereq").textContent = parent ? parent.title : "Nincs (Központi gyökér)";
+          const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+          path.setAttribute("d", pathData);
+          path.setAttribute("fill", "none");
 
-      const modalIcon = document.getElementById("modalIcon");
-      modalIcon.className = `ph ${skill.icon}`;
+          if (isEditMode) {
+            path.setAttribute("stroke", "#f59e0b");
+            path.setAttribute("stroke-width", "2.5");
+            path.setAttribute("opacity", "0.85");
+          } else if (isChildUnlocked && isParentUnlocked) {
+            if (isBranchFocused) {
+              path.setAttribute("stroke", "#10b981");
+              path.setAttribute("stroke-width", "3.5");
+              path.setAttribute("stroke-linecap", "round");
+              path.setAttribute("opacity", "1");
+            } else {
+              path.setAttribute("stroke", "#065f46");
+              path.setAttribute("stroke-width", "1.5");
+              path.setAttribute("opacity", "0.35");
+            }
+          } else if (isParentUnlocked) {
+            path.setAttribute("stroke", isBranchFocused ? "#38bdf8" : "#1e3a5f");
+            path.setAttribute("stroke-width", isBranchFocused ? "2.5" : "1.2");
+            path.setAttribute("stroke-dasharray", "6,5");
+            path.setAttribute("opacity", isBranchFocused ? "1" : "0.25");
+          } else {
+            path.setAttribute("stroke", isBranchFocused ? "#476999" : "#1e293b");
+            path.setAttribute("stroke-width", isBranchFocused ? "2" : "1");
+            path.setAttribute("stroke-dasharray", "4,4");
+            path.setAttribute("opacity", isBranchFocused ? "0.8" : "0.2");
+          }
 
-      const statusBadge = document.getElementById("modalStatusBadge");
-      if (isUnlocked) {
-        statusBadge.textContent = "✓ Teljesítve / Feloldva";
-        statusBadge.className = "text-emerald-400 font-bold";
-      } else if (parentUnlocked) {
-        statusBadge.textContent = "Feloldható";
-        statusBadge.className = "text-amber-400 font-bold";
-      } else {
-        statusBadge.textContent = "✕ Zárolva (Előfeltétel hiányzik)";
-        statusBadge.className = "text-rose-400 font-bold";
+          connectionsLayer.appendChild(path);
+        });
       }
 
-      const actionArea = document.getElementById("modalActionArea");
-      actionArea.innerHTML = "";
+      /* ==========================================================================
+         GRAFUKUS FASZERKEZŐ MÓD (DRAG & DROP, ÚJRAKÖTÉS, HOZZÁADÁS, TÖRLÉS)
+         ========================================================================== */
+      function setupTreeEditor() {
+        const toggleBtn = document.getElementById("toggleEditModeBtn");
+        const activeToolbar = document.getElementById("editorActiveToolbar");
+        const addNodeBtn = document.getElementById("editorAddNodeBtn");
+        const saveBtn = document.getElementById("editorSaveBtn");
+        const cancelBtn = document.getElementById("editorCancelBtn");
+        const viewport = document.getElementById("viewport");
 
-      if (currentUserProfile.role === "admin") {
-        if (skill.id === "root") {
-          actionArea.innerHTML = `
-            <div class="p-3 bg-blueprint-900 border border-blueprint-line rounded-lg text-xs text-slate-400 text-center">
-              A <strong>Structural</strong> gyökér kompetencia minden profilnál alaptartozék, nem zárolható.
-            </div>
-          `;
-        } else if (isUnlocked) {
-          actionArea.innerHTML = `
-            <div class="space-y-3">
-              <div class="text-xs text-slate-300">
-                Munkatárs: <span class="font-bold text-cyan-300">${profile.full_name}</span>. Ez a készség jelenleg aktív.
+        const nodeModal = document.getElementById("nodeEditorModal");
+        const nodeModalClose = document.getElementById("nodeEditorCloseBtn");
+        const saveNodeEditBtn = document.getElementById("saveNodeEditBtn");
+        const deleteNodeBtn = document.getElementById("deleteNodeBtn");
+        const iconInput = document.getElementById("editNodeIcon");
+        const iconPreview = document.getElementById("editNodeIconPreview");
+
+        if (iconInput && iconPreview) {
+          iconInput.oninput = () => {
+            iconPreview.className = iconInput.value.trim() || "ph ph-cube";
+          };
+        }
+
+        function enterEditMode() {
+          isEditMode = true;
+          draftSkills = JSON.parse(JSON.stringify(SKILLS_DATA));
+          deletedSkillIds.clear();
+          hideTooltip();
+          viewport.classList.remove("blueprint-grid");
+          viewport.classList.add("edit-mode-grid");
+          toggleBtn.classList.add("hidden");
+          activeToolbar.classList.remove("hidden");
+          renderTree();
+        }
+
+        function exitEditMode() {
+          isEditMode = false;
+          draftSkills = [];
+          deletedSkillIds.clear();
+          draggingNode = null;
+          viewport.classList.add("blueprint-grid");
+          viewport.classList.remove("edit-mode-grid");
+          toggleBtn.classList.remove("hidden");
+          activeToolbar.classList.add("hidden");
+          renderTree();
+        }
+
+        if (toggleBtn) toggleBtn.onclick = enterEditMode;
+        if (cancelBtn) {
+          cancelBtn.onclick = () => {
+            if (confirm("Elveted a nem mentett módosításokat a fán?")) {
+              exitEditMode();
+            }
+          };
+        }
+
+        // Globális egérmozgás a blokkok húzásához (20px-es rácsra illesztve)
+        window.addEventListener("mousemove", (e) => {
+          if (!isEditMode || !draggingNode) return;
+          hasNodeMoved = true;
+          const treeRect = document.getElementById("treeContainer").getBoundingClientRect();
+          const rawX = (e.clientX - treeRect.left) / scale - dragOffsetX;
+          const rawY = (e.clientY - treeRect.top) / scale - dragOffsetY;
+
+          // Rácsra illesztés (10px lépésköz) és határok tartása
+          draggingNode.x = Math.max(150, Math.min(5150, Math.round(rawX / 10) * 10));
+          draggingNode.y = Math.max(60, Math.min(1900, Math.round(rawY / 10) * 10));
+
+          // Ha kézzel elmozdítottuk, töröljük a régi manuális route töréspontot, hogy szépen kövesse
+          if (draggingNode.route) delete draggingNode.route;
+
+          renderTree();
+        });
+
+        window.addEventListener("mouseup", () => {
+          if (draggingNode) {
+            setTimeout(() => { draggingNode = null; }, 20);
+          }
+        });
+
+        if (addNodeBtn) {
+          addNodeBtn.onclick = () => {
+            openNodeEditorModal(null);
+          };
+        }
+
+        if (nodeModalClose) nodeModalClose.onclick = () => nodeModal.classList.add("hidden");
+
+        if (saveNodeEditBtn) {
+          saveNodeEditBtn.onclick = () => {
+            const title = document.getElementById("editNodeTitle").value.trim();
+            const category = document.getElementById("editNodeCategory").value;
+            const categoryName = document.getElementById("editNodeCategoryName").value.trim();
+            const parentId = document.getElementById("editNodeParentId").value;
+            const icon = document.getElementById("editNodeIcon").value.trim() || "ph ph-cube";
+            const desc = document.getElementById("editNodeDesc").value.trim();
+
+            if (!title || !categoryName || !desc) {
+              alert("Kérlek tölts ki minden kötelező mezőt!");
+              return;
+            }
+
+            if (editingNodeId) {
+              const target = draftSkills.find(s => s.id === editingNodeId);
+              if (target) {
+                target.title = title;
+                if (target.id !== "root") {
+                  target.category = category;
+                  target.categoryName = categoryName;
+                  if (target.parentId !== parentId) {
+                    target.parentId = parentId;
+                    delete target.route;
+                  }
+                }
+                target.icon = icon;
+                target.desc = desc;
+              }
+            } else {
+              const parentObj = draftSkills.find(s => s.id === parentId) || draftSkills[0];
+              const newId = "skill_" + Date.now();
+              draftSkills.push({
+                id: newId,
+                title,
+                category,
+                categoryName,
+                parentId: parentObj ? parentObj.id : "root",
+                icon,
+                desc,
+                x: parentObj ? parentObj.x : 2450,
+                y: parentObj ? parentObj.y + 210 : 300
+              });
+            }
+
+            nodeModal.classList.add("hidden");
+            renderTree();
+          };
+        }
+
+        if (deleteNodeBtn) {
+          deleteNodeBtn.onclick = () => {
+            if (!editingNodeId || editingNodeId === "root") return;
+            const target = draftSkills.find(s => s.id === editingNodeId);
+            if (!target) return;
+
+            if (!confirm(`Biztosan törlöd a(z) "${target.title}" blokkot? (A gyermek elemei a szülőjére kötődnek át, és a mentéskor mindenkinél elvételre kerül ez a skill!)`)) {
+              return;
+            }
+
+            // Gyermek elemek átkötése a törölt elem szülőjére, hogy ne szakadjon meg a fa
+            draftSkills.forEach(s => {
+              if (s.parentId === editingNodeId) {
+                s.parentId = target.parentId || "root";
+                delete s.route;
+              }
+            });
+
+            deletedSkillIds.add(editingNodeId);
+            draftSkills = draftSkills.filter(s => s.id !== editingNodeId);
+
+            nodeModal.classList.add("hidden");
+            renderTree();
+          };
+        }
+
+        if (saveBtn) {
+          saveBtn.onclick = async () => {
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = `<i class="ph ph-spinner animate-spin"></i> Mentés...`;
+
+            const delArray = Array.from(deletedSkillIds);
+            const { error } = await supabaseClient.rpc('save_skill_tree', {
+              p_username: currentUserProfile.username,
+              p_password: currentUserProfile.password,
+              p_skills: draftSkills,
+              p_deleted_ids: delArray
+            });
+
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = `<i class="ph-bold ph-floppy-disk"></i> Mentés`;
+
+            if (error) {
+              alert("Hiba a fa mentése során: " + error.message);
+              return;
+            }
+
+            SKILLS_DATA = JSON.parse(JSON.stringify(draftSkills));
+            // Helyi profilokból is töröljük a törölt skilleket azonnali frissítéshez
+            if (delArray.length > 0) {
+              allProfiles.forEach(p => {
+                if (Array.isArray(p.unlocked_skills)) {
+                  p.unlocked_skills = p.unlocked_skills.filter(id => !deletedSkillIds.has(id));
+                }
+              });
+            }
+
+            exitEditMode();
+            updateProgressStats();
+          };
+        }
+      }
+
+      function getDescendantIds(rootId, treeList) {
+        const result = new Set([rootId]);
+        let added = true;
+        while (added) {
+          added = false;
+          treeList.forEach(s => {
+            if (s.parentId && result.has(s.parentId) && !result.has(s.id)) {
+              result.add(s.id);
+              added = true;
+            }
+          });
+        }
+        return result;
+      }
+
+      function openNodeEditorModal(skill) {
+        const modal = document.getElementById("nodeEditorModal");
+        const modalTitle = document.getElementById("nodeEditorModalTitle");
+        const parentContainer = document.getElementById("editNodeParentContainer");
+        const parentSelect = document.getElementById("editNodeParentId");
+        const deleteBtn = document.getElementById("deleteNodeBtn");
+        const catSelect = document.getElementById("editNodeCategory");
+
+        editingNodeId = skill ? skill.id : null;
+
+        // Szülő legördülő feltöltése (körkörös hivatkozás kizárásával!)
+        parentSelect.innerHTML = "";
+        const forbiddenParents = skill ? getDescendantIds(skill.id, draftSkills) : new Set();
+
+        draftSkills.forEach(candidate => {
+          if (forbiddenParents.has(candidate.id)) return;
+          const opt = document.createElement("option");
+          opt.value = candidate.id;
+          opt.textContent = `${candidate.title} (${candidate.categoryName})`;
+          parentSelect.appendChild(opt);
+        });
+
+        if (skill) {
+          modalTitle.textContent = "Készség blokk szerkesztése";
+          document.getElementById("editNodeTitle").value = skill.title;
+          catSelect.value = skill.category === "root" ? "miscellaneous" : skill.category;
+          document.getElementById("editNodeCategoryName").value = skill.categoryName;
+          document.getElementById("editNodeIcon").value = skill.icon;
+          document.getElementById("editNodeIconPreview").className = skill.icon;
+          document.getElementById("editNodeDesc").value = skill.desc;
+
+          if (skill.id === "root") {
+            parentContainer.classList.add("hidden");
+            deleteBtn.classList.add("hidden");
+            catSelect.disabled = true;
+          } else {
+            parentContainer.classList.remove("hidden");
+            deleteBtn.classList.remove("hidden");
+            catSelect.disabled = false;
+            parentSelect.value = skill.parentId || "root";
+          }
+        } else {
+          modalTitle.textContent = "Új skill blokk hozzáadása";
+          document.getElementById("nodeEditorForm").reset();
+          document.getElementById("editNodeIcon").value = "ph ph-wrench";
+          document.getElementById("editNodeIconPreview").className = "ph ph-wrench";
+          parentContainer.classList.remove("hidden");
+          deleteBtn.classList.add("hidden");
+          catSelect.disabled = false;
+          parentSelect.value = "root";
+        }
+
+        modal.classList.remove("hidden");
+      }
+
+      /* ==========================================================================
+         KOMPETENCIA KERESŐ (AUTOCOMPLETE + BIRTOKOSOK LISTÁZÁSA)
+         ========================================================================== */
+      function setupSkillSearchModal() {
+        const openBtn = document.getElementById("openSkillSearchBtn");
+        const closeBtn = document.getElementById("closeSkillSearchBtn");
+        const modal = document.getElementById("skillSearchModal");
+        const input = document.getElementById("skillAutocompleteInput");
+        const dropdown = document.getElementById("skillAutocompleteDropdown");
+        const listBtn = document.getElementById("executeSkillSearchBtn");
+        const resultsArea = document.getElementById("skillSearchResultsArea");
+
+        function getAllSearchableItems() {
+          const skills = SKILLS_DATA.filter(s => s.id !== "root").map(s => ({
+            id: s.id,
+            title: s.title,
+            subtitle: `Készség • ${s.categoryName}`,
+            icon: s.icon
+          }));
+          const achvs = ACHIEVEMENTS_DATA.map(a => ({
+            id: a.id,
+            title: a.title,
+            subtitle: "Eredmény / Mérföldkő",
+            icon: a.icon
+          }));
+          return [...skills, ...achvs];
+        }
+
+        function renderAutocomplete(query) {
+          const items = getAllSearchableItems();
+          const q = query.trim().toLowerCase();
+          const filtered = q
+            ? items.filter(it => it.title.toLowerCase().includes(q) || it.subtitle.toLowerCase().includes(q))
+            : items;
+
+          dropdown.innerHTML = "";
+          if (filtered.length === 0) {
+            dropdown.innerHTML = `<div class="p-3 text-xs text-slate-400 text-center">Nincs találat erre a kifejezésre.</div>`;
+          } else {
+            filtered.forEach(item => {
+              const row = document.createElement("div");
+              row.className = "px-3.5 py-2.5 hover:bg-blueprint-800 cursor-pointer flex items-center gap-2.5 transition";
+              row.innerHTML = `
+                <i class="${item.icon} text-cyan-400 text-base shrink-0"></i>
+                <div class="min-w-0 flex-1">
+                  <div class="text-xs font-bold text-white truncate">${item.title}</div>
+                  <div class="text-[10px] text-slate-400 truncate">${item.subtitle}</div>
+                </div>
+              `;
+              row.onclick = () => {
+                input.value = item.title;
+                selectedSearchItemId = item.id;
+                dropdown.classList.add("hidden");
+              };
+              dropdown.appendChild(row);
+            });
+          }
+          dropdown.classList.remove("hidden");
+        }
+
+        if (openBtn) {
+          openBtn.onclick = () => {
+            input.value = "";
+            selectedSearchItemId = null;
+            dropdown.classList.add("hidden");
+            resultsArea.innerHTML = `
+              <div class="text-center py-8 text-slate-500 text-xs border border-dashed border-blueprint-line rounded-xl">
+                Válassz ki egy készséget a fenti mezőből, majd kattints a <strong>Listázás</strong> gombra.
               </div>
-              <button id="adminRevokeBtn" class="w-full py-2.5 px-4 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 font-bold rounded-lg transition flex items-center justify-center gap-2 text-sm">
-                <i class="ph-bold ph-lock-key"></i> Készség visszavonása (Zárolás)
-              </button>
-            </div>
-          `;
-          document.getElementById("adminRevokeBtn").onclick = () => revokeSkill(skill.id);
+            `;
+            modal.classList.remove("hidden");
+            setTimeout(() => input.focus(), 50);
+          };
+        }
+
+        if (closeBtn) closeBtn.onclick = () => modal.classList.add("hidden");
+        if (modal) {
+          modal.onclick = (e) => {
+            if (e.target.id === "skillSearchModal") modal.classList.add("hidden");
+          };
+        }
+
+        if (input) {
+          input.addEventListener("focus", () => renderAutocomplete(input.value));
+          input.addEventListener("input", () => {
+            selectedSearchItemId = null;
+            renderAutocomplete(input.value);
+          });
+        }
+
+        document.addEventListener("click", (e) => {
+          if (input && dropdown && !input.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.classList.add("hidden");
+          }
+        });
+
+        if (listBtn) {
+          listBtn.onclick = () => {
+            const items = getAllSearchableItems();
+            let chosen = items.find(i => i.id === selectedSearchItemId);
+            if (!chosen && input.value.trim()) {
+              const q = input.value.trim().toLowerCase();
+              chosen = items.find(i => i.title.toLowerCase() === q) || items.find(i => i.title.toLowerCase().includes(q));
+            }
+
+            if (!chosen) {
+              resultsArea.innerHTML = `
+                <div class="p-4 bg-rose-500/15 border border-rose-500/40 rounded-xl text-xs text-rose-300 text-center font-semibold">
+                  Kérlek válassz ki egy létező készséget vagy eredményt a listából!
+                </div>
+              `;
+              return;
+            }
+
+            input.value = chosen.title;
+            selectedSearchItemId = chosen.id;
+            dropdown.classList.add("hidden");
+
+            // Szűrés: CSAK nem-admin profilok, akiknél megvan az adott skill
+            const holders = allProfiles.filter(p =>
+              p.role !== "admin" &&
+              Array.isArray(p.unlocked_skills) &&
+              p.unlocked_skills.includes(chosen.id)
+            );
+
+            if (holders.length === 0) {
+              resultsArea.innerHTML = `
+                <div class="p-5 bg-blueprint-900/80 border border-blueprint-line rounded-xl text-center space-y-1">
+                  <div class="text-sm font-bold text-slate-300">Nincs találat</div>
+                  <p class="text-xs text-slate-400">Jelenleg egyetlen munkatárs sem rendelkezik a(z) <strong class="text-cyan-300">${chosen.title}</strong> kompetenciával.</p>
+                </div>
+              `;
+              return;
+            }
+
+            const listHtml = holders.map(person => {
+              const isLead = person.role === "team_lead";
+              return `
+                <div class="p-3 bg-blueprint-900 border border-blueprint-line rounded-xl flex items-center justify-between gap-3">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg ${isLead ? 'bg-indigo-500/20 text-indigo-300 border-indigo-400/40' : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'} border flex items-center justify-center font-bold text-sm">
+                      <i class="${isLead ? 'ph-bold ph-user-gear' : 'ph-bold ph-user'}"></i>
+                    </div>
+                    <div>
+                      <div class="text-xs font-bold text-white">${formatDisplayName(person)}</div>
+                    </div>
+                  </div>
+                  <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold flex items-center gap-1">
+                    <i class="ph-bold ph-check"></i> Rendelkezik vele
+                  </span>
+                </div>
+              `;
+            }).join("");
+
+            resultsArea.innerHTML = `
+              <div class="space-y-2.5">
+                <div class="flex items-center justify-between text-xs text-slate-300 px-1">
+                  <span>Kiválasztott kompetencia: <strong class="text-cyan-300">${chosen.title}</strong></span>
+                  <span class="bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 px-2 py-0.5 rounded-full font-mono font-bold">${holders.length} fő</span>
+                </div>
+                <div class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                  ${listHtml}
+                </div>
+              </div>
+            `;
+          };
+        }
+      }
+
+      /* ==========================================================================
+         TOOLTIP
+         ========================================================================== */
+      const tooltip = document.getElementById("skillTooltip");
+
+      function showTooltip(e, skill, isUnlocked, canBeUnlocked) {
+        document.getElementById("tooltipCategory").textContent = skill.categoryName;
+        document.getElementById("tooltipTitle").textContent = skill.title;
+        document.getElementById("tooltipDesc").textContent = skill.desc;
+
+        const statusEl = document.getElementById("tooltipStatus");
+        if (isUnlocked) {
+          statusEl.textContent = "FELOLDVA";
+          statusEl.className = "text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+        } else if (canBeUnlocked) {
+          statusEl.textContent = "KÖVETKEZŐ LÉPÉS";
+          statusEl.className = "text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30";
         } else {
-          if (parentUnlocked) {
+          statusEl.textContent = "ZÁROLT";
+          statusEl.className = "text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700";
+        }
+
+        const parent = SKILLS_DATA.find(s => s.id === skill.parentId);
+        document.getElementById("tooltipReq").textContent = parent ? parent.title : "Nincs (Gyökér)";
+
+        tooltip.classList.remove("hidden");
+        moveTooltip(e);
+      }
+
+      function moveTooltip(e) {
+        const offset = 18;
+        let left = e.clientX + offset;
+        let top = e.clientY + offset;
+
+        if (left + 300 > window.innerWidth) left = e.clientX - 300;
+        if (top + 160 > window.innerHeight) top = e.clientY - 160;
+
+        tooltip.style.left = `${left}px`;
+        tooltip.style.top = `${top}px`;
+      }
+
+      function hideTooltip() {
+        tooltip.classList.add("hidden");
+      }
+
+      /* ==========================================================================
+         SKILL MODAL & MŰVELETEK
+         ========================================================================== */
+      function openSkillModal(skill) {
+        const profile = getActiveProfile();
+        const unlockedSet = new Set(profile.unlocked_skills || ["root"]);
+        const isUnlocked = unlockedSet.has(skill.id);
+        const parent = SKILLS_DATA.find(s => s.id === skill.parentId);
+        const parentUnlocked = !parent || unlockedSet.has(parent.id);
+
+        modalScale = 1.0;
+        updateModalScale();
+
+        document.getElementById("modalCategory").textContent = skill.categoryName;
+        document.getElementById("modalTitle").textContent = skill.title;
+        document.getElementById("modalDescription").textContent = skill.desc;
+        document.getElementById("modalPrereq").textContent = parent ? parent.title : "Nincs (Központi gyökér)";
+
+        const modalIcon = document.getElementById("modalIcon");
+        modalIcon.className = `ph ${skill.icon}`;
+
+        const statusBadge = document.getElementById("modalStatusBadge");
+        if (isUnlocked) {
+          statusBadge.textContent = "✓ Teljesítve / Feloldva";
+          statusBadge.className = "text-emerald-400 font-bold";
+        } else if (parentUnlocked) {
+          statusBadge.textContent = "Feloldható";
+          statusBadge.className = "text-amber-400 font-bold";
+        } else {
+          statusBadge.textContent = "✕ Zárolva (Előfeltétel hiányzik)";
+          statusBadge.className = "text-rose-400 font-bold";
+        }
+
+        const actionArea = document.getElementById("modalActionArea");
+        actionArea.innerHTML = "";
+
+        if (isManagerRole(currentUserProfile.role)) {
+          if (skill.id === "root") {
+            actionArea.innerHTML = `
+              <div class="p-3 bg-blueprint-900 border border-blueprint-line rounded-lg text-xs text-slate-400 text-center">
+                A <strong>Structural</strong> gyökér kompetencia minden profilnál alaptartozék, nem zárolható.
+              </div>
+            `;
+          } else if (isUnlocked) {
             actionArea.innerHTML = `
               <div class="space-y-3">
                 <div class="text-xs text-slate-300">
-                  Munkatárs: <span class="font-bold text-cyan-300">${profile.full_name}</span>. Az előfeltétel teljesült.
+                  Munkatárs: <span class="font-bold text-cyan-300">${formatDisplayName(profile)}</span>. Ez a készség jelenleg aktív.
                 </div>
-                <button id="adminUnlockBtn" class="w-full py-2.5 px-4 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-lg transition flex items-center justify-center gap-2 text-sm shadow-lg">
-                  <i class="ph-bold ph-check-circle"></i> Készség feloldása (Unlock Skill)
+                <button id="adminRevokeBtn" class="w-full py-2.5 px-4 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 font-bold rounded-lg transition flex items-center justify-center gap-2 text-sm">
+                  <i class="ph-bold ph-lock-key"></i> Készség visszavonása (Zárolás)
                 </button>
               </div>
             `;
-            document.getElementById("adminUnlockBtn").onclick = () => unlockSkill(skill.id);
+            document.getElementById("adminRevokeBtn").onclick = () => revokeSkill(skill.id);
           } else {
-            actionArea.innerHTML = `
-              <div class="p-3.5 bg-rose-950/40 border border-rose-500/50 rounded-lg text-xs space-y-2">
-                <div class="flex items-center gap-2 text-rose-400 font-bold">
-                  <i class="ph-bold ph-prohibit text-base"></i> Nem oldható fel!
+            if (parentUnlocked) {
+              actionArea.innerHTML = `
+                <div class="space-y-3">
+                  <div class="text-xs text-slate-300">
+                    Munkatárs: <span class="font-bold text-cyan-300">${formatDisplayName(profile)}</span>. Az előfeltétel teljesült.
+                  </div>
+                  <button id="adminUnlockBtn" class="w-full py-2.5 px-4 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-lg transition flex items-center justify-center gap-2 text-sm shadow-lg">
+                    <i class="ph-bold ph-check-circle"></i> Készség feloldása (Unlock Skill)
+                  </button>
                 </div>
-                <p class="text-slate-300 leading-relaxed">
-                  A készség feloldásához először a közvetlen előfeltételt (<span class="text-amber-400 font-semibold">${parent.title}</span>) kell feloldani ennél a munkatársnál.
-                </p>
-                <button disabled class="w-full py-2 px-4 bg-slate-800 text-slate-500 font-bold rounded-lg cursor-not-allowed border border-slate-700 flex items-center justify-center gap-2">
-                  <i class="ph ph-lock"></i> Előfeltétel hiányzik (Letiltva)
-                </button>
-              </div>
-            `;
+              `;
+              document.getElementById("adminUnlockBtn").onclick = () => unlockSkill(skill.id);
+            } else {
+              actionArea.innerHTML = `
+                <div class="p-3.5 bg-rose-950/40 border border-rose-500/50 rounded-lg text-xs space-y-2">
+                  <div class="flex items-center gap-2 text-rose-400 font-bold">
+                    <i class="ph-bold ph-prohibit text-base"></i> Nem oldható fel!
+                  </div>
+                  <p class="text-slate-300 leading-relaxed">
+                    A készség feloldásához először a közvetlen előfeltételt (<span class="text-amber-400 font-semibold">${parent.title}</span>) kell feloldani ennél a munkatársnál.
+                  </p>
+                  <button disabled class="w-full py-2 px-4 bg-slate-800 text-slate-500 font-bold rounded-lg cursor-not-allowed border border-slate-700 flex items-center justify-center gap-2">
+                    <i class="ph ph-lock"></i> Előfeltétel hiányzik (Letiltva)
+                  </button>
+                </div>
+              `;
+            }
           }
-        }
-      } else {
-        actionArea.innerHTML = `
-          <div class="p-3.5 bg-blueprint-900 border border-blueprint-line rounded-lg text-xs space-y-1.5">
-            <div class="flex items-center gap-2 text-cyan-300 font-semibold">
-              <i class="ph ph-lock-simple text-base"></i> Munkatársi profil (Csak megtekintés)
+        } else {
+          actionArea.innerHTML = `
+            <div class="p-3.5 bg-blueprint-900 border border-blueprint-line rounded-lg text-xs space-y-1.5">
+              <div class="flex items-center gap-2 text-cyan-300 font-semibold">
+                <i class="ph ph-lock-simple text-base"></i> Munkatársi profil (Csak megtekintés)
+              </div>
+              <p class="text-slate-400 leading-relaxed">
+                Az előrehaladás feloldását a vezető mérnök hagyja jóvá a szakmai kompetenciák megszerzését követően.
+              </p>
             </div>
-            <p class="text-slate-400 leading-relaxed">
-              Az előrehaladás feloldását a vezető mérnök hagyja jóvá a szakmai kompetenciák megszerzését követően.
-            </p>
-          </div>
-        `;
+          `;
+        }
+
+        document.getElementById("skillModal").classList.remove("hidden");
       }
 
-      document.getElementById("skillModal").classList.remove("hidden");
-    }
-
-    function updateModalScale() {
-      const wrapper = document.getElementById("modalContentWrapper");
-      if (wrapper) {
-        wrapper.style.transform = `scale(${modalScale})`;
-        wrapper.style.transformOrigin = "center center";
+      function updateModalScale() {
+        const wrapper = document.getElementById("modalContentWrapper");
+        if (wrapper) {
+          wrapper.style.transform = `scale(${modalScale})`;
+          wrapper.style.transformOrigin = "center center";
+        }
       }
-    }
 
-    function setupModalEvents() {
-      document.getElementById("modalCloseBtn").onclick = () => document.getElementById("skillModal").classList.add("hidden");
-      document.getElementById("skillModal").onclick = (e) => {
-        if (e.target.id === "skillModal") document.getElementById("skillModal").classList.add("hidden");
-      };
+      function setupModalEvents() {
+        document.getElementById("modalCloseBtn").onclick = () => document.getElementById("skillModal").classList.add("hidden");
+        document.getElementById("skillModal").onclick = (e) => {
+          if (e.target.id === "skillModal") document.getElementById("skillModal").classList.add("hidden");
+        };
 
-      document.getElementById("modalZoomIn").onclick = () => {
-        if (modalScale < 1.5) {
-          modalScale += 0.15;
-          updateModalScale();
+        document.getElementById("modalZoomIn").onclick = () => {
+          if (modalScale < 1.5) {
+            modalScale += 0.15;
+            updateModalScale();
+          }
+        };
+        document.getElementById("modalZoomOut").onclick = () => {
+          if (modalScale > 0.7) {
+            modalScale -= 0.15;
+            updateModalScale();
+          }
+        };
+      }
+
+      async function unlockSkill(skillId) {
+        const profile = getActiveProfile();
+        const currentList = profile.unlocked_skills || ["root"];
+        if (!currentList.includes(skillId)) {
+          const updated = [...currentList, skillId];
+          
+          const { error } = await supabaseClient.rpc('admin_update_skills', {
+            p_admin_username: currentUserProfile.username,
+            p_admin_password: currentUserProfile.password,
+            p_target_id: profile.id,
+            p_unlocked: updated
+          });
+
+          if (error) {
+            alert("Hiba a feloldás során: " + error.message);
+            return;
+          }
+          profile.unlocked_skills = updated;
         }
-      };
-      document.getElementById("modalZoomOut").onclick = () => {
-        if (modalScale > 0.7) {
-          modalScale -= 0.15;
-          updateModalScale();
-        }
-      };
-    }
 
-    async function unlockSkill(skillId) {
-      const profile = getActiveProfile();
-      const currentList = profile.unlocked_skills || ["root"];
-      if (!currentList.includes(skillId)) {
-        const updated = [...currentList, skillId];
-        
+        document.getElementById("skillModal").classList.add("hidden");
+        renderTree();
+        updateProgressStats();
+      }
+
+      async function revokeSkill(skillId) {
+        if (!confirm("Biztosan zárolod újra ezt a készséget ennél a munkatársnál?")) return;
+
+        const profile = getActiveProfile();
+        let updated = (profile.unlocked_skills || []).filter(id => id !== skillId);
+
+        function revokeChildren(parentId) {
+          const children = SKILLS_DATA.filter(s => s.parentId === parentId);
+          children.forEach(child => {
+            if (updated.includes(child.id)) {
+              updated = updated.filter(id => id !== child.id);
+              revokeChildren(child.id);
+            }
+          });
+        }
+        revokeChildren(skillId);
+
         const { error } = await supabaseClient.rpc('admin_update_skills', {
           p_admin_username: currentUserProfile.username,
           p_admin_password: currentUserProfile.password,
@@ -1217,668 +2009,677 @@
         });
 
         if (error) {
-          alert("Hiba a feloldás során: " + error.message);
+          alert("Hiba a mentés során: " + error.message);
           return;
         }
+
         profile.unlocked_skills = updated;
+        document.getElementById("skillModal").classList.add("hidden");
+        renderTree();
+        updateProgressStats();
       }
 
-      document.getElementById("skillModal").classList.add("hidden");
-      renderTree();
-      updateProgressStats();
-    }
+      /* ==========================================================================
+         EREDMÉNYEK (ACHIEVEMENTS) LOGIKA
+         ========================================================================== */
+      function updateAchievementsBadge() {
+        const profile = getActiveProfile();
+        if (!profile) return;
+        const unlockedList = profile.unlocked_skills || [];
+        const count = ACHIEVEMENTS_DATA.filter(a => unlockedList.includes(a.id)).length;
+        
+        const badge = document.getElementById("achievementsCountBadge");
+        if (badge) badge.textContent = `${count} / ${ACHIEVEMENTS_DATA.length}`;
 
-    async function revokeSkill(skillId) {
-      if (!confirm("Biztosan zárolod újra ezt a készséget ennél a munkatársnál?")) return;
+        const btn = document.getElementById("openAchievementsBtn");
+        if (!btn) return;
 
-      const profile = getActiveProfile();
-      let updated = (profile.unlocked_skills || []).filter(id => id !== skillId);
+        btn.classList.remove("newly-unlocked-gold-pulse", "newly-revoked-purple-pulse");
 
-      function revokeChildren(parentId) {
-        const children = SKILLS_DATA.filter(s => s.parentId === parentId);
-        children.forEach(child => {
-          if (updated.includes(child.id)) {
-            updated = updated.filter(id => id !== child.id);
-            revokeChildren(child.id);
+        let hasNewAchievementUnlock = false;
+        let hasNewAchievementRevoke = false;
+
+        ACHIEVEMENTS_DATA.forEach(a => {
+          if (newlyUnlockedSkills.has(a.id)) hasNewAchievementUnlock = true;
+          if (newlyRevokedSkills.has(a.id)) hasNewAchievementRevoke = true;
+        });
+
+        if (hasNewAchievementUnlock) {
+          btn.classList.add("newly-unlocked-gold-pulse");
+        } else if (hasNewAchievementRevoke) {
+          btn.classList.add("newly-revoked-purple-pulse");
+        }
+      }
+
+      function setupAchievementsModal() {
+        const openBtn = document.getElementById("openAchievementsBtn");
+        const closeBtn = document.getElementById("closeAchievementsBtn");
+        const modal = document.getElementById("achievementsModal");
+
+        if (openBtn) {
+          openBtn.onclick = () => {
+            renderAchievementsList();
+            modal.classList.remove("hidden");
+          };
+        }
+
+        if (closeBtn) closeBtn.onclick = () => modal.classList.add("hidden");
+        if (modal) {
+          modal.onclick = (e) => {
+            if (e.target.id === "achievementsModal") modal.classList.add("hidden");
+          };
+        }
+      }
+
+      function renderAchievementsList() {
+        const container = document.getElementById("achievementsListContainer");
+        if (!container) return;
+        container.innerHTML = "";
+
+        const profile = getActiveProfile();
+        if (!profile) return;
+
+        const unlockedSet = new Set(profile.unlocked_skills || []);
+        const canManage = isManagerRole(currentUserProfile && currentUserProfile.role);
+
+        document.getElementById("achievementsModalSubtitle").textContent = 
+          `Munkatárs: ${formatDisplayName(profile)} (${(profile.unlocked_skills || []).filter(id => id.startsWith("achv_")).length} / ${ACHIEVEMENTS_DATA.length} teljesítve)`;
+
+        ACHIEVEMENTS_DATA.forEach(achv => {
+          const isUnlocked = unlockedSet.has(achv.id);
+          const isNewlyUnlocked = newlyUnlockedSkills.has(achv.id);
+          const isNewlyRevoked = newlyRevokedSkills.has(achv.id);
+
+          const itemEl = document.createElement("div");
+
+          let borderClass = "";
+          let iconColor = "";
+
+          if (isNewlyUnlocked) {
+            borderClass = "border-amber-400 bg-amber-950/40 newly-unlocked-gold-pulse";
+            iconColor = "text-amber-300 bg-amber-500/30";
+          } else if (isNewlyRevoked) {
+            borderClass = "border-purple-500 bg-purple-950/40 newly-revoked-purple-pulse";
+            iconColor = "text-purple-300 bg-purple-500/30";
+          } else if (isUnlocked) {
+            borderClass = "border-amber-400/80 bg-amber-950/20 shadow-[0_0_15px_rgba(245,158,11,0.15)]";
+            iconColor = "text-amber-400 bg-amber-500/20";
+          } else {
+            borderClass = "border-blueprint-line bg-blueprint-900/60 opacity-60";
+            iconColor = "text-slate-500 bg-slate-800";
           }
+
+          itemEl.className = `p-4 rounded-xl border ${borderClass} flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all`;
+
+          const actionWrap = document.createElement("div");
+          actionWrap.className = "flex items-center justify-end";
+
+          if (canManage) {
+            const btn = document.createElement("button");
+            if (isUnlocked) {
+              btn.className = "px-3 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shrink-0";
+              btn.innerHTML = `<i class="ph-bold ph-lock-key"></i> Visszavonás`;
+              btn.onclick = () => toggleAchievement(achv.id, false);
+            } else {
+              btn.className = "px-3 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shrink-0";
+              btn.innerHTML = `<i class="ph-bold ph-check"></i> Feloldás`;
+              btn.onclick = () => toggleAchievement(achv.id, true);
+            }
+            actionWrap.appendChild(btn);
+          } else {
+            if (isNewlyUnlocked) {
+              actionWrap.innerHTML = `<span class="px-3 py-1 bg-amber-400 text-slate-950 rounded-lg text-xs font-black flex items-center gap-1 shrink-0 animate-pulse">★ ÚJ TELJESÍTÉS</span>`;
+            } else if (isNewlyRevoked) {
+              actionWrap.innerHTML = `<span class="px-3 py-1 bg-purple-600 text-white rounded-lg text-xs font-bold flex items-center gap-1 shrink-0 animate-pulse">✕ VISSZAVONVA</span>`;
+            } else if (isUnlocked) {
+              actionWrap.innerHTML = `<span class="px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/30 rounded-lg text-xs font-bold flex items-center gap-1 shrink-0"><i class="ph-bold ph-trophy"></i> Teljesítve</span>`;
+            } else {
+              actionWrap.innerHTML = `<span class="px-3 py-1 bg-slate-800 text-slate-500 border border-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1 shrink-0"><i class="ph ph-lock"></i> Folyamatban</span>`;
+            }
+          }
+
+          itemEl.innerHTML = `
+            <div class="flex items-start sm:items-center gap-3.5 flex-1">
+              <div class="w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0 ${iconColor} border border-amber-400/30">
+                <i class="${achv.icon}"></i>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                  ${achv.title}
+                  ${isUnlocked ? '<span class="text-amber-400 text-xs">★</span>' : ''}
+                </h4>
+                <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">${achv.desc}</p>
+              </div>
+            </div>
+          `;
+          itemEl.appendChild(actionWrap);
+          container.appendChild(itemEl);
         });
       }
-      revokeChildren(skillId);
 
-      const { error } = await supabaseClient.rpc('admin_update_skills', {
-        p_admin_username: currentUserProfile.username,
-        p_admin_password: currentUserProfile.password,
-        p_target_id: profile.id,
-        p_unlocked: updated
-      });
+      async function toggleAchievement(achvId, shouldUnlock) {
+        const profile = getActiveProfile();
+        if (!profile) return;
 
-      if (error) {
-        alert("Hiba a mentés során: " + error.message);
-        return;
+        let currentList = profile.unlocked_skills || ["root"];
+        let updated;
+
+        if (shouldUnlock) {
+          updated = !currentList.includes(achvId) ? [...currentList, achvId] : currentList;
+        } else {
+          updated = currentList.filter(id => id !== achvId);
+        }
+
+        const { error } = await supabaseClient.rpc('admin_update_skills', {
+          p_admin_username: currentUserProfile.username,
+          p_admin_password: currentUserProfile.password,
+          p_target_id: profile.id,
+          p_unlocked: updated
+        });
+
+        if (error) {
+          alert("Hiba a mentés során: " + error.message);
+          return;
+        }
+
+        profile.unlocked_skills = updated;
+        renderAchievementsList();
+        updateAchievementsBadge();
+        updateProgressStats();
       }
 
-      profile.unlocked_skills = updated;
-      document.getElementById("skillModal").classList.add("hidden");
-      renderTree();
-      updateProgressStats();
-    }
+      /* ==========================================================================
+         PAN & ZOOM + TOUCH
+         ========================================================================== */
+      function clampPan(x, y, currentScale) {
+        const viewport = document.getElementById("viewport");
+        const vWidth = viewport.clientWidth;
+        const vHeight = viewport.clientHeight;
 
-    /* ==========================================================================
-       EREDMÉNYEK (ACHIEVEMENTS) LOGIKA & VILLOGÁS KEZELÉSE
-       ========================================================================== */
-    function updateAchievementsBadge() {
-      const profile = getActiveProfile();
-      if (!profile) return;
-      const unlockedList = profile.unlocked_skills || [];
-      const count = ACHIEVEMENTS_DATA.filter(a => unlockedList.includes(a.id)).length;
-      
-      const badge = document.getElementById("achievementsCountBadge");
-      if (badge) badge.textContent = `${count} / ${ACHIEVEMENTS_DATA.length}`;
+        const contentWidth = 5300 * currentScale;
+        const contentHeight = 2000 * currentScale;
 
-      const btn = document.getElementById("openAchievementsBtn");
-      if (!btn) return;
+        const marginX = Math.min(300, vWidth * 0.4);
+        const marginY = Math.min(200, vHeight * 0.4);
 
-      btn.classList.remove("newly-unlocked-gold-pulse", "newly-revoked-purple-pulse");
+        const minX = vWidth - contentWidth - marginX;
+        const maxX = marginX;
+        const minY = vHeight - contentHeight - marginY;
+        const maxY = marginY;
 
-      let hasNewAchievementUnlock = false;
-      let hasNewAchievementRevoke = false;
-
-      ACHIEVEMENTS_DATA.forEach(a => {
-        if (newlyUnlockedSkills.has(a.id)) hasNewAchievementUnlock = true;
-        if (newlyRevokedSkills.has(a.id)) hasNewAchievementRevoke = true;
-      });
-
-      if (hasNewAchievementUnlock) {
-        btn.classList.add("newly-unlocked-gold-pulse");
-      } else if (hasNewAchievementRevoke) {
-        btn.classList.add("newly-revoked-purple-pulse");
-      }
-    }
-
-    function setupAchievementsModal() {
-      const openBtn = document.getElementById("openAchievementsBtn");
-      const closeBtn = document.getElementById("closeAchievementsBtn");
-      const modal = document.getElementById("achievementsModal");
-
-      if (openBtn) {
-        openBtn.onclick = () => {
-          renderAchievementsList();
-          modal.classList.remove("hidden");
+        return {
+          x: Math.min(Math.max(x, minX), maxX),
+          y: Math.min(Math.max(y, minY), maxY)
         };
       }
 
-      if (closeBtn) closeBtn.onclick = () => modal.classList.add("hidden");
-      if (modal) {
-        modal.onclick = (e) => {
-          if (e.target.id === "achievementsModal") modal.classList.add("hidden");
-        };
-      }
-    }
+      function setupPanAndZoom() {
+        const viewport = document.getElementById("viewport");
+        const container = document.getElementById("treeContainer");
+        container.style.transition = "none";
 
-    function renderAchievementsList() {
-      const container = document.getElementById("achievementsListContainer");
-      if (!container) return;
-      container.innerHTML = "";
+        function updateTransform() {
+          const clamped = clampPan(panX, panY, scale);
+          panX = clamped.x;
+          panY = clamped.y;
 
-      const profile = getActiveProfile();
-      if (!profile) return;
-
-      const unlockedSet = new Set(profile.unlocked_skills || []);
-      const isAdmin = (currentUserProfile && currentUserProfile.role === "admin");
-
-      document.getElementById("achievementsModalSubtitle").textContent = 
-        `Munkatárs: ${profile.full_name} (${(profile.unlocked_skills || []).filter(id => id.startsWith("achv_")).length} / ${ACHIEVEMENTS_DATA.length} teljesítve)`;
-
-      ACHIEVEMENTS_DATA.forEach(achv => {
-        const isUnlocked = unlockedSet.has(achv.id);
-        const isNewlyUnlocked = newlyUnlockedSkills.has(achv.id);
-        const isNewlyRevoked = newlyRevokedSkills.has(achv.id);
-
-        const itemEl = document.createElement("div");
-
-        let borderClass = "";
-        let iconColor = "";
-
-        if (isNewlyUnlocked) {
-          borderClass = "border-amber-400 bg-amber-950/40 newly-unlocked-gold-pulse";
-          iconColor = "text-amber-300 bg-amber-500/30";
-        } else if (isNewlyRevoked) {
-          borderClass = "border-purple-500 bg-purple-950/40 newly-revoked-purple-pulse";
-          iconColor = "text-purple-300 bg-purple-500/30";
-        } else if (isUnlocked) {
-          borderClass = "border-amber-400/80 bg-amber-950/20 shadow-[0_0_15px_rgba(245,158,11,0.15)]";
-          iconColor = "text-amber-400 bg-amber-500/20";
-        } else {
-          borderClass = "border-blueprint-line bg-blueprint-900/60 opacity-60";
-          iconColor = "text-slate-500 bg-slate-800";
+          container.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+          document.getElementById("zoomLevelText").textContent = `${Math.round(scale * 100)}%`;
         }
 
-        itemEl.className = `p-4 rounded-xl border ${borderClass} flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all`;
+        viewport.addEventListener("mousedown", (e) => {
+          if (
+            draggingNode ||
+            e.target.closest("button") || 
+            e.target.closest(".filter-btn") || 
+            e.target.closest("#adminUserSelectorContainer") || 
+            e.target.closest("#editorControlsTopRight") ||
+            e.target.closest("#skillModal") || 
+            e.target.closest("#achievementsModal") ||
+            e.target.closest("#skillSearchModal") ||
+            e.target.closest("#nodeEditorModal")
+          ) return;
 
-        let actionHtml = "";
-        if (isAdmin) {
-          if (isUnlocked) {
-            actionHtml = `
-              <button onclick="toggleAchievement('${achv.id}', false)" class="px-3 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shrink-0">
-                <i class="ph-bold ph-lock-key"></i> Visszavonás
-              </button>
-            `;
-          } else {
-            actionHtml = `
-              <button onclick="toggleAchievement('${achv.id}', true)" class="px-3 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shrink-0">
-                <i class="ph-bold ph-check"></i> Feloldás
-              </button>
-            `;
+          isDragging = true;
+          startX = e.clientX - panX;
+          startY = e.clientY - panY;
+        });
+
+        window.addEventListener("mousemove", (e) => {
+          if (!isDragging || draggingNode) return;
+          panX = e.clientX - startX;
+          panY = e.clientY - startY;
+          updateTransform();
+        });
+
+        window.addEventListener("mouseup", () => isDragging = false);
+
+        viewport.addEventListener("touchstart", (e) => {
+          if (
+            e.target.closest("button") || 
+            e.target.closest(".filter-btn") || 
+            e.target.closest("#adminUserSelectorContainer") || 
+            e.target.closest("#editorControlsTopRight") ||
+            e.target.closest("#skillModal") || 
+            e.target.closest("#achievementsModal")
+          ) return;
+
+          if (e.touches.length === 1) {
+            isDragging = true;
+            startX = e.touches[0].clientX - panX;
+            startY = e.touches[0].clientY - panY;
           }
-        } else {
-          if (isNewlyUnlocked) {
-            actionHtml = `<span class="px-3 py-1 bg-amber-400 text-slate-950 rounded-lg text-xs font-black flex items-center gap-1 shrink-0 animate-pulse">★ ÚJ TELJESÍTÉS</span>`;
-          } else if (isNewlyRevoked) {
-            actionHtml = `<span class="px-3 py-1 bg-purple-600 text-white rounded-lg text-xs font-bold flex items-center gap-1 shrink-0 animate-pulse">✕ VISSZAVONVA</span>`;
-          } else if (isUnlocked) {
-            actionHtml = `<span class="px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/30 rounded-lg text-xs font-bold flex items-center gap-1 shrink-0"><i class="ph-bold ph-trophy"></i> Teljesítve</span>`;
-          } else {
-            actionHtml = `<span class="px-3 py-1 bg-slate-800 text-slate-500 border border-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1 shrink-0"><i class="ph ph-lock"></i> Folyamatban</span>`;
-          }
+        }, { passive: true });
+
+        viewport.addEventListener("touchmove", (e) => {
+          if (!isDragging || e.touches.length !== 1) return;
+          panX = e.touches[0].clientX - startX;
+          panY = e.touches[0].clientY - startY;
+          updateTransform();
+        }, { passive: true });
+
+        viewport.addEventListener("touchend", () => isDragging = false);
+
+        viewport.addEventListener("wheel", (e) => {
+          e.preventDefault();
+          const rect = viewport.getBoundingClientRect();
+          const mouseX = e.clientX - rect.left;
+          const mouseY = e.clientY - rect.top;
+
+          const zoomFactor = e.deltaY < 0 ? 1.12 : 0.89;
+          const newScale = Math.min(Math.max(0.3, scale * zoomFactor), 1.6);
+
+          if (newScale === scale) return;
+
+          panX = mouseX - (mouseX - panX) * (newScale / scale);
+          panY = mouseY - (mouseY - panY) * (newScale / scale);
+          scale = newScale;
+
+          updateTransform();
+        }, { passive: false });
+
+        function zoomAtCenter(factor) {
+          const rect = viewport.getBoundingClientRect();
+          const centerX = rect.width / 2;
+          const centerY = rect.height / 2;
+
+          const newScale = Math.min(Math.max(0.3, scale * factor), 1.6);
+          if (newScale === scale) return;
+
+          panX = centerX - (centerX - panX) * (newScale / scale);
+          panY = centerY - (centerY - panY) * (newScale / scale);
+          scale = newScale;
+
+          updateTransform();
         }
 
-        itemEl.innerHTML = `
-          <div class="flex items-start sm:items-center gap-3.5 flex-1">
-            <div class="w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0 ${iconColor} border border-amber-400/30">
-              <i class="${achv.icon}"></i>
-            </div>
-            <div>
-              <h4 class="text-sm font-bold text-white flex items-center gap-2">
-                ${achv.title}
-                ${isUnlocked ? '<span class="text-amber-400 text-xs">★</span>' : ''}
-              </h4>
-              <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">${achv.desc}</p>
-            </div>
-          </div>
-          <div class="flex items-center justify-end">
-            ${actionHtml}
-          </div>
-        `;
-
-        container.appendChild(itemEl);
-      });
-    }
-
-    async function toggleAchievement(achvId, shouldUnlock) {
-      const profile = getActiveProfile();
-      if (!profile) return;
-
-      let currentList = profile.unlocked_skills || ["root"];
-      let updated;
-
-      if (shouldUnlock) {
-        if (!currentList.includes(achvId)) {
-          updated = [...currentList, achvId];
-        } else {
-          updated = currentList;
-        }
-      } else {
-        updated = currentList.filter(id => id !== achvId);
+        document.getElementById("zoomInBtn").onclick = () => zoomAtCenter(1.2);
+        document.getElementById("zoomOutBtn").onclick = () => zoomAtCenter(0.83);
+        document.getElementById("zoomResetBtn").onclick = () => centerRootNode();
       }
 
-      const { error } = await supabaseClient.rpc('admin_update_skills', {
-        p_admin_username: currentUserProfile.username,
-        p_admin_password: currentUserProfile.password,
-        p_target_id: profile.id,
-        p_unlocked: updated
-      });
+      function centerRootNode() {
+        const viewport = document.getElementById("viewport");
+        const rootNode = (isEditMode ? draftSkills : SKILLS_DATA).find(s => s.id === "root") || { x: 2450, y: 80 };
+        scale = 0.30;
+        panX = (viewport.clientWidth / 2) - (rootNode.x * scale);
+        panY = 40;
 
-      if (error) {
-        alert("Hiba a mentés során: " + error.message);
-        return;
-      }
-
-      profile.unlocked_skills = updated;
-      renderAchievementsList();
-      updateAchievementsBadge();
-      updateProgressStats();
-    }
-    window.toggleAchievement = toggleAchievement;
-
-    /* ==========================================================================
-       PAN & ZOOM + TOUCH
-       ========================================================================== */
-    function clampPan(x, y, currentScale) {
-      const viewport = document.getElementById("viewport");
-      const vWidth = viewport.clientWidth;
-      const vHeight = viewport.clientHeight;
-
-      const contentWidth = 5300 * currentScale;
-      const contentHeight = 2000 * currentScale;
-
-      const marginX = Math.min(300, vWidth * 0.4);
-      const marginY = Math.min(200, vHeight * 0.4);
-
-      const minX = vWidth - contentWidth - marginX;
-      const maxX = marginX;
-      const minY = vHeight - contentHeight - marginY;
-      const maxY = marginY;
-
-      return {
-        x: Math.min(Math.max(x, minX), maxX),
-        y: Math.min(Math.max(y, minY), maxY)
-      };
-    }
-
-    function setupPanAndZoom() {
-      const viewport = document.getElementById("viewport");
-      const container = document.getElementById("treeContainer");
-      container.style.transition = "none";
-
-      function updateTransform() {
         const clamped = clampPan(panX, panY, scale);
         panX = clamped.x;
         panY = clamped.y;
 
+        const container = document.getElementById("treeContainer");
         container.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
         document.getElementById("zoomLevelText").textContent = `${Math.round(scale * 100)}%`;
       }
 
-      viewport.addEventListener("mousedown", (e) => {
-        if (
-          e.target.closest("button") || 
-          e.target.closest(".filter-btn") || 
-          e.target.closest("#adminUserSelectorContainer") ||
-          e.target.closest("#skillModal") ||
-          e.target.closest("#achievementsModal")
-        ) return;
-
-        isDragging = true;
-        startX = e.clientX - panX;
-        startY = e.clientY - panY;
-      });
-
-      window.addEventListener("mousemove", (e) => {
-        if (!isDragging) return;
-        panX = e.clientX - startX;
-        panY = e.clientY - startY;
-        updateTransform();
-      });
-
-      window.addEventListener("mouseup", () => isDragging = false);
-
-      viewport.addEventListener("touchstart", (e) => {
-        if (
-          e.target.closest("button") || 
-          e.target.closest(".filter-btn") || 
-          e.target.closest("#adminUserSelectorContainer") ||
-          e.target.closest("#skillModal") ||
-          e.target.closest("#achievementsModal")
-        ) return;
-
-        if (e.touches.length === 1) {
-          isDragging = true;
-          startX = e.touches[0].clientX - panX;
-          startY = e.touches[0].clientY - panY;
-        }
-      }, { passive: true });
-
-      viewport.addEventListener("touchmove", (e) => {
-        if (!isDragging || e.touches.length !== 1) return;
-        panX = e.touches[0].clientX - startX;
-        panY = e.touches[0].clientY - startY;
-        updateTransform();
-      }, { passive: true });
-
-      viewport.addEventListener("touchend", () => isDragging = false);
-
-      viewport.addEventListener("wheel", (e) => {
-        e.preventDefault();
-        const rect = viewport.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-
-        const zoomFactor = e.deltaY < 0 ? 1.12 : 0.89;
-        const newScale = Math.min(Math.max(0.3, scale * zoomFactor), 1.6);
-
-        if (newScale === scale) return;
-
-        panX = mouseX - (mouseX - panX) * (newScale / scale);
-        panY = mouseY - (mouseY - panY) * (newScale / scale);
-        scale = newScale;
-
-        updateTransform();
-      }, { passive: false });
-
-      function zoomAtCenter(factor) {
-        const rect = viewport.getBoundingClientRect();
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-
-        const newScale = Math.min(Math.max(0.3, scale * factor), 1.6);
-        if (newScale === scale) return;
-
-        panX = centerX - (centerX - panX) * (newScale / scale);
-        panY = centerY - (centerY - panY) * (newScale / scale);
-        scale = newScale;
-
-        updateTransform();
-      }
-
-      document.getElementById("zoomInBtn").onclick = () => zoomAtCenter(1.2);
-      document.getElementById("zoomOutBtn").onclick = () => zoomAtCenter(0.83);
-      document.getElementById("zoomResetBtn").onclick = () => centerRootNode();
-    }
-
-    function centerRootNode() {
-      const viewport = document.getElementById("viewport");
-      scale = 0.30;
-      panX = (viewport.clientWidth / 2) - (2450 * scale);
-      panY = 40;
-
-      const clamped = clampPan(panX, panY, scale);
-      panX = clamped.x;
-      panY = clamped.y;
-
-      const container = document.getElementById("treeContainer");
-      container.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
-      document.getElementById("zoomLevelText").textContent = `${Math.round(scale * 100)}%`;
-    }
-
-    /* ==========================================================================
-       SZŰRŐK
-       ========================================================================== */
-    function setupFilters() {
-      const filterBtns = document.querySelectorAll(".filter-btn");
-      filterBtns.forEach(btn => {
-        btn.addEventListener("click", () => {
-          activeFilter = btn.dataset.filter;
-          filterBtns.forEach(b => {
-            b.className = "filter-btn px-3 py-1 rounded bg-blueprint-800 hover:bg-blueprint-700 border border-blueprint-line text-slate-300 font-medium transition";
+      /* ==========================================================================
+         SZŰRŐK
+         ========================================================================== */
+      function setupFilters() {
+        const filterBtns = document.querySelectorAll(".filter-btn");
+        filterBtns.forEach(btn => {
+          btn.addEventListener("click", () => {
+            activeFilter = btn.dataset.filter;
+            filterBtns.forEach(b => {
+              b.className = "filter-btn px-3 py-1 rounded bg-blueprint-800 hover:bg-blueprint-700 border border-blueprint-line text-slate-300 font-medium transition";
+            });
+            btn.className = "filter-btn px-3 py-1 rounded bg-cyan-500/20 border border-cyan-400 text-cyan-300 font-medium transition";
+            renderTree();
           });
-          btn.className = "filter-btn px-3 py-1 rounded bg-cyan-500/20 border border-cyan-400 text-cyan-300 font-medium transition";
-          renderTree();
         });
-      });
-    }
-
-    /* ==========================================================================
-       ADMIN: ÚJ PROFIL ÉS TÖRLÉS
-       ========================================================================== */
-    function setupAdminUserManagement() {
-      const modal = document.getElementById("adminUserModal");
-      const openBtn = document.getElementById("adminCreateUserBtn");
-      const closeBtn = document.getElementById("adminUserModalCloseBtn");
-      const alertBox = document.getElementById("adminUserAlert");
-      const deleteBtn = document.getElementById("adminDeleteUserBtn");
-      const submitBtn = document.getElementById("adminNewUserSubmitBtn");
-
-      if (openBtn) {
-        openBtn.onclick = () => {
-          document.getElementById("adminUserForm").reset();
-          alertBox.classList.add("hidden");
-          modal.classList.remove("hidden");
-        };
       }
 
-      if (closeBtn) closeBtn.onclick = () => modal.classList.add("hidden");
-      if (modal) {
-        modal.onclick = (e) => {
-          if (e.target.id === "adminUserModal") modal.classList.add("hidden");
-        };
-      }
+      /* ==========================================================================
+         ADMIN & MUNKACSOPORTVEZETŐ: ÚJ PROFIL, TÖRLÉS, RANG ADÁSA/ELVÉTELE
+         ========================================================================== */
+      function setupAdminUserManagement() {
+        const modal = document.getElementById("adminUserModal");
+        const openBtn = document.getElementById("adminCreateUserBtn");
+        const closeBtn = document.getElementById("adminUserModalCloseBtn");
+        const alertBox = document.getElementById("adminUserAlert");
+        const deleteBtn = document.getElementById("adminDeleteUserBtn");
+        const submitBtn = document.getElementById("adminNewUserSubmitBtn");
+        const toggleLeadBtn = document.getElementById("adminToggleLeadBtn");
 
-      if (submitBtn) {
-        submitBtn.onclick = async () => {
-          const fullName = document.getElementById("adminNewFullName").value.trim();
-          const username = document.getElementById("adminNewUsername").value.trim().toLowerCase();
-          const password = document.getElementById("adminNewPassword").value;
+        if (toggleLeadBtn) {
+          toggleLeadBtn.onclick = async () => {
+            if (currentUserProfile.role !== "admin") return;
+            const target = getActiveProfile();
+            if (!target || target.role === "admin") return;
 
-          if (!fullName || !username || !password) {
-            alertBox.textContent = "Kérlek tölts ki minden mezőt!";
-            alertBox.className = "mb-3 p-2.5 rounded-lg text-xs font-semibold bg-rose-500/20 border border-rose-500/40 text-rose-300 block";
-            return;
-          }
+            const newRole = target.role === "team_lead" ? "user" : "team_lead";
+            const actionText = newRole === "team_lead"
+              ? `Munkacsoportvezetői rangot adsz "${target.full_name}" részére?`
+              : `Elveszed a Munkacsoportvezetői rangot "${target.full_name}" munkatárstól?`;
 
-          submitBtn.disabled = true;
-          submitBtn.innerHTML = `<i class="ph ph-spinner animate-spin"></i> Létrehozás...`;
+            if (!confirm(actionText)) return;
 
-          const { data, error } = await supabaseClient.rpc('admin_create_user', {
-            p_admin_username: currentUserProfile.username,
-            p_admin_password: currentUserProfile.password,
-            p_new_username: username,
-            p_new_password: password,
-            p_new_fullname: fullName
-          });
+            const { error } = await supabaseClient.rpc('admin_set_role', {
+              p_admin_username: currentUserProfile.username,
+              p_admin_password: currentUserProfile.password,
+              p_target_id: target.id,
+              p_new_role: newRole
+            });
 
-          submitBtn.disabled = false;
-          submitBtn.innerHTML = `<i class="ph-bold ph-check"></i> Profil létrehozása`;
+            if (error) {
+              alert("Hiba a rang módosítása során: " + error.message);
+              return;
+            }
 
-          if (error) {
-            alertBox.textContent = "Hiba: A felhasználónév már létezik vagy jogosultsági hiba történt!";
-            alertBox.className = "mb-3 p-2.5 rounded-lg text-xs font-semibold bg-rose-500/20 border border-rose-500/40 text-rose-300 block";
-            return;
-          }
-
-          modal.classList.add("hidden");
-          const refreshed = await supabaseClient.rpc('get_profiles', { p_username: currentUserProfile.username, p_password: currentUserProfile.password });
-          allProfiles = refreshed.data || [];
-          if (data) {
-            activeViewingUserId = data;
-          }
-          populateEngineerDropdown();
-          renderTree();
-          updateProgressStats();
-          updateAchievementsBadge();
-        };
-      }
-
-      if (deleteBtn) {
-        deleteBtn.onclick = async () => {
-          const target = getActiveProfile();
-          if (!target) return;
-
-          if (target.role === "admin" || target.username === "admin") {
-            alert("Adminisztrátori profilt nem lehet törölni!");
-            return;
-          }
-
-          const confirmed = confirm(`Biztosan törölni szeretnéd "${target.full_name}" (@${target.username}) profilját a felhőből?`);
-          if (!confirmed) return;
-
-          const { error } = await supabaseClient.rpc('admin_delete_user', {
-            p_admin_username: currentUserProfile.username,
-            p_admin_password: currentUserProfile.password,
-            p_target_id: target.id
-          });
-
-          if (error) {
-            alert("Hiba a törlés során: " + error.message);
-            return;
-          }
-
-          const refreshed = await supabaseClient.rpc('get_profiles', { p_username: currentUserProfile.username, p_password: currentUserProfile.password });
-          allProfiles = refreshed.data || [];
-          activeViewingUserId = allProfiles[0].id;
-          populateEngineerDropdown();
-          renderTree();
-          updateProgressStats();
-          updateAchievementsBadge();
-        };
-      }
-    }
-
-    /* ==========================================================================
-       AUTHENTICATION
-       ========================================================================== */
-    function setupAuth() {
-      const submitBtn = document.getElementById("loginSubmitBtn");
-      const usernameInput = document.getElementById("loginUsername");
-      const passwordInput = document.getElementById("loginPassword");
-      const rememberMeCheckbox = document.getElementById("rememberMeCheckbox");
-
-      async function performLogin() {
-        const username = usernameInput.value.trim().toLowerCase();
-        const password = passwordInput.value;
-        const rememberMe = rememberMeCheckbox ? rememberMeCheckbox.checked : false;
-
-        if (!username || !password) {
-          showAuthError("Helytelen felhasználónév vagy jelszó!");
-          return;
+            target.role = newRole;
+            populateEngineerDropdown();
+            updateRoleToggleButton();
+          };
         }
 
-        if (!supabaseClient) {
-          showAuthError("Adatbázis hiba: Nem sikerült inicializálni a kapcsolatot.");
-          return;
+        if (openBtn) {
+          openBtn.onclick = () => {
+            document.getElementById("adminUserForm").reset();
+            alertBox.classList.add("hidden");
+            modal.classList.remove("hidden");
+          };
         }
 
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = `<i class="ph ph-spinner animate-spin"></i> Belépés...`;
+        if (closeBtn) closeBtn.onclick = () => modal.classList.add("hidden");
+        if (modal) {
+          modal.onclick = (e) => {
+            if (e.target.id === "adminUserModal") modal.classList.add("hidden");
+          };
+        }
 
-        try {
-          const { data, error } = await supabaseClient.rpc('login_user', {
-            p_username: username,
-            p_password: password
-          });
+        if (submitBtn) {
+          submitBtn.onclick = async () => {
+            const fullName = document.getElementById("adminNewFullName").value.trim();
+            const username = document.getElementById("adminNewUsername").value.trim().toLowerCase();
+            const password = document.getElementById("adminNewPassword").value;
 
-          submitBtn.disabled = false;
-          submitBtn.innerHTML = `<i class="ph-bold ph-sign-in"></i> Belépés`;
+            if (!fullName || !username || !password) {
+              alertBox.textContent = "Kérlek tölts ki minden mezőt!";
+              alertBox.className = "mb-3 p-2.5 rounded-lg text-xs font-semibold bg-rose-500/20 border border-rose-500/40 text-rose-300 block";
+              return;
+            }
 
-          if (error || !data || data.length === 0) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="ph ph-spinner animate-spin"></i> Létrehozás...`;
+
+            const { data, error } = await supabaseClient.rpc('admin_create_user', {
+              p_admin_username: currentUserProfile.username,
+              p_admin_password: currentUserProfile.password,
+              p_new_username: username,
+              p_new_password: password,
+              p_new_fullname: fullName
+            });
+
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `<i class="ph-bold ph-check"></i> Profil létrehozása`;
+
+            if (error) {
+              alertBox.textContent = "Hiba: A felhasználónév már létezik vagy jogosultsági hiba történt!";
+              alertBox.className = "mb-3 p-2.5 rounded-lg text-xs font-semibold bg-rose-500/20 border border-rose-500/40 text-rose-300 block";
+              return;
+            }
+
+            modal.classList.add("hidden");
+            const refreshed = await supabaseClient.rpc('get_profiles', {
+              p_username: currentUserProfile.username,
+              p_password: currentUserProfile.password
+            });
+            allProfiles = refreshed.data || [];
+            if (data) {
+              activeViewingUserId = data;
+            }
+            populateEngineerDropdown();
+            renderTree();
+            updateProgressStats();
+            updateAchievementsBadge();
+          };
+        }
+
+        if (deleteBtn) {
+          deleteBtn.onclick = async () => {
+            const target = getActiveProfile();
+            if (!target) return;
+
+            if (target.role === "admin" || target.username === "admin") {
+              alert("Adminisztrátori profilt nem lehet törölni!");
+              return;
+            }
+
+            if (target.id === currentUserProfile.id) {
+              alert("A saját aktív profilodat nem törölheted!");
+              return;
+            }
+
+            const confirmed = confirm(`Biztosan törölni szeretnéd "${formatDisplayName(target)}" profilját a felhőből?`);
+            if (!confirmed) return;
+
+            const { error } = await supabaseClient.rpc('admin_delete_user', {
+              p_admin_username: currentUserProfile.username,
+              p_admin_password: currentUserProfile.password,
+              p_target_id: target.id
+            });
+
+            if (error) {
+              alert("Hiba a törlés során: " + error.message);
+              return;
+            }
+
+            const refreshed = await supabaseClient.rpc('get_profiles', {
+              p_username: currentUserProfile.username,
+              p_password: currentUserProfile.password
+            });
+            allProfiles = refreshed.data || [];
+            const nextProfile = allProfiles.find(p => p.role !== 'admin') || allProfiles[0];
+            activeViewingUserId = nextProfile ? nextProfile.id : currentUserProfile.id;
+            populateEngineerDropdown();
+            renderTree();
+            updateProgressStats();
+            updateAchievementsBadge();
+          };
+        }
+      }
+
+      /* ==========================================================================
+         AUTHENTICATION
+         ========================================================================== */
+      function setupAuth() {
+        const submitBtn = document.getElementById("loginSubmitBtn");
+        const usernameInput = document.getElementById("loginUsername");
+        const passwordInput = document.getElementById("loginPassword");
+        const rememberMeCheckbox = document.getElementById("rememberMeCheckbox");
+
+        async function performLogin() {
+          const username = usernameInput.value.trim().toLowerCase();
+          const password = passwordInput.value;
+          const rememberMe = rememberMeCheckbox ? rememberMeCheckbox.checked : false;
+
+          if (!username || !password) {
             showAuthError("Helytelen felhasználónév vagy jelszó!");
             return;
           }
 
-          currentUserProfile = data[0];
-
-          if (rememberMe) {
-            localStorage.setItem(STORAGE_KEY_SESSION_USER, username);
-            localStorage.setItem(STORAGE_KEY_SESSION_PASS, password);
-            sessionStorage.removeItem(STORAGE_KEY_SESSION_USER);
-            sessionStorage.removeItem(STORAGE_KEY_SESSION_PASS);
-          } else {
-            sessionStorage.setItem(STORAGE_KEY_SESSION_USER, username);
-            sessionStorage.setItem(STORAGE_KEY_SESSION_PASS, password);
-            localStorage.removeItem(STORAGE_KEY_SESSION_USER);
-            localStorage.removeItem(STORAGE_KEY_SESSION_PASS);
+          if (!supabaseClient) {
+            showAuthError("Adatbázis hiba: Nem sikerült inicializálni a kapcsolatot.");
+            return;
           }
 
-          await loadAllProfilesAndInit(username, password);
-          hideAuthModal();
-          document.getElementById("loginForm").reset();
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = `<i class="ph ph-spinner animate-spin"></i> Belépés...`;
 
-        } catch (err) {
-          console.error("Váratlan hiba:", err);
-          submitBtn.disabled = false;
-          submitBtn.innerHTML = `<i class="ph-bold ph-sign-in"></i> Belépés`;
-          showAuthError("Helytelen felhasználónév vagy jelszó!");
+          try {
+            const { data, error } = await supabaseClient.rpc('login_user', {
+              p_username: username,
+              p_password: password
+            });
+
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `<i class="ph-bold ph-sign-in"></i> Belépés`;
+
+            if (error || !data || data.length === 0) {
+              showAuthError("Helytelen felhasználónév vagy jelszó!");
+              return;
+            }
+
+            currentUserProfile = data[0];
+            currentUserProfile.password = password;
+
+            if (rememberMe) {
+              localStorage.setItem(STORAGE_KEY_SESSION_USER, username);
+              localStorage.setItem(STORAGE_KEY_SESSION_PASS, password);
+              sessionStorage.removeItem(STORAGE_KEY_SESSION_USER);
+              sessionStorage.removeItem(STORAGE_KEY_SESSION_PASS);
+            } else {
+              sessionStorage.setItem(STORAGE_KEY_SESSION_USER, username);
+              sessionStorage.setItem(STORAGE_KEY_SESSION_PASS, password);
+              localStorage.removeItem(STORAGE_KEY_SESSION_USER);
+              localStorage.removeItem(STORAGE_KEY_SESSION_PASS);
+            }
+
+            await loadAllProfilesAndInit(username, password);
+            hideAuthModal();
+            document.getElementById("loginForm").reset();
+
+          } catch (err) {
+            console.error("Váratlan hiba:", err);
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `<i class="ph-bold ph-sign-in"></i> Belépés`;
+            showAuthError("Helytelen felhasználónév vagy jelszó!");
+          }
+        }
+
+        if (submitBtn) submitBtn.onclick = performLogin;
+
+        usernameInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") performLogin();
+        });
+        passwordInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") performLogin();
+        });
+
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+          logoutBtn.onclick = () => {
+            localStorage.removeItem(STORAGE_KEY_SESSION_USER);
+            localStorage.removeItem(STORAGE_KEY_SESSION_PASS);
+            sessionStorage.removeItem(STORAGE_KEY_SESSION_USER);
+            sessionStorage.removeItem(STORAGE_KEY_SESSION_PASS);
+            currentUserProfile = null;
+            allProfiles = [];
+            activeViewingUserId = null;
+            isEditMode = false;
+            showAuthModal();
+          };
         }
       }
 
-      if (submitBtn) submitBtn.onclick = performLogin;
-
-      usernameInput.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") performLogin();
-      });
-      passwordInput.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") performLogin();
-      });
-
-      const logoutBtn = document.getElementById("logoutBtn");
-      if (logoutBtn) {
-        logoutBtn.onclick = () => {
-          localStorage.removeItem(STORAGE_KEY_SESSION_USER);
-          localStorage.removeItem(STORAGE_KEY_SESSION_PASS);
-          sessionStorage.removeItem(STORAGE_KEY_SESSION_USER);
-          sessionStorage.removeItem(STORAGE_KEY_SESSION_PASS);
-          currentUserProfile = null;
-          allProfiles = [];
-          activeViewingUserId = null;
-          showAuthModal();
-        };
-      }
-    }
-
-    function showAuthError(msg) {
-      const alert = document.getElementById("authAlert");
-      if (alert) {
-        alert.textContent = msg;
-        alert.className = "mb-4 p-3 rounded-lg text-xs font-semibold bg-rose-500/20 border border-rose-500/40 text-rose-300 block";
-      } else {
-        window.alert(msg);
-      }
-    }
-
-    /* ==========================================================================
-       JELSZÓVÁLTOZTATÁS
-       ========================================================================== */
-    function setupChangePasswordModal() {
-      const modal = document.getElementById("changePassModal");
-      const openBtn = document.getElementById("openChangePassBtn");
-      const closeBtn = document.getElementById("changePassCloseBtn");
-      const saveBtn = document.getElementById("savePassBtn");
-      const alertBox = document.getElementById("changePassAlert");
-
-      if (openBtn) {
-        openBtn.onclick = () => {
-          document.getElementById("changePassForm").reset();
-          alertBox.classList.add("hidden");
-          modal.classList.remove("hidden");
-        };
+      function showAuthError(msg) {
+        const alert = document.getElementById("authAlert");
+        if (alert) {
+          alert.textContent = msg;
+          alert.className = "mb-4 p-3 rounded-lg text-xs font-semibold bg-rose-500/20 border border-rose-500/40 text-rose-300 block";
+        } else {
+          window.alert(msg);
+        }
       }
 
-      if (closeBtn) closeBtn.onclick = () => modal.classList.add("hidden");
-      if (modal) {
-        modal.onclick = (e) => {
-          if (e.target.id === "changePassModal") modal.classList.add("hidden");
-        };
+      /* ==========================================================================
+         JELSZÓVÁLTOZTATÁS
+         ========================================================================== */
+      function setupChangePasswordModal() {
+        const modal = document.getElementById("changePassModal");
+        const openBtn = document.getElementById("openChangePassBtn");
+        const closeBtn = document.getElementById("changePassCloseBtn");
+        const saveBtn = document.getElementById("savePassBtn");
+        const alertBox = document.getElementById("changePassAlert");
+
+        if (openBtn) {
+          openBtn.onclick = () => {
+            document.getElementById("changePassForm").reset();
+            alertBox.classList.add("hidden");
+            modal.classList.remove("hidden");
+          };
+        }
+
+        if (closeBtn) closeBtn.onclick = () => modal.classList.add("hidden");
+        if (modal) {
+          modal.onclick = (e) => {
+            if (e.target.id === "changePassModal") modal.classList.add("hidden");
+          };
+        }
+
+        if (saveBtn) {
+          saveBtn.onclick = async () => {
+            const currentPass = document.getElementById("currentPassInput").value;
+            const newPass = document.getElementById("newPassInput").value;
+            const confirmPass = document.getElementById("confirmPassInput").value;
+
+            if (currentUserProfile.password !== currentPass) {
+              alertBox.textContent = "A jelenlegi jelszó helytelen!";
+              alertBox.className = "mb-3 p-2.5 rounded-lg text-xs font-semibold bg-rose-500/20 border border-rose-500/40 text-rose-300 block";
+              return;
+            }
+
+            if (newPass.length < 4) {
+              alertBox.textContent = "Az új jelszónak legalább 4 karakternek kell lennie!";
+              alertBox.className = "mb-3 p-2.5 rounded-lg text-xs font-semibold bg-amber-500/20 border border-amber-500/40 text-amber-300 block";
+              return;
+            }
+
+            if (newPass !== confirmPass) {
+              alertBox.textContent = "Az új jelszavak nem egyeznek!";
+              alertBox.className = "mb-3 p-2.5 rounded-lg text-xs font-semibold bg-rose-500/20 border border-rose-500/40 text-rose-300 block";
+              return;
+            }
+
+            const { error } = await supabaseClient.rpc('change_password', {
+              p_username: currentUserProfile.username,
+              p_old_password: currentPass,
+              p_new_password: newPass
+            });
+
+            if (error) {
+              alertBox.textContent = "Hiba: " + error.message;
+              alertBox.className = "mb-3 p-2.5 rounded-lg text-xs font-semibold bg-rose-500/20 border border-rose-500/40 text-rose-300 block";
+              return;
+            }
+
+            currentUserProfile.password = newPass;
+            if (localStorage.getItem(STORAGE_KEY_SESSION_USER)) {
+              localStorage.setItem(STORAGE_KEY_SESSION_PASS, newPass);
+            } else if (sessionStorage.getItem(STORAGE_KEY_SESSION_USER)) {
+              sessionStorage.setItem(STORAGE_KEY_SESSION_PASS, newPass);
+            }
+
+            alertBox.textContent = "✓ Jelszó sikeresen megváltoztatva!";
+            alertBox.className = "mb-3 p-2.5 rounded-lg text-xs font-semibold bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 block";
+
+            setTimeout(() => modal.classList.add("hidden"), 1200);
+          };
+        }
       }
-
-      if (saveBtn) {
-        saveBtn.onclick = async () => {
-          const currentPass = document.getElementById("currentPassInput").value;
-          const newPass = document.getElementById("newPassInput").value;
-          const confirmPass = document.getElementById("confirmPassInput").value;
-
-          if (currentUserProfile.password !== currentPass) {
-            alertBox.textContent = "A jelenlegi jelszó helytelen!";
-            alertBox.className = "mb-3 p-2.5 rounded-lg text-xs font-semibold bg-rose-500/20 border border-rose-500/40 text-rose-300 block";
-            return;
-          }
-
-          if (newPass.length < 4) {
-            alertBox.textContent = "Az új jelszónak legalább 4 karakternek kell lennie!";
-            alertBox.className = "mb-3 p-2.5 rounded-lg text-xs font-semibold bg-amber-500/20 border border-amber-500/40 text-amber-300 block";
-            return;
-          }
-
-          if (newPass !== confirmPass) {
-            alertBox.textContent = "Az új jelszavak nem egyeznek!";
-            alertBox.className = "mb-3 p-2.5 rounded-lg text-xs font-semibold bg-rose-500/20 border border-rose-500/40 text-rose-300 block";
-            return;
-          }
-
-          const { error } = await supabaseClient.rpc('change_password', {
-            p_username: currentUserProfile.username,
-            p_old_password: currentPass,
-            p_new_password: newPass
-          });
-
-          if (error) {
-            alertBox.textContent = "Hiba: " + error.message;
-            alertBox.className = "mb-3 p-2.5 rounded-lg text-xs font-semibold bg-rose-500/20 border border-rose-500/40 text-rose-300 block";
-            return;
-          }
-
-          currentUserProfile.password = newPass;
-          if (localStorage.getItem(STORAGE_KEY_SESSION_USER)) {
-            localStorage.setItem(STORAGE_KEY_SESSION_PASS, newPass);
-          } else if (sessionStorage.getItem(STORAGE_KEY_SESSION_USER)) {
-            sessionStorage.setItem(STORAGE_KEY_SESSION_PASS, newPass);
-          }
-
-          alertBox.textContent = "✓ Jelszó sikeresen megváltoztatva!";
-          alertBox.className = "mb-3 p-2.5 rounded-lg text-xs font-semibold bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 block";
-
-          setTimeout(() => modal.classList.add("hidden"), 1200);
-        };
-      }
-    }
+    })();
   </script>
 </body>
 </html>
