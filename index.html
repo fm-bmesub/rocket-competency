@@ -610,7 +610,7 @@
       <div class="px-6 py-4 bg-blueprint-800 border-b border-blueprint-line flex items-center justify-between shrink-0">
         <div class="flex items-center gap-2.5 text-amber-400 font-bold text-base">
           <i class="ph-bold ph-trophy text-xl"></i>
-          <span>Eredmények hozzáadása és törlése</span>
+          <span>Eredmények hozzáadása, szerkesztése és törlése</span>
         </div>
         <button id="achvManagerCloseBtn" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-blueprint-700">
           <i class="ph ph-x text-lg"></i>
@@ -618,8 +618,8 @@
       </div>
 
       <div class="p-6 space-y-5 overflow-y-auto flex-1 text-xs">
-        <div class="bg-blueprint-800/70 border border-blueprint-line p-4 rounded-xl space-y-3">
-          <div class="font-bold text-amber-300 flex items-center gap-1.5">
+        <div id="achvFormBox" class="bg-blueprint-800/70 border border-blueprint-line p-4 rounded-xl space-y-3 transition-colors">
+          <div id="achvFormHeader" class="font-bold text-amber-300 flex items-center gap-1.5">
             <i class="ph-bold ph-plus-circle"></i> Új eredmény (Achievement) hozzáadása
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -648,9 +648,14 @@
             <textarea id="newAchvDesc" rows="2" class="w-full bg-blueprint-900 border border-blueprint-line rounded-lg px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-400" placeholder="Rövid leírás az eredmény megszerzéséhez..."></textarea>
           </div>
 
-          <button type="button" id="addAchvBtn" class="w-full py-2 px-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold rounded-lg transition flex items-center justify-center gap-1.5">
-            <i class="ph-bold ph-plus"></i> Eredmény hozzáadása
-          </button>
+          <div class="flex gap-2">
+            <button type="button" id="addAchvBtn" class="flex-1 py-2 px-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold rounded-lg transition flex items-center justify-center gap-1.5">
+              <i class="ph-bold ph-plus"></i> Eredmény hozzáadása
+            </button>
+            <button type="button" id="cancelEditAchvBtn" class="hidden py-2 px-3 bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold rounded-lg transition">
+              Mégse
+            </button>
+          </div>
         </div>
 
         <div class="space-y-2">
@@ -2297,16 +2302,76 @@
           };
         }
 
-        /* --- EREDMÉNYEK KEZELÉSE SZERKESZTŐI MÓDBAN --- */
+        /* --- EREDMÉNYEK KEZELÉSE SZERKESZTŐI MÓDBAN (HOZZÁADÁS, MÓDOSÍTÁS, TÖRLÉS) --- */
+        let editingAchvId = null;
+        const cancelEditAchvBtn = document.getElementById("cancelEditAchvBtn");
+        const achvFormHeader = document.getElementById("achvFormHeader");
+        const achvFormBox = document.getElementById("achvFormBox");
+
+        function resetAchvForm() {
+          editingAchvId = null;
+          document.getElementById("newAchvTitle").value = "";
+          document.getElementById("newAchvIcon").value = "ph-bold ph-medal";
+          if (newAchvIconPreview) newAchvIconPreview.className = "ph-bold ph-medal";
+          document.getElementById("newAchvDesc").value = "";
+          if (achvFormHeader) {
+            achvFormHeader.innerHTML = `<i class="ph-bold ph-plus-circle"></i> Új eredmény (Achievement) hozzáadása`;
+          }
+          if (achvFormBox) {
+            achvFormBox.classList.remove("border-cyan-400/70", "bg-cyan-950/20");
+            achvFormBox.classList.add("border-blueprint-line", "bg-blueprint-800/70");
+          }
+          if (addAchvBtn) {
+            addAchvBtn.innerHTML = `<i class="ph-bold ph-plus"></i> Eredmény hozzáadása`;
+            addAchvBtn.className = "flex-1 py-2 px-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold rounded-lg transition flex items-center justify-center gap-1.5";
+          }
+          if (cancelEditAchvBtn) cancelEditAchvBtn.classList.add("hidden");
+        }
+
+        function startEditAchv(achv) {
+          editingAchvId = achv.id;
+          document.getElementById("newAchvTitle").value = achv.title;
+          document.getElementById("newAchvIcon").value = achv.icon || "ph-bold ph-medal";
+          if (newAchvIconPreview) newAchvIconPreview.className = achv.icon || "ph-bold ph-medal";
+          document.getElementById("newAchvDesc").value = achv.desc;
+          if (achvFormHeader) {
+            achvFormHeader.innerHTML = `<i class="ph-bold ph-pencil-simple text-cyan-400"></i> <span class="text-cyan-300">Eredmény módosítása: ${achv.title}</span>`;
+          }
+          if (achvFormBox) {
+            achvFormBox.classList.remove("border-blueprint-line", "bg-blueprint-800/70");
+            achvFormBox.classList.add("border-cyan-400/70", "bg-cyan-950/20");
+          }
+          if (addAchvBtn) {
+            addAchvBtn.innerHTML = `<i class="ph-bold ph-check"></i> Módosítás mentése`;
+            addAchvBtn.className = "flex-1 py-2 px-4 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold rounded-lg transition flex items-center justify-center gap-1.5";
+          }
+          if (cancelEditAchvBtn) cancelEditAchvBtn.classList.remove("hidden");
+          document.getElementById("newAchvTitle").focus();
+        }
+
+        if (cancelEditAchvBtn) {
+          cancelEditAchvBtn.onclick = () => {
+            resetAchvForm();
+            renderAchievementManagerList();
+          };
+        }
+
         if (manageAchvsBtn) {
           manageAchvsBtn.onclick = () => {
+            resetAchvForm();
             renderAchievementManagerList();
             achvModal.classList.remove("hidden");
           };
         }
 
-        if (achvCloseBtn) achvCloseBtn.onclick = () => achvModal.classList.add("hidden");
-        if (achvDoneBtn) achvDoneBtn.onclick = () => achvModal.classList.add("hidden");
+        if (achvCloseBtn) achvCloseBtn.onclick = () => {
+          resetAchvForm();
+          achvModal.classList.add("hidden");
+        };
+        if (achvDoneBtn) achvDoneBtn.onclick = () => {
+          resetAchvForm();
+          achvModal.classList.add("hidden");
+        };
 
         if (addAchvBtn) {
           addAchvBtn.onclick = () => {
@@ -2320,15 +2385,24 @@
             }
 
             const normalized = title.toLowerCase();
-            if (draftAchievements.some(a => a.title.trim().toLowerCase() === normalized)) {
+            if (draftAchievements.some(a => a.id !== editingAchvId && a.title.trim().toLowerCase() === normalized)) {
               alert(`Már létezik "${title}" nevű eredmény ebben a fában! Kérlek válassz egyedi nevet.`);
               return;
             }
 
-            const newId = "achv_" + Date.now();
-            draftAchievements.push({ id: newId, title, icon, desc });
-            document.getElementById("newAchvTitle").value = "";
-            document.getElementById("newAchvDesc").value = "";
+            if (editingAchvId) {
+              const target = draftAchievements.find(a => a.id === editingAchvId);
+              if (target) {
+                target.title = title;
+                target.icon = icon;
+                target.desc = desc;
+              }
+            } else {
+              const newId = "achv_" + Date.now();
+              draftAchievements.push({ id: newId, title, icon, desc });
+            }
+
+            resetAchvForm();
             renderAchievementManagerList();
           };
         }
@@ -2344,8 +2418,9 @@
           }
 
           draftAchievements.forEach(achv => {
+            const isBeingEdited = achv.id === editingAchvId;
             const row = document.createElement("div");
-            row.className = "p-3 bg-blueprint-900 border border-blueprint-line rounded-xl flex items-center justify-between gap-3";
+            row.className = `p-3 bg-blueprint-900 border ${isBeingEdited ? 'border-cyan-400' : 'border-blueprint-line'} rounded-xl flex items-center justify-between gap-3`;
             row.innerHTML = `
               <div class="flex items-center gap-3 min-w-0 flex-1">
                 <div class="w-9 h-9 rounded-lg bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-400 text-lg shrink-0">
@@ -2356,12 +2431,22 @@
                   <div class="text-[11px] text-slate-400 truncate">${achv.desc}</div>
                 </div>
               </div>
-              <button type="button" class="w-8 h-8 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 flex items-center justify-center shrink-0" title="Eredmény törlése">
-                <i class="ph-bold ph-trash"></i>
-              </button>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button type="button" data-action="edit" class="w-8 h-8 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 flex items-center justify-center" title="Eredmény szerkesztése">
+                  <i class="ph-bold ph-pencil-simple"></i>
+                </button>
+                <button type="button" data-action="delete" class="w-8 h-8 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 flex items-center justify-center" title="Eredmény törlése">
+                  <i class="ph-bold ph-trash"></i>
+                </button>
+              </div>
             `;
-            row.querySelector("button").onclick = () => {
+            row.querySelector('[data-action="edit"]').onclick = () => {
+              startEditAchv(achv);
+              renderAchievementManagerList();
+            };
+            row.querySelector('[data-action="delete"]').onclick = () => {
               if (!confirm(`Biztosan törlöd a(z) "${achv.title}" eredményt?`)) return;
+              if (editingAchvId === achv.id) resetAchvForm();
               deletedSkillIds.add(achv.id);
               draftAchievements = draftAchievements.filter(a => a.id !== achv.id);
               renderAchievementManagerList();
