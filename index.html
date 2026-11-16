@@ -176,10 +176,10 @@
     </div>
   </header>
 
-  <!-- ==================== CONTROL & FILTER BAR (KOMPAKT MAGASSÁG + SZÍNES IKONOK + GÖRGŐ) ==================== -->
-  <div class="bg-blueprint-850/95 border-b border-blueprint-line px-3 md:px-5 py-2 flex items-center justify-between text-xs gap-3 z-20 shrink-0">
+  <!-- ==================== CONTROL & FILTER BAR (12-15 KARAKTER TÁVOLSÁG A NÉZET-TŐL) ==================== -->
+  <div class="bg-blueprint-850/95 border-b border-blueprint-line px-3 md:px-5 py-2 flex items-center justify-between text-xs z-20 shrink-0">
     <!-- Bal oldal: Görgethető dinamikus szűrők -->
-    <div class="flex items-center gap-2 min-w-0 flex-1">
+    <div class="flex items-center gap-2 min-w-0 flex-1 mr-14 sm:mr-20">
       <span class="text-slate-400 font-semibold hidden sm:flex items-center gap-1 shrink-0">
         <i class="ph ph-funnel"></i> Szűrés:
       </span>
@@ -188,13 +188,13 @@
       </div>
     </div>
 
-    <div id="readOnlyIndicator" class="text-xs text-amber-300 bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded hidden items-center gap-2 shrink-0">
+    <div id="readOnlyIndicator" class="text-xs text-amber-300 bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded hidden items-center gap-2 shrink-0 mr-4">
       <i class="ph ph-info font-bold"></i>
       <span class="hidden md:inline">Munkatársi profil: <strong>Csak olvasható</strong>.</span>
     </div>
 
     <!-- Jobb oldal: Nézet / Zoom vezérlők -->
-    <div class="flex items-center space-x-2 shrink-0">
+    <div class="flex items-center space-x-2 shrink-0 pl-4 border-l border-blueprint-line">
       <span class="text-slate-400 hidden sm:inline">Nézet:</span>
       <button id="zoomOutBtn" class="w-7 h-7 flex items-center justify-center bg-blueprint-800 hover:bg-blueprint-700 rounded border border-blueprint-line text-slate-300" title="Kicsinyítés">
         <i class="ph ph-minus"></i>
@@ -433,7 +433,6 @@
       </div>
 
       <div class="p-6 space-y-5 overflow-y-auto flex-1 text-xs">
-        <!-- Új szűrő hozzáadása (SÖTÉTKÉK INPUTOKKAL, JÓ KONTRASZTTAL) -->
         <div class="bg-blueprint-800/70 border border-blueprint-line p-4 rounded-xl space-y-3">
           <div class="font-bold text-cyan-300 flex items-center gap-1.5">
             <i class="ph-bold ph-plus-circle"></i> Új szűrőág hozzáadása (lista végére kerül)
@@ -476,7 +475,6 @@
           </button>
         </div>
 
-        <!-- Meglévő szűrők sorrendje és törlése -->
         <div class="space-y-2">
           <div class="font-bold text-slate-300 flex items-center justify-between">
             <span>Aktív szűrők és sorrendjük a menüsávban</span>
@@ -1544,7 +1542,7 @@
       }
 
       /* ==========================================================================
-         GRAFIKUS FASZERKEZŐ MÓD + SZŰRŐK KEZELÉSE
+         GRAFIKUS FASZERKEZŐ MÓD + SZŰRŐK KEZELÉSE (DUPLIKÁCIÓ VÉDELEMMEL)
          ========================================================================== */
       function setupTreeEditor() {
         const toggleBtn = document.getElementById("toggleEditModeBtn");
@@ -1674,6 +1672,18 @@
               alert("Kérlek add meg az új szűrő nevét!");
               return;
             }
+
+            // Duplikált szűrőnév ellenőrzése (kis- és nagybetűtől függetlenül)
+            const normalizedNewLabel = label.toLowerCase();
+            const isDuplicateFilter =
+              normalizedNewLabel === "összes ág" ||
+              draftFilters.some(f => f.label.trim().toLowerCase() === normalizedNewLabel);
+
+            if (isDuplicateFilter) {
+              alert(`Már létezik "${label}" nevű szűrő! Kérlek válassz egyedi nevet.`);
+              return;
+            }
+
             const id = "branch_" + Date.now();
             draftFilters.push({ id, label, icon, color });
             document.getElementById("newFilterLabel").value = "";
@@ -1769,6 +1779,17 @@
 
             if (!title || !categoryName || !desc) {
               alert("Kérlek tölts ki minden kötelező mezőt!");
+              return;
+            }
+
+            // Duplikált skill név ellenőrzése (kis- és nagybetűtől függetlenül, szerkesztésnél önmagát kizárva)
+            const normalizedNewTitle = title.toLowerCase();
+            const isDuplicateSkill = draftSkills.some(
+              s => s.id !== editingNodeId && s.title.trim().toLowerCase() === normalizedNewTitle
+            );
+
+            if (isDuplicateSkill) {
+              alert(`Már létezik "${title}" nevű készség a fán! Kérlek válassz egyedi megnevezést.`);
               return;
             }
 
