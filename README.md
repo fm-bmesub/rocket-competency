@@ -1,1 +1,1 @@
-# structural-competency
+# rocket-competency
