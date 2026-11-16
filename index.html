@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Structural előrehaladás - Tervezési és Gyártástechnológiai Kompetenciafa</title>
+  <title>Kompetenciafa - Tervezési és Gyártástechnológiai Rendszer</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -101,17 +101,36 @@
 
   <!-- ==================== TOP NAVIGATION ==================== -->
   <header class="bg-blueprint-850 border-b border-blueprint-line px-3 md:px-5 py-2.5 flex flex-wrap xl:flex-nowrap items-center justify-between gap-3 z-30 shadow-lg shrink-0">
-    <!-- Bal oldal: Logó és Cím -->
-    <div class="flex items-center space-x-3 shrink-0">
-      <div class="w-9 h-9 rounded-lg bg-cyan-500/10 border border-cyan-400/40 flex items-center justify-center text-cyan-400 text-xl shadow-inner shrink-0">
-        <i class="ph-bold ph-tree-structure"></i>
+    <!-- Bal oldal: Logó, Aktív Fa (Munkacsoport) Név és Fa-Váltó Lista -->
+    <div class="relative shrink-0" id="treeSwitcherWrapper">
+      <div id="treeSwitcherTrigger" class="flex items-center space-x-3 rounded-xl px-1.5 py-1 transition">
+        <div class="w-9 h-9 rounded-lg bg-cyan-500/10 border border-cyan-400/40 flex items-center justify-center text-cyan-400 text-xl shadow-inner shrink-0">
+          <i id="headerTreeIcon" class="ph-bold ph-tree-structure"></i>
+        </div>
+        <div>
+          <h1 class="text-sm sm:text-base font-bold tracking-wide text-white flex items-center gap-2 whitespace-nowrap">
+            <span id="headerTreeTitle">Structural előrehaladás</span>
+            <i id="treeSwitcherCaret" class="ph-bold ph-caret-down text-xs text-cyan-400 hidden"></i>
+            <span id="roleBadge" class="text-[10px] px-2 py-0.5 rounded font-mono border"></span>
+          </h1>
+          <p class="text-[11px] text-slate-400 font-medium hidden 2xl:block">Tervezési és Gyártástechnológiai Kompetenciafa</p>
+        </div>
       </div>
-      <div>
-        <h1 class="text-sm sm:text-base font-bold tracking-wide text-white flex items-center gap-2 whitespace-nowrap">
-          Structural előrehaladás
-          <span id="roleBadge" class="text-[10px] px-2 py-0.5 rounded font-mono border"></span>
-        </h1>
-        <p class="text-[11px] text-slate-400 font-medium hidden 2xl:block">Tervezési és Gyártástechnológiai Kompetenciafa</p>
+
+      <!-- Lenyíló Munkacsoport / Fa Választó Lista (Admin + Munkacsoportvezető) -->
+      <div id="treeSwitcherDropdown" class="hidden absolute left-0 mt-2 w-72 bg-slate-900/95 border border-cyan-500/50 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.9)] backdrop-blur-md z-50 overflow-hidden">
+        <div class="px-4 py-2.5 bg-blueprint-800 border-b border-blueprint-line flex items-center justify-between">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-cyan-300">Munkacsoport fák</span>
+          <span id="treeCountLabel" class="text-[10px] font-mono text-slate-400">1 fa</span>
+        </div>
+        <div id="treeSwitcherList" class="max-h-64 overflow-y-auto divide-y divide-slate-800/80">
+          <!-- Dinamikusan generált fák -->
+        </div>
+        <div id="adminAddTreeFooter" class="hidden p-2.5 bg-blueprint-850 border-t border-blueprint-line">
+          <button type="button" id="openCreateTreeModalBtn" class="w-full py-2 px-3 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition">
+            <i class="ph-bold ph-plus-circle text-base"></i> Új fa (munkacsoport) létrehozása
+          </button>
+        </div>
       </div>
     </div>
 
@@ -138,7 +157,7 @@
         <i class="ph-bold ph-user-gear"></i> <span id="adminToggleLeadBtnText">Vezetővé tétel</span>
       </button>
 
-      <button id="adminCreateUserBtn" title="Új munkatárs hozzáadása" class="px-2 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded text-xs font-semibold flex items-center gap-1 transition whitespace-nowrap shrink-0">
+      <button id="adminCreateUserBtn" title="Új munkatárs hozzáadása ehhez a fához" class="px-2 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded text-xs font-semibold flex items-center gap-1 transition whitespace-nowrap shrink-0">
         <i class="ph-bold ph-user-plus"></i> Új profil
       </button>
 
@@ -161,7 +180,7 @@
 
       <div class="flex items-center pl-3 border-l border-blueprint-line gap-2.5 shrink-0">
         <div class="text-right">
-          <div class="text-xs font-bold text-slate-200 truncate max-w-[180px]" id="currentUserName">Betöltés...</div>
+          <div class="text-xs font-bold text-slate-200 truncate max-w-[200px]" id="currentUserName">Betöltés...</div>
           <div class="text-[10px] text-slate-400 font-mono" id="currentUserAccount"></div>
         </div>
         <div class="flex items-center gap-1.5">
@@ -176,7 +195,7 @@
     </div>
   </header>
 
-  <!-- ==================== CONTROL & FILTER BAR (12-15 KARAKTER TÁVOLSÁG A NÉZET-TŐL) ==================== -->
+  <!-- ==================== CONTROL & FILTER BAR ==================== -->
   <div class="bg-blueprint-850/95 border-b border-blueprint-line px-3 md:px-5 py-2 flex items-center justify-between text-xs z-20 shrink-0">
     <!-- Bal oldal: Görgethető dinamikus szűrők -->
     <div class="flex items-center gap-2 min-w-0 flex-1 mr-14 sm:mr-20">
@@ -184,13 +203,12 @@
         <i class="ph ph-funnel"></i> Szűrés:
       </span>
       <div id="filterButtonsContainer" class="flex items-center space-x-1.5 overflow-x-auto max-w-full">
-        <!-- Dinamikusan generált szűrő gombok kerülnek ide -->
       </div>
     </div>
 
     <div id="readOnlyIndicator" class="text-xs text-amber-300 bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded hidden items-center gap-2 shrink-0 mr-4">
       <i class="ph ph-info font-bold"></i>
-      <span class="hidden md:inline">Munkatársi profil: <strong>Csak olvasható</strong>.</span>
+      <span id="readOnlyIndicatorText" class="hidden md:inline">Munkatársi profil: <strong>Csak olvasható</strong>.</span>
     </div>
 
     <!-- Jobb oldal: Nézet / Zoom vezérlők -->
@@ -246,6 +264,9 @@
         </button>
         <button id="editorManageFiltersBtn" class="w-full py-2 px-3 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-400/50 rounded-lg font-bold flex items-center justify-center gap-1.5 transition">
           <i class="ph-bold ph-funnel-simple text-base"></i> Szűrők (Ágak) kezelése
+        </button>
+        <button id="editorManageAchievementsBtn" class="w-full py-2 px-3 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-400/50 rounded-lg font-bold flex items-center justify-center gap-1.5 transition">
+          <i class="ph-bold ph-trophy text-base"></i> Eredmények kezelése
         </button>
         <div class="flex gap-2 pt-1">
           <button id="editorSaveBtn" class="flex-1 py-2 px-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold rounded-lg flex items-center justify-center gap-1 transition shadow-md">
@@ -337,7 +358,7 @@
         <div class="grid grid-cols-2 gap-3 text-xs">
           <div class="bg-blueprint-900/80 p-3 rounded-lg border border-blueprint-line">
             <div class="text-slate-400 mb-0.5">Közvetlen előfeltétel:</div>
-            <div id="modalPrereq" class="font-semibold text-slate-200 text-sm">Structural (Gyökér)</div>
+            <div id="modalPrereq" class="font-semibold text-slate-200 text-sm">Gyökér</div>
           </div>
           <div class="bg-blueprint-900/80 p-3 rounded-lg border border-blueprint-line">
             <div class="text-slate-400 mb-0.5">Aktuális státusz:</div>
@@ -347,6 +368,53 @@
 
         <div id="modalActionArea" class="pt-2"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- ==================== ÚJ FA (MUNKACSOPORT) LÉTREHOZÁSA MODAL (CSAK ADMIN) ==================== -->
+  <div id="createTreeModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-blueprint-850 border border-emerald-500/60 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl p-6">
+      <div class="flex items-center justify-between pb-3 mb-4 border-b border-blueprint-line">
+        <div class="flex items-center gap-2 text-emerald-400 font-bold text-base">
+          <i class="ph-bold ph-tree-structure text-xl"></i>
+          <span>Új munkacsoport fa létrehozása</span>
+        </div>
+        <button id="createTreeCloseBtn" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-blueprint-700">
+          <i class="ph ph-x text-lg"></i>
+        </button>
+      </div>
+
+      <form id="createTreeForm" class="space-y-3.5 text-xs" onsubmit="return false;">
+        <div>
+          <label class="block font-semibold text-slate-200 mb-1">Munkacsoport (Fa) neve *</label>
+          <input type="text" id="newTreeNameInput" required class="w-full bg-blueprint-900 border border-blueprint-line rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-400" placeholder="pl. Recovery, Aerodynamics, Avionics">
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="font-semibold text-slate-200">Fa ikonja (Phosphor Icons)</label>
+            <a href="https://phosphoricons.com/" target="_blank" rel="noopener noreferrer" class="text-[11px] text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1 underline">
+              <i class="ph-bold ph-arrow-square-out"></i> Ikonok böngészése
+            </a>
+          </div>
+          <div class="flex gap-2">
+            <input type="text" id="newTreeIconInput" value="ph-bold ph-rocket-launch" class="flex-1 bg-blueprint-900 border border-blueprint-line rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-emerald-400" placeholder="ph-bold ph-rocket-launch">
+            <div class="w-9 h-9 rounded-lg bg-blueprint-900 border border-blueprint-line flex items-center justify-center text-lg text-emerald-400 shrink-0">
+              <i id="newTreeIconPreview" class="ph-bold ph-rocket-launch"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3 bg-blueprint-900/80 border border-blueprint-line rounded-lg text-[11px] text-slate-300 leading-relaxed">
+          Az új munkacsoport teljesen független fával, saját szűrőkkel, skillekkel, eredményekkel és saját taglistával jön létre.
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" id="submitCreateTreeBtn" class="w-full py-2.5 px-4 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold rounded-lg transition shadow-md flex items-center justify-center gap-1.5">
+            <i class="ph-bold ph-check"></i> Munkacsoport fa létrehozása
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -366,7 +434,7 @@
       <form id="nodeEditorForm" class="space-y-3 text-xs" onsubmit="return false;">
         <div>
           <label class="block font-semibold text-slate-300 mb-1">Készség megnevezése *</label>
-          <input type="text" id="editNodeTitle" required class="w-full bg-blueprint-900 border border-blueprint-line rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-400" placeholder="pl. Hegesztés alapok">
+          <input type="text" id="editNodeTitle" required class="w-full bg-blueprint-900 border border-blueprint-line rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-400" placeholder="pl. Telemetria alapok">
         </div>
 
         <div class="grid grid-cols-2 gap-3">
@@ -377,7 +445,7 @@
           </div>
           <div>
             <label class="block font-semibold text-slate-300 mb-1">Alkategória felirat *</label>
-            <input type="text" id="editNodeCategoryName" required class="w-full bg-blueprint-900 border border-blueprint-line rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-amber-400" placeholder="pl. Fémes Gyártás">
+            <input type="text" id="editNodeCategoryName" required class="w-full bg-blueprint-900 border border-blueprint-line rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-amber-400" placeholder="pl. Rádiótechnika">
           </div>
         </div>
 
@@ -493,7 +561,71 @@
     </div>
   </div>
 
-  <!-- ==================== KOMPETENCIA KERESŐ MODAL ==================== -->
+  <!-- ==================== EREDMÉNYEK KEZELÉSE MODAL (SZERKESZTŐI MÓDBAN) ==================== -->
+  <div id="achievementManagerModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-blueprint-850 border border-amber-500/60 w-full max-w-lg max-h-[88vh] rounded-2xl overflow-hidden shadow-2xl flex flex-col">
+      <div class="px-6 py-4 bg-blueprint-800 border-b border-blueprint-line flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-2.5 text-amber-400 font-bold text-base">
+          <i class="ph-bold ph-trophy text-xl"></i>
+          <span>Eredmények hozzáadása és törlése</span>
+        </div>
+        <button id="achvManagerCloseBtn" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-blueprint-700">
+          <i class="ph ph-x text-lg"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-5 overflow-y-auto flex-1 text-xs">
+        <div class="bg-blueprint-800/70 border border-blueprint-line p-4 rounded-xl space-y-3">
+          <div class="font-bold text-amber-300 flex items-center gap-1.5">
+            <i class="ph-bold ph-plus-circle"></i> Új eredmény (Achievement) hozzáadása
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-slate-200 font-semibold mb-1">Eredmény neve *</label>
+              <input type="text" id="newAchvTitle" class="w-full bg-blueprint-900 border border-blueprint-line rounded-lg px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-400" placeholder="pl. Sikeres ejtőernyő nyitás">
+            </div>
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-slate-200 font-semibold">Phosphor Ikon</label>
+                <a href="https://phosphoricons.com/" target="_blank" rel="noopener noreferrer" class="text-[11px] text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1 underline">
+                  <i class="ph-bold ph-arrow-square-out"></i> Böngészés
+                </a>
+              </div>
+              <div class="flex gap-2">
+                <input type="text" id="newAchvIcon" value="ph-bold ph-medal" class="flex-1 bg-blueprint-900 border border-blueprint-line rounded-lg px-2.5 py-2 text-xs font-mono text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-400" placeholder="ph-bold ph-medal">
+                <div class="w-8 h-8 rounded-lg bg-blueprint-900 border border-blueprint-line flex items-center justify-center text-base text-amber-400 shrink-0">
+                  <i id="newAchvIconPreview" class="ph-bold ph-medal"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-slate-200 font-semibold mb-1">Leírás / Teljesítés feltétele *</label>
+            <textarea id="newAchvDesc" rows="2" class="w-full bg-blueprint-900 border border-blueprint-line rounded-lg px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-400" placeholder="Rövid leírás az eredmény megszerzéséhez..."></textarea>
+          </div>
+
+          <button type="button" id="addAchvBtn" class="w-full py-2 px-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold rounded-lg transition flex items-center justify-center gap-1.5">
+            <i class="ph-bold ph-plus"></i> Eredmény hozzáadása
+          </button>
+        </div>
+
+        <div class="space-y-2">
+          <div class="font-bold text-slate-300">Jelenlegi eredmények ebben a fában</div>
+          <div id="achvManagerList" class="space-y-2">
+          </div>
+        </div>
+      </div>
+
+      <div class="px-6 py-3 bg-blueprint-800 border-t border-blueprint-line flex justify-end shrink-0">
+        <button type="button" id="achvManagerDoneBtn" class="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-xs transition">
+          Kész
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== KOMPETENCIA KERESŐ MODAL (MINDEN MUNKACSOPORT ÖSSZES SKILLJE) ==================== -->
   <div id="skillSearchModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-blueprint-850 border border-cyan-500/50 w-full max-w-2xl min-h-[520px] max-h-[88vh] rounded-2xl shadow-[0_0_50px_rgba(56,189,248,0.25)] flex flex-col overflow-visible">
       <div class="px-6 py-4 bg-blueprint-800 border-b border-blueprint-line rounded-t-2xl flex items-center justify-between shrink-0">
@@ -503,7 +635,7 @@
           </div>
           <div>
             <h2 class="text-lg font-bold text-white">Kompetencia kereső</h2>
-            <p class="text-xs text-slate-400">Keress rá egy készségre vagy eredményre, és listázd a birtokosokat</p>
+            <p class="text-xs text-slate-400">Keress rá bármelyik munkacsoport készségére vagy eredményére</p>
           </div>
         </div>
         <button id="closeSkillSearchBtn" class="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-blueprint-700 text-xl">
@@ -516,7 +648,7 @@
         <div class="flex gap-2.5">
           <div class="relative flex-1">
             <i class="ph ph-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-base"></i>
-            <input type="text" id="skillAutocompleteInput" autocomplete="off" class="w-full bg-blueprint-900 border border-blueprint-line rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400 placeholder:text-slate-500" placeholder="Kezdd el gépelni a skill nevét (pl. CNC, Kompozit, CAD)...">
+            <input type="text" id="skillAutocompleteInput" autocomplete="off" class="w-full bg-blueprint-900 border border-blueprint-line rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400 placeholder:text-slate-500" placeholder="Kezdd el gépelni a skill vagy a munkacsoport nevét...">
             
             <div id="skillAutocompleteDropdown" class="hidden absolute left-0 right-0 mt-1.5 max-h-72 overflow-y-auto bg-slate-900 border-2 border-cyan-500/60 rounded-xl shadow-[0_15px_40px_rgba(0,0,0,0.85)] z-50 divide-y divide-slate-800/80">
             </div>
@@ -604,8 +736,8 @@
         <div class="inline-flex w-14 h-14 rounded-2xl bg-cyan-500/10 border border-cyan-400/40 items-center justify-center text-cyan-400 text-3xl mb-3 shadow-lg">
           <i class="ph-bold ph-tree-structure"></i>
         </div>
-        <h2 class="text-2xl font-bold text-white tracking-tight">Structural előrehaladás</h2>
-        <p class="text-xs text-slate-400 mt-1">Tervezési és Gyártástechnológiai Kompetenciafa</p>
+        <h2 class="text-2xl font-bold text-white tracking-tight">Kompetenciafa</h2>
+        <p class="text-xs text-slate-400 mt-1">Tervezési és Gyártástechnológiai Rendszer</p>
       </div>
 
       <div id="authAlert" class="hidden mb-4 p-3 rounded-lg text-xs font-semibold"></div>
@@ -657,6 +789,10 @@
       <div id="adminUserAlert" class="hidden mb-3 p-2.5 rounded-lg text-xs font-semibold"></div>
 
       <form id="adminUserForm" class="space-y-3" onsubmit="return false;">
+        <div class="p-2.5 bg-blueprint-900 border border-blueprint-line rounded-lg text-[11px] text-cyan-300 font-semibold flex items-center gap-2">
+          <i class="ph-bold ph-tree-structure text-sm"></i>
+          <span>Munkacsoport: <strong id="adminNewUserTreeLabel" class="text-white">Structural</strong></span>
+        </div>
         <div>
           <label class="block text-xs font-semibold text-slate-300 mb-1">Teljes név</label>
           <input type="text" id="adminNewFullName" required class="w-full bg-blueprint-900 border border-blueprint-line rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-cyan-400" placeholder="pl. Minta János">
@@ -774,10 +910,7 @@
         { id: "launch_rail_master", title: "Állványállítás mester", category: "miscellaneous", categoryName: "Állvány", parentId: "launch_rail_adv", icon: "ph ph-user-circle-gear", desc: "Teljes állványállítás önálló és magabiztos levezénylése.", x: 4600, y: 1290 }
       ];
 
-      let SKILLS_DATA = JSON.parse(JSON.stringify(DEFAULT_SKILLS_DATA));
-      let FILTERS_DATA = JSON.parse(JSON.stringify(DEFAULT_FILTERS_DATA));
-
-      const ACHIEVEMENTS_DATA = [
+      const DEFAULT_ACHIEVEMENTS_DATA = [
         { id: "achv_20h", title: "A jó mérnök", icon: "ph-bold ph-clock", desc: "Legalább heti 20 óra aktív műhelymunkát, tervezést és egyebeket végzett a csapatban." },
         { id: "achv_40h", title: "A veterán", icon: "ph-bold ph-barbell", desc: "Kiemelkedő, teljes heti elköteleződés és legalább 40 munkaóra a projekt sikeréért." },
         { id: "achv_60h", title: "A legenda", icon: "ph-bold ph-alarm", desc: "Hihetetlen munkabírás, időt és energiát nem kímélve heti 60 óra munkát rakott bele a csapatba!" },
@@ -793,8 +926,15 @@
       ];
 
       /* ==========================================================================
-         ÁLLAPOT & VÁLTOZÓK (ZÁRT NÉVTÉRBEN)
+         GLOBÁLIS & FÁNKÉNTI ÁLLAPOTOK
          ========================================================================== */
+      let ALL_TREES = [];
+      let activeTreeId = "structural";
+
+      let SKILLS_DATA = JSON.parse(JSON.stringify(DEFAULT_SKILLS_DATA));
+      let FILTERS_DATA = JSON.parse(JSON.stringify(DEFAULT_FILTERS_DATA));
+      let ACHIEVEMENTS_DATA = JSON.parse(JSON.stringify(DEFAULT_ACHIEVEMENTS_DATA));
+
       const STORAGE_KEY_SESSION_USER = "structural_app_logged_username";
       const STORAGE_KEY_SESSION_PASS = "structural_app_logged_password";
       let currentUserProfile = null;
@@ -817,6 +957,7 @@
       let isEditMode = false;
       let draftSkills = [];
       let draftFilters = [];
+      let draftAchievements = [];
       let deletedSkillIds = new Set();
       let draggingNode = null;
       let dragOffsetX = 0, dragOffsetY = 0;
@@ -825,12 +966,37 @@
       let newlyAddedNodeId = null;
 
       // Kereső állapot
-      let selectedSearchItemId = null;
+      let selectedSearchItemKey = null;
       let currentFilteredSearchItems = [];
       let activeAutocompleteIndex = -1;
 
       function isManagerRole(role) {
         return role === "admin" || role === "team_lead";
+      }
+
+      function getActiveTree() {
+        return ALL_TREES.find(t => t.id === activeTreeId) || ALL_TREES[0] || {
+          id: "structural",
+          name: "Structural",
+          icon: "ph-bold ph-tree-structure",
+          skills: DEFAULT_SKILLS_DATA,
+          filters: DEFAULT_FILTERS_DATA,
+          achievements: DEFAULT_ACHIEVEMENTS_DATA
+        };
+      }
+
+      function getTreeNameById(treeId) {
+        const found = ALL_TREES.find(t => t.id === treeId);
+        return found ? found.name : "Structural";
+      }
+
+      function canEditCurrentTree() {
+        if (!currentUserProfile) return false;
+        if (currentUserProfile.role === "admin") return true;
+        if (currentUserProfile.role === "team_lead") {
+          return (currentUserProfile.tree_id || "structural") === activeTreeId;
+        }
+        return false;
       }
 
       function formatDisplayName(profile) {
@@ -839,6 +1005,15 @@
           return `${profile.full_name} (Munkacsoportvezető)`;
         }
         return profile.full_name;
+      }
+
+      function formatSearchResultPersonName(profile) {
+        if (!profile) return "";
+        const groupName = getTreeNameById(profile.tree_id || "structural");
+        if (profile.role === "team_lead") {
+          return `${profile.full_name} - ${groupName} (Munkacsoportvezető)`;
+        }
+        return `${profile.full_name} - ${groupName}`;
       }
 
       function sortByHuAlpha(arr, keyFn) {
@@ -860,12 +1035,334 @@
         setupAchievementsModal();
         setupSkillSearchModal();
         setupTreeEditor();
+        setupTreeSwitcher();
         renderFilterButtons();
         await checkAuthSession();
       });
 
       /* ==========================================================================
-         DINAMIKUS SZŰRŐK MEGJELENÍTÉSE (KOMPAKT MAGASSÁG + SZÍNES IKONOK)
+         FÁK (MUNKACSOPORTOK) BETÖLTÉSE ÉS VÁLTÁSA
+         ========================================================================== */
+      async function loadTreesFromCloud() {
+        if (!supabaseClient) return;
+        try {
+          const { data, error } = await supabaseClient.rpc('get_trees');
+          if (!error && Array.isArray(data) && data.length > 0) {
+            ALL_TREES = data.map(t => {
+              const skills = (Array.isArray(t.skills) && t.skills.length > 0)
+                ? t.skills
+                : (t.id === "structural" ? JSON.parse(JSON.stringify(DEFAULT_SKILLS_DATA)) : [{
+                    id: "root",
+                    title: t.name,
+                    category: "root",
+                    categoryName: "Központi Gyökér",
+                    parentId: null,
+                    icon: t.icon || "ph-bold ph-tree-structure",
+                    desc: `${t.name} munkacsoport központi kompetenciafája.`,
+                    x: 2450,
+                    y: 80
+                  }]);
+
+              const filters = (Array.isArray(t.filters) && t.filters.length > 0)
+                ? t.filters.map(f => ({ ...f, color: getFilterColorClass(f) }))
+                : (t.id === "structural" ? JSON.parse(JSON.stringify(DEFAULT_FILTERS_DATA)) : [{
+                    id: "general",
+                    label: "Általános",
+                    icon: "ph ph-tag",
+                    color: "text-cyan-400"
+                  }]);
+
+              const achievements = (Array.isArray(t.achievements) && t.achievements.length > 0)
+                ? t.achievements
+                : (t.id === "structural" ? JSON.parse(JSON.stringify(DEFAULT_ACHIEVEMENTS_DATA)) : []);
+
+              return { ...t, skills, filters, achievements };
+            });
+
+            // Ha a structural fa még üres volt az adatbázisban, mentsük bele az alapértelmezett adatokat
+            const structTree = data.find(t => t.id === "structural");
+            if (structTree && (!structTree.skills || structTree.skills.length === 0 || !structTree.achievements || structTree.achievements.length === 0) && currentUserProfile && canEditCurrentTree()) {
+              const hydrated = ALL_TREES.find(t => t.id === "structural");
+              await supabaseClient.rpc('save_tree_data', {
+                p_username: currentUserProfile.username,
+                p_password: currentUserProfile.password,
+                p_tree_id: 'structural',
+                p_skills: hydrated.skills,
+                p_filters: hydrated.filters,
+                p_achievements: hydrated.achievements,
+                p_deleted_ids: []
+              });
+            }
+          }
+        } catch (e) {
+          console.error("Load trees error:", e);
+        }
+
+        if (ALL_TREES.length === 0) {
+          ALL_TREES = [{
+            id: "structural",
+            name: "Structural",
+            icon: "ph-bold ph-tree-structure",
+            skills: JSON.parse(JSON.stringify(DEFAULT_SKILLS_DATA)),
+            filters: JSON.parse(JSON.stringify(DEFAULT_FILTERS_DATA)),
+            achievements: JSON.parse(JSON.stringify(DEFAULT_ACHIEVEMENTS_DATA))
+          }];
+        }
+
+        applyActiveTreeData();
+      }
+
+      function applyActiveTreeData() {
+        const tree = getActiveTree();
+        activeTreeId = tree.id;
+        SKILLS_DATA = JSON.parse(JSON.stringify(tree.skills));
+        FILTERS_DATA = JSON.parse(JSON.stringify(tree.filters));
+        ACHIEVEMENTS_DATA = JSON.parse(JSON.stringify(tree.achievements));
+
+        const titleEl = document.getElementById("headerTreeTitle");
+        const iconEl = document.getElementById("headerTreeIcon");
+        if (titleEl) titleEl.textContent = `${tree.name} előrehaladás`;
+        if (iconEl) iconEl.className = tree.icon || "ph-bold ph-tree-structure";
+      }
+
+      function selectFirstValidUserForTree(treeId) {
+        const treeProfiles = allProfiles.filter(p => (p.tree_id || "structural") === treeId && p.role !== "admin");
+        if (treeProfiles.length > 0) {
+          activeViewingUserId = treeProfiles[0].id;
+        } else {
+          activeViewingUserId = currentUserProfile.id;
+        }
+      }
+
+      function switchActiveTree(newTreeId) {
+        if (isEditMode) {
+          if (!confirm("Szerkesztői módban vagy. Ha fát váltasz, a nem mentett módosítások elvesznek. Folytatod?")) {
+            return;
+          }
+          isEditMode = false;
+          document.getElementById("viewport").classList.add("blueprint-grid");
+          document.getElementById("viewport").classList.remove("edit-mode-grid");
+          document.getElementById("toggleEditModeBtn").classList.remove("hidden");
+          document.getElementById("editorActiveToolbar").classList.add("hidden");
+        }
+
+        activeTreeId = newTreeId;
+        activeFilter = "all";
+        applyActiveTreeData();
+        selectFirstValidUserForTree(newTreeId);
+        renderFilterButtons();
+        updateUIForUser();
+        renderTree();
+        centerRootNode();
+      }
+
+      function setupTreeSwitcher() {
+        const trigger = document.getElementById("treeSwitcherTrigger");
+        const dropdown = document.getElementById("treeSwitcherDropdown");
+        const openCreateModalBtn = document.getElementById("openCreateTreeModalBtn");
+        const createModal = document.getElementById("createTreeModal");
+        const createCloseBtn = document.getElementById("createTreeCloseBtn");
+        const submitCreateBtn = document.getElementById("submitCreateTreeBtn");
+        const iconInput = document.getElementById("newTreeIconInput");
+        const iconPreview = document.getElementById("newTreeIconPreview");
+
+        if (iconInput && iconPreview) {
+          iconInput.oninput = () => {
+            iconPreview.className = iconInput.value.trim() || "ph-bold ph-tree-structure";
+          };
+        }
+
+        if (trigger) {
+          trigger.onclick = (e) => {
+            e.stopPropagation();
+            if (!currentUserProfile || !isManagerRole(currentUserProfile.role)) return;
+            renderTreeSwitcherList();
+            dropdown.classList.toggle("hidden");
+          };
+        }
+
+        document.addEventListener("click", (e) => {
+          const wrapper = document.getElementById("treeSwitcherWrapper");
+          if (wrapper && dropdown && !wrapper.contains(e.target)) {
+            dropdown.classList.add("hidden");
+          }
+        });
+
+        if (openCreateModalBtn) {
+          openCreateModalBtn.onclick = (e) => {
+            e.stopPropagation();
+            dropdown.classList.add("hidden");
+            document.getElementById("createTreeForm").reset();
+            document.getElementById("newTreeIconInput").value = "ph-bold ph-rocket-launch";
+            document.getElementById("newTreeIconPreview").className = "ph-bold ph-rocket-launch";
+            createModal.classList.remove("hidden");
+          };
+        }
+
+        if (createCloseBtn) createCloseBtn.onclick = () => createModal.classList.add("hidden");
+        if (createModal) {
+          createModal.onclick = (e) => {
+            if (e.target.id === "createTreeModal") createModal.classList.add("hidden");
+          };
+        }
+
+        if (submitCreateBtn) {
+          submitCreateBtn.onclick = async () => {
+            const name = document.getElementById("newTreeNameInput").value.trim();
+            const icon = document.getElementById("newTreeIconInput").value.trim() || "ph-bold ph-tree-structure";
+
+            if (!name) {
+              alert("Kérlek add meg az új munkacsoport nevét!");
+              return;
+            }
+
+            if (ALL_TREES.some(t => t.name.trim().toLowerCase() === name.toLowerCase())) {
+              alert(`Már létezik "${name}" nevű munkacsoport fa! Kérlek válassz egyedi nevet.`);
+              return;
+            }
+
+            const newTreeId = "tree_" + Date.now();
+            const initialSkills = [{
+              id: "root",
+              title: name,
+              category: "root",
+              categoryName: "Központi Gyökér",
+              parentId: null,
+              icon,
+              desc: `${name} munkacsoport központi kompetenciafája.`,
+              x: 2450,
+              y: 80
+            }];
+            const initialFilters = [{
+              id: "general",
+              label: "Általános",
+              icon: "ph ph-tag",
+              color: "text-cyan-400"
+            }];
+            const initialAchievements = [];
+
+            submitCreateBtn.disabled = true;
+            submitCreateBtn.innerHTML = `<i class="ph ph-spinner animate-spin"></i> Létrehozás...`;
+
+            const { error } = await supabaseClient.rpc('admin_create_tree', {
+              p_username: currentUserProfile.username,
+              p_password: currentUserProfile.password,
+              p_id: newTreeId,
+              p_name: name,
+              p_icon: icon,
+              p_skills: initialSkills,
+              p_filters: initialFilters,
+              p_achievements: initialAchievements
+            });
+
+            submitCreateBtn.disabled = false;
+            submitCreateBtn.innerHTML = `<i class="ph-bold ph-check"></i> Munkacsoport fa létrehozása`;
+
+            if (error) {
+              alert("Hiba a fa létrehozásakor: " + error.message);
+              return;
+            }
+
+            ALL_TREES.push({
+              id: newTreeId,
+              name,
+              icon,
+              skills: initialSkills,
+              filters: initialFilters,
+              achievements: initialAchievements
+            });
+
+            createModal.classList.add("hidden");
+            switchActiveTree(newTreeId);
+          };
+        }
+      }
+
+      function renderTreeSwitcherList() {
+        const listEl = document.getElementById("treeSwitcherList");
+        const countLabel = document.getElementById("treeCountLabel");
+        const adminFooter = document.getElementById("adminAddTreeFooter");
+        if (!listEl) return;
+
+        listEl.innerHTML = "";
+        if (countLabel) countLabel.textContent = `${ALL_TREES.length} munkacsoport`;
+
+        if (adminFooter) {
+          if (currentUserProfile && currentUserProfile.role === "admin") {
+            adminFooter.classList.remove("hidden");
+          } else {
+            adminFooter.classList.add("hidden");
+          }
+        }
+
+        const sortedTrees = [...ALL_TREES].sort((a, b) => {
+          if (a.id === "structural") return -1;
+          if (b.id === "structural") return 1;
+          return a.name.localeCompare(b.name, "hu", { sensitivity: "base" });
+        });
+
+        sortedTrees.forEach(tree => {
+          const isSelected = tree.id === activeTreeId;
+          const isOwnLeadTree = currentUserProfile && currentUserProfile.role === "team_lead" && (currentUserProfile.tree_id || "structural") === tree.id;
+          const canDeleteTree = currentUserProfile && currentUserProfile.role === "admin" && tree.id !== "structural";
+
+          const row = document.createElement("div");
+          row.className = `px-4 py-2.5 flex items-center justify-between gap-2 cursor-pointer transition ${isSelected ? 'bg-cyan-500/20 text-cyan-300' : 'hover:bg-blueprint-800 text-slate-200'}`;
+
+          row.innerHTML = `
+            <div class="flex items-center gap-2.5 min-w-0 flex-1">
+              <div class="w-7 h-7 rounded-lg ${isSelected ? 'bg-cyan-500/25 border-cyan-400 text-cyan-300' : 'bg-blueprint-900 border-blueprint-line text-slate-400'} border flex items-center justify-center text-sm shrink-0">
+                <i class="${tree.icon || 'ph-bold ph-tree-structure'}"></i>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="text-xs font-bold truncate">${tree.name}</div>
+                ${isOwnLeadTree ? '<div class="text-[10px] text-indigo-400 font-semibold">Saját munkacsoportod</div>' : ''}
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              ${isSelected ? '<i class="ph-bold ph-check text-cyan-400 text-sm"></i>' : ''}
+              ${canDeleteTree ? `<button type="button" data-del-tree="${tree.id}" class="p-1 rounded bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 text-xs" title="Fa törlése"><i class="ph-bold ph-trash"></i></button>` : ''}
+            </div>
+          `;
+
+          row.onclick = (e) => {
+            if (e.target.closest("[data-del-tree]")) return;
+            document.getElementById("treeSwitcherDropdown").classList.add("hidden");
+            if (tree.id !== activeTreeId) {
+              switchActiveTree(tree.id);
+            }
+          };
+
+          const delBtn = row.querySelector("[data-del-tree]");
+          if (delBtn) {
+            delBtn.onclick = async (e) => {
+              e.stopPropagation();
+              if (!confirm(`Biztosan törlöd a(z) "${tree.name}" munkacsoport fát és a hozzá tartozó összes munkatársi profilt?`)) return;
+
+              const { error } = await supabaseClient.rpc('admin_delete_tree', {
+                p_username: currentUserProfile.username,
+                p_password: currentUserProfile.password,
+                p_tree_id: tree.id
+              });
+
+              if (error) {
+                alert("Hiba a fa törlésekor: " + error.message);
+                return;
+              }
+
+              ALL_TREES = ALL_TREES.filter(t => t.id !== tree.id);
+              allProfiles = allProfiles.filter(p => p.tree_id !== tree.id || p.role === "admin");
+              document.getElementById("treeSwitcherDropdown").classList.add("hidden");
+              switchActiveTree("structural");
+            };
+          }
+
+          listEl.appendChild(row);
+        });
+      }
+
+      /* ==========================================================================
+         DINAMIKUS SZŰRŐK MEGJELENÍTÉSE
          ========================================================================== */
       function renderFilterButtons() {
         const container = document.getElementById("filterButtonsContainer");
@@ -907,51 +1404,6 @@
       /* ==========================================================================
          SESSION & ADATBÁZIS LEKÉRDEZÉS
          ========================================================================== */
-      async function loadSkillTreeFromCloud() {
-        if (!supabaseClient) return;
-        try {
-          const { data, error } = await supabaseClient.rpc('get_skill_tree');
-          if (!error && data) {
-            const cloudSkills = Array.isArray(data) ? data : (data.skills || []);
-            const cloudFilters = Array.isArray(data) ? [] : (data.filters || []);
-
-            if (cloudSkills.length > 0) {
-              SKILLS_DATA = cloudSkills;
-            }
-            if (cloudFilters.length > 0) {
-              FILTERS_DATA = cloudFilters.map(f => ({
-                ...f,
-                color: getFilterColorClass(f)
-              }));
-            }
-
-            if (cloudSkills.length === 0 && currentUserProfile && isManagerRole(currentUserProfile.role)) {
-              await supabaseClient.rpc('save_skill_tree', {
-                p_username: currentUserProfile.username,
-                p_password: currentUserProfile.password,
-                p_skills: DEFAULT_SKILLS_DATA,
-                p_filters: DEFAULT_FILTERS_DATA,
-                p_deleted_ids: []
-              });
-              SKILLS_DATA = JSON.parse(JSON.stringify(DEFAULT_SKILLS_DATA));
-              FILTERS_DATA = JSON.parse(JSON.stringify(DEFAULT_FILTERS_DATA));
-            } else if (cloudFilters.length === 0 && cloudSkills.length > 0 && currentUserProfile && isManagerRole(currentUserProfile.role)) {
-              FILTERS_DATA = JSON.parse(JSON.stringify(DEFAULT_FILTERS_DATA));
-              await supabaseClient.rpc('save_skill_tree', {
-                p_username: currentUserProfile.username,
-                p_password: currentUserProfile.password,
-                p_skills: SKILLS_DATA,
-                p_filters: FILTERS_DATA,
-                p_deleted_ids: []
-              });
-            }
-          }
-        } catch (e) {
-          console.error("Tree load error:", e);
-        }
-        renderFilterButtons();
-      }
-
       async function checkAuthSession() {
         const savedUsername = localStorage.getItem(STORAGE_KEY_SESSION_USER) || sessionStorage.getItem(STORAGE_KEY_SESSION_USER);
         const savedPassword = localStorage.getItem(STORAGE_KEY_SESSION_PASS) || sessionStorage.getItem(STORAGE_KEY_SESSION_PASS);
@@ -982,7 +1434,10 @@
         const u = username || currentUserProfile.username;
         const p = password || currentUserProfile.password;
 
-        await loadSkillTreeFromCloud();
+        currentUserProfile.password = p;
+        activeTreeId = currentUserProfile.tree_id || "structural";
+
+        await loadTreesFromCloud();
 
         const { data: profiles, error } = await supabaseClient.rpc('get_profiles', {
           p_username: u,
@@ -996,21 +1451,16 @@
 
         allProfiles = sortByHuAlpha(profiles || [currentUserProfile], item => item.full_name || "");
 
-        if (isManagerRole(currentUserProfile.role)) {
-          const validTargets = allProfiles.filter(pr => {
-            if (pr.role === 'admin') return false;
-            if (currentUserProfile.role === 'team_lead' && pr.role === 'team_lead') return false;
-            return true;
-          });
-          activeViewingUserId = validTargets.length > 0 ? validTargets[0].id : currentUserProfile.id;
-        } else {
-          activeViewingUserId = currentUserProfile.id;
-        }
-
         const refreshedSelf = allProfiles.find(item => item.id === currentUserProfile.id);
         if (refreshedSelf) {
           refreshedSelf.password = p;
           currentUserProfile = refreshedSelf;
+        }
+
+        if (isManagerRole(currentUserProfile.role)) {
+          selectFirstValidUserForTree(activeTreeId);
+        } else {
+          activeViewingUserId = currentUserProfile.id;
         }
 
         activeFilter = "all";
@@ -1042,11 +1492,12 @@
                 updateProgressStats();
                 updateAchievementsBadge();
               })
-              .on('postgres_changes', { event: '*', schema: 'public', table: 'skill_tree_config' }, async () => {
-                await loadSkillTreeFromCloud();
+              .on('postgres_changes', { event: '*', schema: 'public', table: 'trees' }, async () => {
+                await loadTreesFromCloud();
                 if (!isEditMode) {
                   renderTree();
                   updateProgressStats();
+                  updateAchievementsBadge();
                 }
               })
               .subscribe();
@@ -1098,7 +1549,20 @@
         const toggleLeadBtn = document.getElementById("adminToggleLeadBtn");
         const toggleLeadText = document.getElementById("adminToggleLeadBtnText");
         const deleteBtn = document.getElementById("adminDeleteUserBtn");
+        const createBtn = document.getElementById("adminCreateUserBtn");
         const target = getActiveProfile();
+        const canEditTree = canEditCurrentTree();
+
+        if (createBtn) {
+          if (canEditTree) {
+            createBtn.disabled = false;
+            createBtn.className = "px-2 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded text-xs font-semibold flex items-center gap-1 transition whitespace-nowrap shrink-0";
+          } else {
+            createBtn.disabled = true;
+            createBtn.className = "px-2 py-1 bg-slate-800/60 text-slate-600 border border-slate-700/60 rounded text-xs font-semibold flex items-center gap-1 cursor-not-allowed whitespace-nowrap shrink-0";
+          }
+        }
+
         if (!target) return;
 
         if (toggleLeadBtn && toggleLeadText && currentUserProfile.role === "admin") {
@@ -1118,6 +1582,7 @@
 
         if (deleteBtn) {
           const cannotDelete =
+            !canEditTree ||
             target.role === "admin" ||
             target.id === currentUserProfile.id ||
             (currentUserProfile.role === "team_lead" && target.role === "team_lead");
@@ -1141,11 +1606,24 @@
         const roleBadge = document.getElementById("roleBadge");
         const adminSelector = document.getElementById("adminUserSelectorContainer");
         const readOnlyIndicator = document.getElementById("readOnlyIndicator");
+        const readOnlyText = document.getElementById("readOnlyIndicatorText");
         const credentialsBox = document.getElementById("adminCredentialsBox");
         const toggleLeadBtn = document.getElementById("adminToggleLeadBtn");
         const mgmtLabel = document.getElementById("managementBarLabel");
         const skillSearchBtn = document.getElementById("openSkillSearchBtn");
         const editorControls = document.getElementById("editorControlsTopRight");
+        const treeTrigger = document.getElementById("treeSwitcherTrigger");
+        const treeCaret = document.getElementById("treeSwitcherCaret");
+
+        const canEditTree = canEditCurrentTree();
+
+        if (isManagerRole(currentUserProfile.role)) {
+          treeTrigger.classList.add("cursor-pointer", "hover:bg-blueprint-800");
+          treeCaret.classList.remove("hidden");
+        } else {
+          treeTrigger.classList.remove("cursor-pointer", "hover:bg-blueprint-800");
+          treeCaret.classList.add("hidden");
+        }
 
         if (currentUserProfile.role === "admin") {
           roleBadge.textContent = "ADMIN";
@@ -1169,10 +1647,18 @@
           adminSelector.classList.add("flex");
           credentialsBox.classList.add("hidden");
           toggleLeadBtn.classList.add("hidden");
-          readOnlyIndicator.classList.add("hidden");
-          readOnlyIndicator.classList.remove("flex");
           skillSearchBtn.classList.remove("hidden");
-          editorControls.classList.remove("hidden");
+
+          if (canEditTree) {
+            readOnlyIndicator.classList.add("hidden");
+            readOnlyIndicator.classList.remove("flex");
+            editorControls.classList.remove("hidden");
+          } else {
+            readOnlyIndicator.classList.remove("hidden");
+            readOnlyIndicator.classList.add("flex");
+            if (readOnlyText) readOnlyText.innerHTML = `Idegen munkacsoport fája: <strong>Csak megtekintés</strong>.`;
+            editorControls.classList.add("hidden");
+          }
 
           populateEngineerDropdown();
         } else {
@@ -1182,6 +1668,7 @@
           adminSelector.classList.add("hidden");
           readOnlyIndicator.classList.remove("hidden");
           readOnlyIndicator.classList.add("flex");
+          if (readOnlyText) readOnlyText.innerHTML = `Munkatársi profil: <strong>Csak olvasható</strong>.`;
           skillSearchBtn.classList.add("hidden");
           editorControls.classList.add("hidden");
         }
@@ -1195,21 +1682,29 @@
         if (!select) return;
         select.innerHTML = "";
 
-        const sortedProfiles = sortByHuAlpha(allProfiles, p => p.full_name || "");
+        // Csak az aktuálisan kiválasztott fához tartozó személyek listázása
+        const treeProfiles = sortByHuAlpha(
+          allProfiles.filter(p => (p.tree_id || "structural") === activeTreeId && p.role !== "admin"),
+          p => p.full_name || ""
+        );
 
-        sortedProfiles.forEach(p => {
-          if (currentUserProfile.role === "team_lead" && p.role === "admin") return;
-
-          const option = document.createElement("option");
-          option.value = p.id;
-          let label = formatDisplayName(p);
-          if (p.role === 'admin') label += ' [ADMIN]';
-          option.textContent = label;
-          if (p.id === activeViewingUserId) {
-            option.selected = true;
-          }
-          select.appendChild(option);
-        });
+        if (treeProfiles.length === 0) {
+          const opt = document.createElement("option");
+          opt.value = currentUserProfile.id;
+          opt.textContent = "Nincs még tag ebben a csoportban";
+          select.appendChild(opt);
+          activeViewingUserId = currentUserProfile.id;
+        } else {
+          treeProfiles.forEach(p => {
+            const option = document.createElement("option");
+            option.value = p.id;
+            option.textContent = formatDisplayName(p);
+            if (p.id === activeViewingUserId) {
+              option.selected = true;
+            }
+            select.appendChild(option);
+          });
+        }
 
         updateAdminCredentialsDisplay();
         updateManagementButtonsState();
@@ -1329,7 +1824,10 @@
 
         const activeTreeData = isEditMode ? draftSkills : SKILLS_DATA;
         const unlockedSet = new Set(profile.unlocked_skills || ["root"]);
-        const canManage = isManagerRole(currentUserProfile && currentUserProfile.role);
+        const canManageThisTarget =
+          currentUserProfile &&
+          (currentUserProfile.role === "admin" ||
+            (currentUserProfile.role === "team_lead" && profile.role === "user" && (profile.tree_id || "structural") === (currentUserProfile.tree_id || "structural")));
 
         activeTreeData.forEach(skill => {
           const isVisible = isEditMode || (activeFilter === "all" || skill.category === "root" || skill.category === activeFilter);
@@ -1389,11 +1887,11 @@
                 iconColor = "text-rose-400";
                 badge = `<span class="bg-rose-500 text-white text-[10px] px-1.5 py-0.5 rounded font-bold flex items-center gap-1 animate-pulse"><i class="ph-bold ph-warning"></i> VISSZAVONVA</span>`;
               } else if (canBeUnlocked) {
-                cardStyle = canManage 
+                cardStyle = canManageThisTarget 
                   ? "bg-slate-900/95 border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.4)] ready-to-unlock" 
                   : "bg-slate-900/90 border-slate-600";
-                iconColor = canManage ? "text-amber-400" : "text-slate-400";
-                badge = canManage
+                iconColor = canManageThisTarget ? "text-amber-400" : "text-slate-400";
+                badge = canManageThisTarget
                   ? `<span class="bg-amber-500/20 text-amber-300 text-[10px] px-1.5 py-0.5 rounded border border-amber-500/40 font-semibold">Feloldható</span>`
                   : `<span class="bg-slate-800 text-slate-400 text-[10px] px-1.5 py-0.5 rounded border border-slate-700">Következő</span>`;
               } else {
@@ -1542,13 +2040,14 @@
       }
 
       /* ==========================================================================
-         GRAFIKUS FASZERKEZŐ MÓD + SZŰRŐK KEZELÉSE (DUPLIKÁCIÓ VÉDELEMMEL)
+         GRAFIKUS FASZERKEZŐ MÓD + SZŰRŐK + EREDMÉNYEK KEZELÉSE
          ========================================================================== */
       function setupTreeEditor() {
         const toggleBtn = document.getElementById("toggleEditModeBtn");
         const activeToolbar = document.getElementById("editorActiveToolbar");
         const addNodeBtn = document.getElementById("editorAddNodeBtn");
         const manageFiltersBtn = document.getElementById("editorManageFiltersBtn");
+        const manageAchvsBtn = document.getElementById("editorManageAchievementsBtn");
         const saveBtn = document.getElementById("editorSaveBtn");
         const cancelBtn = document.getElementById("editorCancelBtn");
         const viewport = document.getElementById("viewport");
@@ -1568,9 +2067,22 @@
         const newFilterColorSelect = document.getElementById("newFilterColor");
         const newFilterIconPreview = document.getElementById("newFilterIconPreview");
 
+        const achvModal = document.getElementById("achievementManagerModal");
+        const achvCloseBtn = document.getElementById("achvManagerCloseBtn");
+        const achvDoneBtn = document.getElementById("achvManagerDoneBtn");
+        const addAchvBtn = document.getElementById("addAchvBtn");
+        const newAchvIconInput = document.getElementById("newAchvIcon");
+        const newAchvIconPreview = document.getElementById("newAchvIconPreview");
+
         if (iconInput && iconPreview) {
           iconInput.oninput = () => {
             iconPreview.className = iconInput.value.trim() || "ph ph-cube";
+          };
+        }
+
+        if (newAchvIconInput && newAchvIconPreview) {
+          newAchvIconInput.oninput = () => {
+            newAchvIconPreview.className = newAchvIconInput.value.trim() || "ph-bold ph-medal";
           };
         }
 
@@ -1585,9 +2097,11 @@
         if (newFilterColorSelect) newFilterColorSelect.onchange = updateNewFilterPreview;
 
         function enterEditMode() {
+          if (!canEditCurrentTree()) return;
           isEditMode = true;
           draftSkills = JSON.parse(JSON.stringify(SKILLS_DATA));
           draftFilters = JSON.parse(JSON.stringify(FILTERS_DATA));
+          draftAchievements = JSON.parse(JSON.stringify(ACHIEVEMENTS_DATA));
           deletedSkillIds.clear();
           newlyAddedNodeId = null;
           hideTooltip();
@@ -1603,6 +2117,7 @@
           isEditMode = false;
           draftSkills = [];
           draftFilters = [];
+          draftAchievements = [];
           deletedSkillIds.clear();
           newlyAddedNodeId = null;
           draggingNode = null;
@@ -1620,7 +2135,7 @@
         if (toggleBtn) toggleBtn.onclick = enterEditMode;
         if (cancelBtn) {
           cancelBtn.onclick = () => {
-            if (confirm("Elveted a nem mentett módosításokat a fán és a szűrőkön?")) {
+            if (confirm("Elveted a nem mentett módosításokat a fán, a szűrőkön és az eredményeken?")) {
               exitEditMode();
             }
           };
@@ -1653,6 +2168,80 @@
           };
         }
 
+        /* --- EREDMÉNYEK KEZELÉSE SZERKESZTŐI MÓDBAN --- */
+        if (manageAchvsBtn) {
+          manageAchvsBtn.onclick = () => {
+            renderAchievementManagerList();
+            achvModal.classList.remove("hidden");
+          };
+        }
+
+        if (achvCloseBtn) achvCloseBtn.onclick = () => achvModal.classList.add("hidden");
+        if (achvDoneBtn) achvDoneBtn.onclick = () => achvModal.classList.add("hidden");
+
+        if (addAchvBtn) {
+          addAchvBtn.onclick = () => {
+            const title = document.getElementById("newAchvTitle").value.trim();
+            const icon = document.getElementById("newAchvIcon").value.trim() || "ph-bold ph-medal";
+            const desc = document.getElementById("newAchvDesc").value.trim();
+
+            if (!title || !desc) {
+              alert("Kérlek add meg az eredmény nevét és leírását!");
+              return;
+            }
+
+            const normalized = title.toLowerCase();
+            if (draftAchievements.some(a => a.title.trim().toLowerCase() === normalized)) {
+              alert(`Már létezik "${title}" nevű eredmény ebben a fában! Kérlek válassz egyedi nevet.`);
+              return;
+            }
+
+            const newId = "achv_" + Date.now();
+            draftAchievements.push({ id: newId, title, icon, desc });
+            document.getElementById("newAchvTitle").value = "";
+            document.getElementById("newAchvDesc").value = "";
+            renderAchievementManagerList();
+          };
+        }
+
+        function renderAchievementManagerList() {
+          const listEl = document.getElementById("achvManagerList");
+          if (!listEl) return;
+          listEl.innerHTML = "";
+
+          if (draftAchievements.length === 0) {
+            listEl.innerHTML = `<div class="p-4 text-center text-slate-500 border border-dashed border-blueprint-line rounded-xl">Még nincs egyetlen eredmény sem ebben a munkacsoportban.</div>`;
+            return;
+          }
+
+          draftAchievements.forEach(achv => {
+            const row = document.createElement("div");
+            row.className = "p-3 bg-blueprint-900 border border-blueprint-line rounded-xl flex items-center justify-between gap-3";
+            row.innerHTML = `
+              <div class="flex items-center gap-3 min-w-0 flex-1">
+                <div class="w-9 h-9 rounded-lg bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-400 text-lg shrink-0">
+                  <i class="${achv.icon}"></i>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <div class="font-bold text-white truncate">${achv.title}</div>
+                  <div class="text-[11px] text-slate-400 truncate">${achv.desc}</div>
+                </div>
+              </div>
+              <button type="button" class="w-8 h-8 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 flex items-center justify-center shrink-0" title="Eredmény törlése">
+                <i class="ph-bold ph-trash"></i>
+              </button>
+            `;
+            row.querySelector("button").onclick = () => {
+              if (!confirm(`Biztosan törlöd a(z) "${achv.title}" eredményt?`)) return;
+              deletedSkillIds.add(achv.id);
+              draftAchievements = draftAchievements.filter(a => a.id !== achv.id);
+              renderAchievementManagerList();
+            };
+            listEl.appendChild(row);
+          });
+        }
+
+        /* --- SZŰRŐK KEZELÉSE --- */
         if (manageFiltersBtn) {
           manageFiltersBtn.onclick = () => {
             renderFilterManagerList();
@@ -1673,7 +2262,6 @@
               return;
             }
 
-            // Duplikált szűrőnév ellenőrzése (kis- és nagybetűtől függetlenül)
             const normalizedNewLabel = label.toLowerCase();
             const isDuplicateFilter =
               normalizedNewLabel === "összes ág" ||
@@ -1782,7 +2370,6 @@
               return;
             }
 
-            // Duplikált skill név ellenőrzése (kis- és nagybetűtől függetlenül, szerkesztésnél önmagát kizárva)
             const normalizedNewTitle = title.toLowerCase();
             const isDuplicateSkill = draftSkills.some(
               s => s.id !== editingNodeId && s.title.trim().toLowerCase() === normalizedNewTitle
@@ -1862,11 +2449,13 @@
             saveBtn.innerHTML = `<i class="ph ph-spinner animate-spin"></i> Mentés...`;
 
             const delArray = Array.from(deletedSkillIds);
-            const { error } = await supabaseClient.rpc('save_skill_tree', {
+            const { error } = await supabaseClient.rpc('save_tree_data', {
               p_username: currentUserProfile.username,
               p_password: currentUserProfile.password,
+              p_tree_id: activeTreeId,
               p_skills: draftSkills,
               p_filters: draftFilters,
+              p_achievements: draftAchievements,
               p_deleted_ids: delArray
             });
 
@@ -1880,10 +2469,18 @@
 
             SKILLS_DATA = JSON.parse(JSON.stringify(draftSkills));
             FILTERS_DATA = JSON.parse(JSON.stringify(draftFilters));
+            ACHIEVEMENTS_DATA = JSON.parse(JSON.stringify(draftAchievements));
+
+            const treeObj = ALL_TREES.find(t => t.id === activeTreeId);
+            if (treeObj) {
+              treeObj.skills = JSON.parse(JSON.stringify(draftSkills));
+              treeObj.filters = JSON.parse(JSON.stringify(draftFilters));
+              treeObj.achievements = JSON.parse(JSON.stringify(draftAchievements));
+            }
 
             if (delArray.length > 0) {
               allProfiles.forEach(p => {
-                if (Array.isArray(p.unlocked_skills)) {
+                if ((p.tree_id || "structural") === activeTreeId && Array.isArray(p.unlocked_skills)) {
                   p.unlocked_skills = p.unlocked_skills.filter(id => !deletedSkillIds.has(id));
                 }
               });
@@ -1891,6 +2488,7 @@
 
             exitEditMode();
             updateProgressStats();
+            updateAchievementsBadge();
           };
         }
       }
@@ -1947,7 +2545,7 @@
         if (skill) {
           modalTitle.textContent = "Készség blokk szerkesztése";
           document.getElementById("editNodeTitle").value = skill.title;
-          catSelect.value = skill.category === "root" ? (sortedFilters[0]?.id || "miscellaneous") : skill.category;
+          catSelect.value = skill.category === "root" ? (sortedFilters[0]?.id || "general") : skill.category;
           document.getElementById("editNodeCategoryName").value = skill.categoryName;
           document.getElementById("editNodeIcon").value = skill.icon;
           document.getElementById("editNodeIconPreview").className = skill.icon;
@@ -1979,7 +2577,7 @@
       }
 
       /* ==========================================================================
-         KOMPETENCIA KERESŐ (TAB KÖRKÖRÖS LÉPTETÉS + ENTER LISTÁZÁS)
+         KOMPETENCIA KERESŐ (MINDEN MUNKACSOPORT ÖSSZES SKILLJE + KÖTŐJELES FORMÁTUM)
          ========================================================================== */
       function setupSkillSearchModal() {
         const openBtn = document.getElementById("openSkillSearchBtn");
@@ -1991,19 +2589,38 @@
         const resultsArea = document.getElementById("skillSearchResultsArea");
 
         function getAllSearchableItems() {
-          const skills = SKILLS_DATA.filter(s => s.id !== "root").map(s => ({
-            id: s.id,
-            title: s.title,
-            subtitle: `Készség • ${s.categoryName}`,
-            icon: s.icon
-          }));
-          const achvs = ACHIEVEMENTS_DATA.map(a => ({
-            id: a.id,
-            title: a.title,
-            subtitle: "Eredmény / Mérföldkő",
-            icon: a.icon
-          }));
-          return sortByHuAlpha([...skills, ...achvs], item => item.title || "");
+          const allItems = [];
+          ALL_TREES.forEach(tree => {
+            const tSkills = Array.isArray(tree.skills) ? tree.skills : [];
+            const tAchvs = Array.isArray(tree.achievements) ? tree.achievements : [];
+
+            tSkills.filter(s => s.id !== "root").forEach(s => {
+              allItems.push({
+                key: `${tree.id}::${s.id}`,
+                treeId: tree.id,
+                treeName: tree.name,
+                itemId: s.id,
+                title: s.title,
+                displayLabel: `${s.title} - ${tree.name}`,
+                subtitle: `Készség • ${s.categoryName}`,
+                icon: s.icon
+              });
+            });
+
+            tAchvs.forEach(a => {
+              allItems.push({
+                key: `${tree.id}::${a.id}`,
+                treeId: tree.id,
+                treeName: tree.name,
+                itemId: a.id,
+                title: a.title,
+                displayLabel: `${a.title} - ${tree.name}`,
+                subtitle: "Eredmény / Mérföldkő",
+                icon: a.icon
+              });
+            });
+          });
+          return sortByHuAlpha(allItems, item => item.displayLabel || "");
         }
 
         function updateActiveDropdownHighlight() {
@@ -2022,7 +2639,10 @@
           const items = getAllSearchableItems();
           const q = query.trim().toLowerCase();
           currentFilteredSearchItems = q
-            ? items.filter(it => it.title.toLowerCase().includes(q) || it.subtitle.toLowerCase().includes(q))
+            ? items.filter(it =>
+                it.displayLabel.toLowerCase().includes(q) ||
+                it.subtitle.toLowerCase().includes(q)
+              )
             : items;
 
           activeAutocompleteIndex = -1;
@@ -2040,13 +2660,13 @@
                   <i class="${item.icon}"></i>
                 </div>
                 <div class="min-w-0 flex-1">
-                  <div class="text-xs font-bold text-white truncate">${item.title}</div>
+                  <div class="text-xs font-bold text-white truncate">${item.displayLabel}</div>
                   <div class="text-[11px] text-slate-400 truncate">${item.subtitle}</div>
                 </div>
               `;
               row.onclick = () => {
-                input.value = item.title;
-                selectedSearchItemId = item.id;
+                input.value = item.displayLabel;
+                selectedSearchItemKey = item.key;
                 activeAutocompleteIndex = idx;
                 dropdown.classList.add("hidden");
               };
@@ -2062,13 +2682,13 @@
 
           if (activeAutocompleteIndex >= 0 && activeAutocompleteIndex < currentFilteredSearchItems.length) {
             chosen = currentFilteredSearchItems[activeAutocompleteIndex];
-          } else if (selectedSearchItemId) {
-            chosen = items.find(i => i.id === selectedSearchItemId);
+          } else if (selectedSearchItemKey) {
+            chosen = items.find(i => i.key === selectedSearchItemKey);
           }
 
           if (!chosen && input.value.trim()) {
             const q = input.value.trim().toLowerCase();
-            chosen = items.find(i => i.title.toLowerCase() === q) || items.find(i => i.title.toLowerCase().includes(q));
+            chosen = items.find(i => i.displayLabel.toLowerCase() === q) || items.find(i => i.displayLabel.toLowerCase().includes(q));
           }
 
           if (!chosen) {
@@ -2080,15 +2700,17 @@
             return;
           }
 
-          input.value = chosen.title;
-          selectedSearchItemId = chosen.id;
+          input.value = chosen.displayLabel;
+          selectedSearchItemKey = chosen.key;
           dropdown.classList.add("hidden");
 
+          // Csak az adott fához tartozó, a kompetenciával rendelkező személyek
           const holders = sortByHuAlpha(
             allProfiles.filter(p =>
               p.role !== "admin" &&
+              (p.tree_id || "structural") === chosen.treeId &&
               Array.isArray(p.unlocked_skills) &&
-              p.unlocked_skills.includes(chosen.id)
+              p.unlocked_skills.includes(chosen.itemId)
             ),
             p => p.full_name || ""
           );
@@ -2098,7 +2720,7 @@
               <div class="min-h-[240px] flex flex-col items-center justify-center p-6 bg-blueprint-900/80 border border-blueprint-line rounded-xl text-center space-y-1.5">
                 <i class="ph ph-users-three text-3xl text-slate-600"></i>
                 <div class="text-sm font-bold text-slate-300">Nincs találat</div>
-                <p class="text-xs text-slate-400">Jelenleg egyetlen munkatárs sem rendelkezik a(z) <strong class="text-cyan-300">${chosen.title}</strong> kompetenciával.</p>
+                <p class="text-xs text-slate-400">Jelenleg egyetlen munkatárs sem rendelkezik a(z) <strong class="text-cyan-300">${chosen.displayLabel}</strong> kompetenciával.</p>
               </div>
             `;
             return;
@@ -2113,7 +2735,7 @@
                     <i class="${isLead ? 'ph-bold ph-user-gear' : 'ph-bold ph-user'}"></i>
                   </div>
                   <div>
-                    <div class="text-sm font-bold text-white">${formatDisplayName(person)}</div>
+                    <div class="text-sm font-bold text-white">${formatSearchResultPersonName(person)}</div>
                   </div>
                 </div>
                 <span class="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[11px] font-bold flex items-center gap-1">
@@ -2126,7 +2748,7 @@
           resultsArea.innerHTML = `
             <div class="space-y-3">
               <div class="flex items-center justify-between text-xs text-slate-300 px-1 pb-1 border-b border-blueprint-line">
-                <span>Kiválasztott kompetencia: <strong class="text-cyan-300">${chosen.title}</strong></span>
+                <span>Kiválasztott kompetencia: <strong class="text-cyan-300">${chosen.displayLabel}</strong></span>
                 <span class="bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 px-2.5 py-0.5 rounded-full font-mono font-bold">${holders.length} fő</span>
               </div>
               <div class="space-y-2 max-h-[260px] overflow-y-auto pr-1">
@@ -2139,7 +2761,7 @@
         if (openBtn) {
           openBtn.onclick = () => {
             input.value = "";
-            selectedSearchItemId = null;
+            selectedSearchItemKey = null;
             activeAutocompleteIndex = -1;
             dropdown.classList.add("hidden");
             resultsArea.innerHTML = `
@@ -2164,7 +2786,7 @@
           input.addEventListener("focus", () => renderAutocomplete(input.value));
           input.addEventListener("click", () => renderAutocomplete(input.value));
           input.addEventListener("input", () => {
-            selectedSearchItemId = null;
+            selectedSearchItemKey = null;
             renderAutocomplete(input.value);
           });
 
@@ -2183,8 +2805,8 @@
                   activeAutocompleteIndex = (activeAutocompleteIndex + 1) % currentFilteredSearchItems.length;
                 }
                 const currentItem = currentFilteredSearchItems[activeAutocompleteIndex];
-                input.value = currentItem.title;
-                selectedSearchItemId = currentItem.id;
+                input.value = currentItem.displayLabel;
+                selectedSearchItemKey = currentItem.key;
                 updateActiveDropdownHighlight();
               }
             } else if (e.key === "ArrowDown") {
@@ -2193,8 +2815,8 @@
               if (currentFilteredSearchItems.length > 0) {
                 activeAutocompleteIndex = (activeAutocompleteIndex + 1) % currentFilteredSearchItems.length;
                 const currentItem = currentFilteredSearchItems[activeAutocompleteIndex];
-                input.value = currentItem.title;
-                selectedSearchItemId = currentItem.id;
+                input.value = currentItem.displayLabel;
+                selectedSearchItemKey = currentItem.key;
                 updateActiveDropdownHighlight();
               }
             } else if (e.key === "ArrowUp") {
@@ -2205,8 +2827,8 @@
                   ? currentFilteredSearchItems.length - 1
                   : activeAutocompleteIndex - 1;
                 const currentItem = currentFilteredSearchItems[activeAutocompleteIndex];
-                input.value = currentItem.title;
-                selectedSearchItemId = currentItem.id;
+                input.value = currentItem.displayLabel;
+                selectedSearchItemKey = currentItem.key;
                 updateActiveDropdownHighlight();
               }
             } else if (e.key === "Enter") {
@@ -2312,13 +2934,15 @@
 
         const canEditTarget =
           currentUserProfile.role === "admin" ||
-          (currentUserProfile.role === "team_lead" && profile.role === "user");
+          (currentUserProfile.role === "team_lead" &&
+            profile.role === "user" &&
+            (profile.tree_id || "structural") === (currentUserProfile.tree_id || "structural"));
 
         if (canEditTarget) {
           if (skill.id === "root") {
             actionArea.innerHTML = `
               <div class="p-3 bg-blueprint-900 border border-blueprint-line rounded-lg text-xs text-slate-400 text-center">
-                A <strong>Structural</strong> gyökér kompetencia minden profilnál alaptartozék, nem zárolható.
+                A gyökér kompetencia minden profilnál alaptartozék, nem zárolható.
               </div>
             `;
           } else if (isUnlocked) {
@@ -2529,10 +3153,18 @@
         const unlockedSet = new Set(profile.unlocked_skills || []);
         const canEditTarget =
           currentUserProfile.role === "admin" ||
-          (currentUserProfile.role === "team_lead" && profile.role === "user");
+          (currentUserProfile.role === "team_lead" &&
+            profile.role === "user" &&
+            (profile.tree_id || "structural") === (currentUserProfile.tree_id || "structural"));
 
+        const completedCount = ACHIEVEMENTS_DATA.filter(a => unlockedSet.has(a.id)).length;
         document.getElementById("achievementsModalSubtitle").textContent = 
-          `Munkatárs: ${formatDisplayName(profile)} (${(profile.unlocked_skills || []).filter(id => id.startsWith("achv_")).length} / ${ACHIEVEMENTS_DATA.length} teljesítve)`;
+          `Munkatárs: ${formatDisplayName(profile)} (${completedCount} / ${ACHIEVEMENTS_DATA.length} teljesítve)`;
+
+        if (ACHIEVEMENTS_DATA.length === 0) {
+          container.innerHTML = `<div class="p-6 text-center text-slate-400 text-xs border border-dashed border-blueprint-line rounded-xl">Ebben a munkacsoportban még nem lettek rögzítve eredmények.</div>`;
+          return;
+        }
 
         ACHIEVEMENTS_DATA.forEach(achv => {
           const isUnlocked = unlockedSet.has(achv.id);
@@ -2687,7 +3319,9 @@
             e.target.closest("#achievementsModal") ||
             e.target.closest("#skillSearchModal") ||
             e.target.closest("#nodeEditorModal") ||
-            e.target.closest("#filterManagerModal")
+            e.target.closest("#filterManagerModal") ||
+            e.target.closest("#achievementManagerModal") ||
+            e.target.closest("#createTreeModal")
           ) return;
 
           isDragging = true;
@@ -2829,7 +3463,9 @@
 
         if (openBtn) {
           openBtn.onclick = () => {
+            if (!canEditCurrentTree()) return;
             document.getElementById("adminUserForm").reset();
+            document.getElementById("adminNewUserTreeLabel").textContent = getTreeNameById(activeTreeId);
             alertBox.classList.add("hidden");
             modal.classList.remove("hidden");
           };
@@ -2862,7 +3498,8 @@
               p_admin_password: currentUserProfile.password,
               p_new_username: username,
               p_new_password: password,
-              p_new_fullname: fullName
+              p_new_fullname: fullName,
+              p_tree_id: activeTreeId
             });
 
             submitBtn.disabled = false;
@@ -2893,7 +3530,7 @@
         if (deleteBtn) {
           deleteBtn.onclick = async () => {
             const target = getActiveProfile();
-            if (!target) return;
+            if (!target || !canEditCurrentTree()) return;
 
             if (target.role === "admin" || target.username === "admin") {
               alert("Adminisztrátori profilt nem lehet törölni!");
@@ -2929,8 +3566,7 @@
               p_password: currentUserProfile.password
             });
             allProfiles = sortByHuAlpha(refreshed.data || [], p => p.full_name || "");
-            const nextProfile = allProfiles.find(p => p.role !== 'admin') || allProfiles[0];
-            activeViewingUserId = nextProfile ? nextProfile.id : currentUserProfile.id;
+            selectFirstValidUserForTree(activeTreeId);
             populateEngineerDropdown();
             renderTree();
             updateProgressStats();
