@@ -55,7 +55,7 @@
       -webkit-user-select: none;
     }
 
-    ::-webkit-scrollbar { width: 8px; height: 6px; }
+    ::-webkit-scrollbar { width: 8px; height: 5px; }
     ::-webkit-scrollbar-track { background: #0c182c; }
     ::-webkit-scrollbar-thumb { background: #1e3a6d; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #38bdf8; }
@@ -176,14 +176,14 @@
     </div>
   </header>
 
-  <!-- ==================== CONTROL & FILTER BAR (VÍZSZINTESEN GÖRGETHETŐ SZŰRŐKKEL) ==================== -->
+  <!-- ==================== CONTROL & FILTER BAR (KOMPAKT MAGASSÁG + SZÍNES IKONOK + GÖRGŐ) ==================== -->
   <div class="bg-blueprint-850/95 border-b border-blueprint-line px-3 md:px-5 py-2 flex items-center justify-between text-xs gap-3 z-20 shrink-0">
     <!-- Bal oldal: Görgethető dinamikus szűrők -->
     <div class="flex items-center gap-2 min-w-0 flex-1">
       <span class="text-slate-400 font-semibold hidden sm:flex items-center gap-1 shrink-0">
         <i class="ph ph-funnel"></i> Szűrés:
       </span>
-      <div id="filterButtonsContainer" class="flex items-center space-x-1.5 overflow-x-auto py-1 max-w-full">
+      <div id="filterButtonsContainer" class="flex items-center space-x-1.5 overflow-x-auto max-w-full">
         <!-- Dinamikusan generált szűrő gombok kerülnek ide -->
       </div>
     </div>
@@ -382,7 +382,7 @@
         </div>
 
         <div id="editNodeParentContainer">
-          <label class="block font-semibold text-slate-300 mb-1">Szülő elem (Előfeltétel / Újrakötés, ABC) *</label>
+          <label class="block font-semibold text-slate-300 mb-1">Szülő elem (Előfeltétel / Újrakötés) *</label>
           <select id="editNodeParentId" class="w-full bg-blueprint-900 border border-blueprint-line rounded-lg px-2.5 py-2 text-xs text-cyan-300 font-semibold focus:outline-none focus:border-amber-400">
           </select>
         </div>
@@ -433,31 +433,44 @@
       </div>
 
       <div class="p-6 space-y-5 overflow-y-auto flex-1 text-xs">
-        <!-- Új szűrő hozzáadása -->
-        <div class="bg-blueprint-900/90 border border-blueprint-line p-4 rounded-xl space-y-3">
+        <!-- Új szűrő hozzáadása (SÖTÉTKÉK INPUTOKKAL, JÓ KONTRASZTTAL) -->
+        <div class="bg-blueprint-800/70 border border-blueprint-line p-4 rounded-xl space-y-3">
           <div class="font-bold text-cyan-300 flex items-center gap-1.5">
             <i class="ph-bold ph-plus-circle"></i> Új szűrőág hozzáadása (lista végére kerül)
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="block text-slate-300 font-semibold mb-1">Megnevezés *</label>
-              <input type="text" id="newFilterLabel" class="w-full bg-blueprint-950 border border-blueprint-line rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400" placeholder="pl. Elektronika">
+              <label class="block text-slate-200 font-semibold mb-1">Megnevezés *</label>
+              <input type="text" id="newFilterLabel" class="w-full bg-blueprint-900 border border-blueprint-line rounded-lg px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400" placeholder="pl. Elektronika">
             </div>
             <div>
               <div class="flex items-center justify-between mb-1">
-                <label class="text-slate-300 font-semibold">Phosphor Ikon</label>
+                <label class="text-slate-200 font-semibold">Phosphor Ikon</label>
                 <a href="https://phosphoricons.com/" target="_blank" rel="noopener noreferrer" class="text-[11px] text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1 underline">
                   <i class="ph-bold ph-arrow-square-out"></i> Böngészés
                 </a>
               </div>
               <div class="flex gap-2">
-                <input type="text" id="newFilterIcon" value="ph ph-lightning" class="flex-1 bg-blueprint-950 border border-blueprint-line rounded-lg px-2.5 py-2 text-xs font-mono text-slate-200 focus:outline-none focus:border-cyan-400" placeholder="ph ph-lightning">
-                <div class="w-8 h-8 rounded-lg bg-blueprint-950 border border-blueprint-line flex items-center justify-center text-base text-cyan-400 shrink-0">
-                  <i id="newFilterIconPreview" class="ph ph-lightning"></i>
+                <input type="text" id="newFilterIcon" value="ph ph-lightning" class="flex-1 bg-blueprint-900 border border-blueprint-line rounded-lg px-2.5 py-2 text-xs font-mono text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400" placeholder="ph ph-lightning">
+                <div class="w-8 h-8 rounded-lg bg-blueprint-900 border border-blueprint-line flex items-center justify-center text-base shrink-0">
+                  <i id="newFilterIconPreview" class="ph ph-lightning text-cyan-400"></i>
                 </div>
               </div>
             </div>
           </div>
+
+          <div>
+            <label class="block text-slate-200 font-semibold mb-1">Ikon színe</label>
+            <select id="newFilterColor" class="w-full bg-blueprint-900 border border-blueprint-line rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400">
+              <option value="text-cyan-400">Ciánkék (Cyan)</option>
+              <option value="text-emerald-400">Zöld (Emerald)</option>
+              <option value="text-amber-400">Borostyán / Sárga (Amber)</option>
+              <option value="text-purple-400">Lila (Purple)</option>
+              <option value="text-rose-400">Rózsaszín / Piros (Rose)</option>
+              <option value="text-sky-400">Égszínkék (Sky)</option>
+            </select>
+          </div>
+
           <button type="button" id="addFilterBtn" class="w-full py-2 px-4 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold rounded-lg transition flex items-center justify-center gap-1.5">
             <i class="ph-bold ph-plus"></i> Szűrő hozzáadása
           </button>
@@ -492,7 +505,7 @@
           </div>
           <div>
             <h2 class="text-lg font-bold text-white">Kompetencia kereső</h2>
-            <p class="text-xs text-slate-400">Keress rá egy készségre vagy eredményre (ABC sorrend), és listázd a birtokosokat</p>
+            <p class="text-xs text-slate-400">Keress rá egy készségre vagy eredményre, és listázd a birtokosokat</p>
           </div>
         </div>
         <button id="closeSkillSearchBtn" class="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-blueprint-700 text-xl">
@@ -501,7 +514,7 @@
       </div>
 
       <div class="px-6 pt-5 pb-3 shrink-0 relative z-30">
-        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Készség vagy eredmény kiválasztása</label>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Készség vagy eredmény kiválasztása <span class="text-slate-500 font-normal">(Tab: léptetés, Enter: listázás)</span></label>
         <div class="flex gap-2.5">
           <div class="relative flex-1">
             <i class="ph ph-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-base"></i>
@@ -519,7 +532,7 @@
       <div id="skillSearchResultsArea" class="px-6 pb-6 pt-2 flex-1 overflow-y-auto z-10">
         <div class="h-full min-h-[260px] flex flex-col items-center justify-center text-center p-6 text-slate-500 text-xs border border-dashed border-blueprint-line rounded-xl bg-blueprint-900/40">
           <i class="ph ph-list-magnifying-glass text-4xl text-slate-600 mb-2"></i>
-          <p>Kattints a keresőmezőbe a teljes ABC-sorrendű lista megtekintéséhez, vagy gépelj a szűréshez,<br>majd nyomj a <strong class="text-cyan-400">Listázás</strong> gombra.</p>
+          <p>Kattints a keresőmezőbe a lista megtekintéséhez, gépelj a szűréshez, léptess a <strong class="text-cyan-400">Tab</strong> gombbal,<br>majd nyomj <strong class="text-cyan-400">Enter</strong>-t vagy kattints a <strong class="text-cyan-400">Listázás</strong> gombra.</p>
         </div>
       </div>
     </div>
@@ -683,16 +696,23 @@
         console.error("Supabase init error:", e);
       }
 
+      const DEFAULT_FILTER_COLORS = {
+        composite: "text-emerald-400",
+        metallic: "text-amber-400",
+        polymer: "text-purple-400",
+        miscellaneous: "text-cyan-400"
+      };
+
       const DEFAULT_FILTERS_DATA = [
-        { id: "composite", label: "Kompozit", icon: "ph ph-leaf" },
-        { id: "metallic", label: "Fémes", icon: "ph ph-gear" },
-        { id: "polymer", label: "Polimer", icon: "ph ph-dna" },
-        { id: "miscellaneous", label: "Egyéb", icon: "ph ph-package" }
+        { id: "composite", label: "Kompozit", icon: "ph ph-leaf", color: "text-emerald-400" },
+        { id: "metallic", label: "Fémes", icon: "ph ph-gear", color: "text-amber-400" },
+        { id: "polymer", label: "Polimer", icon: "ph ph-dna", color: "text-purple-400" },
+        { id: "miscellaneous", label: "Egyéb", icon: "ph ph-package", color: "text-cyan-400" }
       ];
 
       const DEFAULT_SKILLS_DATA = [
         { id: "root", title: "Structural", category: "root", categoryName: "Központi Gyökér", parentId: null, icon: "ph-bold ph-shield-chevron", desc: "Szerkezeti, mechanikai és gyártási kompetenciafa központi kiindulópontja.", x: 2450, y: 80 },
-        { id: "comp_theory", title: "Kompozit elméleti alapok", category: "composite", categoryName: "Kompozit Elmélet", parentId: "root", icon: "ph ph-stack-simple", desc: "Szál- és gyantarandzserek, anizotrópia, rétegrend alapismeretek.", x: 650, y: 260 },
+        { id: "comp_theory", title: "Kompozit elméleti alapok", category: "composite", categoryName: "Kompozit Elmélet", parentId: "root", icon: "ph ph-stack-simple", desc: "Szál- és gyantarendszerek, anizotrópia, rétegrend alapismeretek.", x: 650, y: 260 },
         { id: "metal_theory", title: "Fémes elméleti alapok", category: "metallic", categoryName: "Fémes Elmélet", parentId: "root", icon: "ph ph-atom", desc: "Kristályszerkezetek, fázisdiagramok, ötvözők, hőkezelések és szilárdságtan alapok.", x: 1800, y: 260 },
         { id: "poly_theory", title: "Polimer elméleti alapok", category: "polymer", categoryName: "Polimer Elmélet", parentId: "root", icon: "ph ph-dna", desc: "Hőre lágyuló és hőre keményedő polimerek, reológia és degradáció alapok.", x: 3050, y: 260 },
         { id: "miscellaneous", title: "Egyéb készségek", category: "miscellaneous", categoryName: "Nem anyagfüggő készségek", parentId: "root", icon: "ph ph-briefcase", desc: "Minden mérnöki készség, ami nem anyagfüggő.", x: 4240, y: 260 },
@@ -808,6 +828,8 @@
 
       // Kereső állapot
       let selectedSearchItemId = null;
+      let currentFilteredSearchItems = [];
+      let activeAutocompleteIndex = -1;
 
       function isManagerRole(role) {
         return role === "admin" || role === "team_lead";
@@ -825,6 +847,12 @@
         return [...arr].sort((a, b) => keyFn(a).localeCompare(keyFn(b), 'hu', { sensitivity: 'base' }));
       }
 
+      function getFilterColorClass(flt) {
+        if (flt.color) return flt.color;
+        if (DEFAULT_FILTER_COLORS[flt.id]) return DEFAULT_FILTER_COLORS[flt.id];
+        return "text-cyan-400";
+      }
+
       document.addEventListener("DOMContentLoaded", async () => {
         setupPanAndZoom();
         setupModalEvents();
@@ -839,7 +867,7 @@
       });
 
       /* ==========================================================================
-         DINAMIKUS SZŰRŐK MEGJELENÍTÉSE
+         DINAMIKUS SZŰRŐK MEGJELENÍTÉSE (KOMPAKT MAGASSÁG + SZÍNES IKONOK)
          ========================================================================== */
       function renderFilterButtons() {
         const container = document.getElementById("filterButtonsContainer");
@@ -848,7 +876,6 @@
         const listToRender = isEditMode ? draftFilters : FILTERS_DATA;
         container.innerHTML = "";
 
-        // "Összes ág" fixen az első helyen
         const allBtn = document.createElement("button");
         allBtn.dataset.filter = "all";
         allBtn.textContent = "Összes ág";
@@ -865,10 +892,11 @@
         listToRender.forEach(flt => {
           const btn = document.createElement("button");
           btn.dataset.filter = flt.id;
+          const colorCls = getFilterColorClass(flt);
           btn.className = activeFilter === flt.id
             ? "filter-btn px-3 py-1 rounded bg-cyan-500/20 border border-cyan-400 text-cyan-300 font-medium transition shrink-0 whitespace-nowrap flex items-center gap-1.5"
             : "filter-btn px-3 py-1 rounded bg-blueprint-800 hover:bg-blueprint-700 border border-blueprint-line text-slate-300 font-medium transition shrink-0 whitespace-nowrap flex items-center gap-1.5";
-          btn.innerHTML = `<i class="${flt.icon || 'ph ph-tag'}"></i><span>${flt.label}</span>`;
+          btn.innerHTML = `<i class="${flt.icon || 'ph ph-tag'} ${colorCls}"></i><span>${flt.label}</span>`;
           btn.onclick = () => {
             activeFilter = flt.id;
             renderFilterButtons();
@@ -886,7 +914,6 @@
         try {
           const { data, error } = await supabaseClient.rpc('get_skill_tree');
           if (!error && data) {
-            // Kompatibilitás régi (tömb) és új (objektum: {skills, filters}) formátummal
             const cloudSkills = Array.isArray(data) ? data : (data.skills || []);
             const cloudFilters = Array.isArray(data) ? [] : (data.filters || []);
 
@@ -894,7 +921,10 @@
               SKILLS_DATA = cloudSkills;
             }
             if (cloudFilters.length > 0) {
-              FILTERS_DATA = cloudFilters;
+              FILTERS_DATA = cloudFilters.map(f => ({
+                ...f,
+                color: getFilterColorClass(f)
+              }));
             }
 
             if (cloudSkills.length === 0 && currentUserProfile && isManagerRole(currentUserProfile.role)) {
@@ -1073,7 +1103,6 @@
         const target = getActiveProfile();
         if (!target) return;
 
-        // Rang gomb (CSAK ADMIN)
         if (toggleLeadBtn && toggleLeadText && currentUserProfile.role === "admin") {
           if (target.role === "admin") {
             toggleLeadBtn.classList.add("hidden");
@@ -1089,7 +1118,6 @@
           }
         }
 
-        // Törlés gomb láthatósága / letiltása (Munkacsoportvezető NE törölhessen másik munkacsoportvezetőt vagy saját magát!)
         if (deleteBtn) {
           const cannotDelete =
             target.role === "admin" ||
@@ -1169,7 +1197,6 @@
         if (!select) return;
         select.innerHTML = "";
 
-        // ABC sorrendben megjelenítés
         const sortedProfiles = sortByHuAlpha(allProfiles, p => p.full_name || "");
 
         sortedProfiles.forEach(p => {
@@ -1540,6 +1567,7 @@
         const filterDoneBtn = document.getElementById("filterManagerDoneBtn");
         const addFilterBtn = document.getElementById("addFilterBtn");
         const newFilterIconInput = document.getElementById("newFilterIcon");
+        const newFilterColorSelect = document.getElementById("newFilterColor");
         const newFilterIconPreview = document.getElementById("newFilterIconPreview");
 
         if (iconInput && iconPreview) {
@@ -1548,11 +1576,15 @@
           };
         }
 
-        if (newFilterIconInput && newFilterIconPreview) {
-          newFilterIconInput.oninput = () => {
-            newFilterIconPreview.className = newFilterIconInput.value.trim() || "ph ph-tag";
-          };
+        function updateNewFilterPreview() {
+          if (!newFilterIconPreview) return;
+          const ic = (newFilterIconInput?.value.trim() || "ph ph-lightning");
+          const col = (newFilterColorSelect?.value || "text-cyan-400");
+          newFilterIconPreview.className = `${ic} ${col}`;
         }
+
+        if (newFilterIconInput) newFilterIconInput.oninput = updateNewFilterPreview;
+        if (newFilterColorSelect) newFilterColorSelect.onchange = updateNewFilterPreview;
 
         function enterEditMode() {
           isEditMode = true;
@@ -1637,13 +1669,13 @@
           addFilterBtn.onclick = () => {
             const label = document.getElementById("newFilterLabel").value.trim();
             const icon = document.getElementById("newFilterIcon").value.trim() || "ph ph-tag";
+            const color = document.getElementById("newFilterColor").value || "text-cyan-400";
             if (!label) {
               alert("Kérlek add meg az új szűrő nevét!");
               return;
             }
             const id = "branch_" + Date.now();
-            // Automatikusan a legutolsó helyre kerül
-            draftFilters.push({ id, label, icon });
+            draftFilters.push({ id, label, icon, color });
             document.getElementById("newFilterLabel").value = "";
             renderFilterManagerList();
             renderFilterButtons();
@@ -1662,11 +1694,12 @@
             const isFirst = idx === 0;
             const isLast = idx === draftFilters.length - 1;
             const canDelete = draftFilters.length > 1;
+            const colorCls = getFilterColorClass(flt);
 
             row.innerHTML = `
               <div class="flex items-center gap-2.5 min-w-0 flex-1">
                 <span class="text-[11px] font-mono text-slate-500 w-5 text-center">${idx + 1}.</span>
-                <div class="w-8 h-8 rounded-lg bg-blueprint-850 border border-blueprint-line flex items-center justify-center text-cyan-400 text-base shrink-0">
+                <div class="w-8 h-8 rounded-lg bg-blueprint-850 border border-blueprint-line flex items-center justify-center ${colorCls} text-base shrink-0">
                   <i class="${flt.icon || 'ph ph-tag'}"></i>
                 </div>
                 <span class="font-bold text-white truncate">${flt.label}</span>
@@ -1757,7 +1790,6 @@
             } else {
               const parentObj = draftSkills.find(s => s.id === parentId) || draftSkills[0];
               const newId = "skill_" + Date.now();
-              // Ha új skill blokkot adunk hozzá, az előző türkiz jelölése megszűnik, és ez lesz a kiemelt
               newlyAddedNodeId = newId;
               draftSkills.push({
                 id: newId,
@@ -1867,7 +1899,6 @@
 
         editingNodeId = skill ? skill.id : null;
 
-        // Főágak legördülő ABC sorrendben
         catSelect.innerHTML = "";
         const sortedFilters = sortByHuAlpha(draftFilters, f => f.label || "");
         sortedFilters.forEach(flt => {
@@ -1877,7 +1908,6 @@
           catSelect.appendChild(opt);
         });
 
-        // Szülő legördülő ABC sorrendben (körkörös hivatkozás kizárásával!)
         parentSelect.innerHTML = "";
         const forbiddenParents = skill ? getDescendantIds(skill.id, draftSkills) : new Set();
 
@@ -1928,7 +1958,7 @@
       }
 
       /* ==========================================================================
-         KOMPETENCIA KERESŐ (ABC SORRENDBEN + BIRTOKOSOK LISTÁZÁSA)
+         KOMPETENCIA KERESŐ (TAB KÖRKÖRÖS LÉPTETÉS + ENTER LISTÁZÁS)
          ========================================================================== */
       function setupSkillSearchModal() {
         const openBtn = document.getElementById("openSkillSearchBtn");
@@ -1952,23 +1982,37 @@
             subtitle: "Eredmény / Mérföldkő",
             icon: a.icon
           }));
-          // Magyar ABC-sorrendben!
           return sortByHuAlpha([...skills, ...achvs], item => item.title || "");
+        }
+
+        function updateActiveDropdownHighlight() {
+          const rows = dropdown.querySelectorAll("[data-item-index]");
+          rows.forEach((row, idx) => {
+            if (idx === activeAutocompleteIndex) {
+              row.classList.add("bg-cyan-500/20", "border-l-4", "border-cyan-400");
+              row.scrollIntoView({ block: "nearest" });
+            } else {
+              row.classList.remove("bg-cyan-500/20", "border-l-4", "border-cyan-400");
+            }
+          });
         }
 
         function renderAutocomplete(query) {
           const items = getAllSearchableItems();
           const q = query.trim().toLowerCase();
-          const filtered = q
+          currentFilteredSearchItems = q
             ? items.filter(it => it.title.toLowerCase().includes(q) || it.subtitle.toLowerCase().includes(q))
             : items;
 
+          activeAutocompleteIndex = -1;
           dropdown.innerHTML = "";
-          if (filtered.length === 0) {
+
+          if (currentFilteredSearchItems.length === 0) {
             dropdown.innerHTML = `<div class="p-4 text-xs text-slate-400 text-center">Nincs találat erre a kifejezésre.</div>`;
           } else {
-            filtered.forEach(item => {
+            currentFilteredSearchItems.forEach((item, idx) => {
               const row = document.createElement("div");
+              row.dataset.itemIndex = String(idx);
               row.className = "px-4 py-2.5 hover:bg-blueprint-800 cursor-pointer flex items-center gap-3 transition";
               row.innerHTML = `
                 <div class="w-8 h-8 rounded-lg bg-blueprint-900 border border-blueprint-line flex items-center justify-center text-cyan-400 text-base shrink-0">
@@ -1982,6 +2026,7 @@
               row.onclick = () => {
                 input.value = item.title;
                 selectedSearchItemId = item.id;
+                activeAutocompleteIndex = idx;
                 dropdown.classList.add("hidden");
               };
               dropdown.appendChild(row);
@@ -1990,15 +2035,96 @@
           dropdown.classList.remove("hidden");
         }
 
+        function executeListing() {
+          const items = getAllSearchableItems();
+          let chosen = null;
+
+          if (activeAutocompleteIndex >= 0 && activeAutocompleteIndex < currentFilteredSearchItems.length) {
+            chosen = currentFilteredSearchItems[activeAutocompleteIndex];
+          } else if (selectedSearchItemId) {
+            chosen = items.find(i => i.id === selectedSearchItemId);
+          }
+
+          if (!chosen && input.value.trim()) {
+            const q = input.value.trim().toLowerCase();
+            chosen = items.find(i => i.title.toLowerCase() === q) || items.find(i => i.title.toLowerCase().includes(q));
+          }
+
+          if (!chosen) {
+            resultsArea.innerHTML = `
+              <div class="p-4 bg-rose-500/15 border border-rose-500/40 rounded-xl text-xs text-rose-300 text-center font-semibold">
+                Kérlek válassz ki egy létező készséget vagy eredményt a listából!
+              </div>
+            `;
+            return;
+          }
+
+          input.value = chosen.title;
+          selectedSearchItemId = chosen.id;
+          dropdown.classList.add("hidden");
+
+          const holders = sortByHuAlpha(
+            allProfiles.filter(p =>
+              p.role !== "admin" &&
+              Array.isArray(p.unlocked_skills) &&
+              p.unlocked_skills.includes(chosen.id)
+            ),
+            p => p.full_name || ""
+          );
+
+          if (holders.length === 0) {
+            resultsArea.innerHTML = `
+              <div class="min-h-[240px] flex flex-col items-center justify-center p-6 bg-blueprint-900/80 border border-blueprint-line rounded-xl text-center space-y-1.5">
+                <i class="ph ph-users-three text-3xl text-slate-600"></i>
+                <div class="text-sm font-bold text-slate-300">Nincs találat</div>
+                <p class="text-xs text-slate-400">Jelenleg egyetlen munkatárs sem rendelkezik a(z) <strong class="text-cyan-300">${chosen.title}</strong> kompetenciával.</p>
+              </div>
+            `;
+            return;
+          }
+
+          const listHtml = holders.map(person => {
+            const isLead = person.role === "team_lead";
+            return `
+              <div class="p-3.5 bg-blueprint-900 border border-blueprint-line rounded-xl flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-lg ${isLead ? 'bg-indigo-500/20 text-indigo-300 border-indigo-400/40' : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'} border flex items-center justify-center font-bold text-base">
+                    <i class="${isLead ? 'ph-bold ph-user-gear' : 'ph-bold ph-user'}"></i>
+                  </div>
+                  <div>
+                    <div class="text-sm font-bold text-white">${formatDisplayName(person)}</div>
+                  </div>
+                </div>
+                <span class="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[11px] font-bold flex items-center gap-1">
+                  <i class="ph-bold ph-check"></i> Rendelkezik vele
+                </span>
+              </div>
+            `;
+          }).join("");
+
+          resultsArea.innerHTML = `
+            <div class="space-y-3">
+              <div class="flex items-center justify-between text-xs text-slate-300 px-1 pb-1 border-b border-blueprint-line">
+                <span>Kiválasztott kompetencia: <strong class="text-cyan-300">${chosen.title}</strong></span>
+                <span class="bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 px-2.5 py-0.5 rounded-full font-mono font-bold">${holders.length} fő</span>
+              </div>
+              <div class="space-y-2 max-h-[260px] overflow-y-auto pr-1">
+                ${listHtml}
+              </div>
+            </div>
+          `;
+        }
+
         if (openBtn) {
           openBtn.onclick = () => {
             input.value = "";
             selectedSearchItemId = null;
+            activeAutocompleteIndex = -1;
             dropdown.classList.add("hidden");
             resultsArea.innerHTML = `
               <div class="h-full min-h-[260px] flex flex-col items-center justify-center text-center p-6 text-slate-500 text-xs border border-dashed border-blueprint-line rounded-xl bg-blueprint-900/40">
                 <i class="ph ph-list-magnifying-glass text-4xl text-slate-600 mb-2"></i>
-                <p>Kattints a keresőmezőbe a teljes ABC-sorrendű lista megtekintéséhez, vagy gépelj a szűréshez,<br>majd nyomj a <strong class="text-cyan-400">Listázás</strong> gombra.</p>
+                <p>Kattints a keresőmezőbe a lista megtekintéséhez, gépelj a szűréshez, léptess a <strong class="text-cyan-400">Tab</strong> gombbal,<br>majd nyomj <strong class="text-cyan-400">Enter</strong>-t vagy kattints a <strong class="text-cyan-400">Listázás</strong> gombra.</p>
               </div>
             `;
             modal.classList.remove("hidden");
@@ -2020,6 +2146,55 @@
             selectedSearchItemId = null;
             renderAutocomplete(input.value);
           });
+
+          input.addEventListener("keydown", (e) => {
+            if (e.key === "Tab") {
+              e.preventDefault();
+              if (dropdown.classList.contains("hidden")) {
+                renderAutocomplete(input.value);
+              }
+              if (currentFilteredSearchItems.length > 0) {
+                if (e.shiftKey) {
+                  activeAutocompleteIndex = activeAutocompleteIndex <= 0
+                    ? currentFilteredSearchItems.length - 1
+                    : activeAutocompleteIndex - 1;
+                } else {
+                  activeAutocompleteIndex = (activeAutocompleteIndex + 1) % currentFilteredSearchItems.length;
+                }
+                const currentItem = currentFilteredSearchItems[activeAutocompleteIndex];
+                input.value = currentItem.title;
+                selectedSearchItemId = currentItem.id;
+                updateActiveDropdownHighlight();
+              }
+            } else if (e.key === "ArrowDown") {
+              e.preventDefault();
+              if (dropdown.classList.contains("hidden")) renderAutocomplete(input.value);
+              if (currentFilteredSearchItems.length > 0) {
+                activeAutocompleteIndex = (activeAutocompleteIndex + 1) % currentFilteredSearchItems.length;
+                const currentItem = currentFilteredSearchItems[activeAutocompleteIndex];
+                input.value = currentItem.title;
+                selectedSearchItemId = currentItem.id;
+                updateActiveDropdownHighlight();
+              }
+            } else if (e.key === "ArrowUp") {
+              e.preventDefault();
+              if (dropdown.classList.contains("hidden")) renderAutocomplete(input.value);
+              if (currentFilteredSearchItems.length > 0) {
+                activeAutocompleteIndex = activeAutocompleteIndex <= 0
+                  ? currentFilteredSearchItems.length - 1
+                  : activeAutocompleteIndex - 1;
+                const currentItem = currentFilteredSearchItems[activeAutocompleteIndex];
+                input.value = currentItem.title;
+                selectedSearchItemId = currentItem.id;
+                updateActiveDropdownHighlight();
+              }
+            } else if (e.key === "Enter") {
+              e.preventDefault();
+              executeListing();
+            } else if (e.key === "Escape") {
+              dropdown.classList.add("hidden");
+            }
+          });
         }
 
         document.addEventListener("click", (e) => {
@@ -2029,78 +2204,7 @@
         });
 
         if (listBtn) {
-          listBtn.onclick = () => {
-            const items = getAllSearchableItems();
-            let chosen = items.find(i => i.id === selectedSearchItemId);
-            if (!chosen && input.value.trim()) {
-              const q = input.value.trim().toLowerCase();
-              chosen = items.find(i => i.title.toLowerCase() === q) || items.find(i => i.title.toLowerCase().includes(q));
-            }
-
-            if (!chosen) {
-              resultsArea.innerHTML = `
-                <div class="p-4 bg-rose-500/15 border border-rose-500/40 rounded-xl text-xs text-rose-300 text-center font-semibold">
-                  Kérlek válassz ki egy létező készséget vagy eredményt a listából!
-                </div>
-              `;
-              return;
-            }
-
-            input.value = chosen.title;
-            selectedSearchItemId = chosen.id;
-            dropdown.classList.add("hidden");
-
-            const holders = sortByHuAlpha(
-              allProfiles.filter(p =>
-                p.role !== "admin" &&
-                Array.isArray(p.unlocked_skills) &&
-                p.unlocked_skills.includes(chosen.id)
-              ),
-              p => p.full_name || ""
-            );
-
-            if (holders.length === 0) {
-              resultsArea.innerHTML = `
-                <div class="min-h-[240px] flex flex-col items-center justify-center p-6 bg-blueprint-900/80 border border-blueprint-line rounded-xl text-center space-y-1.5">
-                  <i class="ph ph-users-three text-3xl text-slate-600"></i>
-                  <div class="text-sm font-bold text-slate-300">Nincs találat</div>
-                  <p class="text-xs text-slate-400">Jelenleg egyetlen munkatárs sem rendelkezik a(z) <strong class="text-cyan-300">${chosen.title}</strong> kompetenciával.</p>
-                </div>
-              `;
-              return;
-            }
-
-            const listHtml = holders.map(person => {
-              const isLead = person.role === "team_lead";
-              return `
-                <div class="p-3.5 bg-blueprint-900 border border-blueprint-line rounded-xl flex items-center justify-between gap-3">
-                  <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg ${isLead ? 'bg-indigo-500/20 text-indigo-300 border-indigo-400/40' : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'} border flex items-center justify-center font-bold text-base">
-                      <i class="${isLead ? 'ph-bold ph-user-gear' : 'ph-bold ph-user'}"></i>
-                    </div>
-                    <div>
-                      <div class="text-sm font-bold text-white">${formatDisplayName(person)}</div>
-                    </div>
-                  </div>
-                  <span class="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[11px] font-bold flex items-center gap-1">
-                    <i class="ph-bold ph-check"></i> Rendelkezik vele
-                  </span>
-                </div>
-              `;
-            }).join("");
-
-            resultsArea.innerHTML = `
-              <div class="space-y-3">
-                <div class="flex items-center justify-between text-xs text-slate-300 px-1 pb-1 border-b border-blueprint-line">
-                  <span>Kiválasztott kompetencia: <strong class="text-cyan-300">${chosen.title}</strong></span>
-                  <span class="bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 px-2.5 py-0.5 rounded-full font-mono font-bold">${holders.length} fő</span>
-                </div>
-                <div class="space-y-2 max-h-[260px] overflow-y-auto pr-1">
-                  ${listHtml}
-                </div>
-              </div>
-            `;
-          };
+          listBtn.onclick = executeListing;
         }
       }
 
